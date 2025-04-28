@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FaPlay, FaCalendarAlt, FaClock, FaFilm, FaUser, FaStar, FaShare, FaFacebook, FaTwitter, FaPinterest, FaMapMarkerAlt, FaLanguage, FaTicketAlt, FaArrowLeft, FaRobot, FaChartLine } from 'react-icons/fa';
 import { movieService } from '../services/api';
-import SimilarMovies from '../components/recommendations/SimilarMovies';
-import SentimentAnalysis from '../components/ai/SentimentAnalysis';
-import MovieTrendPrediction from '../components/analytics/MovieTrendPrediction';
 
 const MovieDetailsPage = () => {
   const { id } = useParams();
@@ -181,7 +178,16 @@ const MovieDetailsPage = () => {
                     <span>{movie.duration} min</span>
                   </div>
                 )}
-                {movie.genres && movie.genres.length > 0 && (
+                {movie.genre && movie.genre.length > 0 ? (
+                  <div className="flex items-center flex-wrap gap-2">
+                    <FaFilm className="mr-2 text-primary" />
+                    {movie.genre.map((genre, index) => (
+                      <span key={index} className="bg-gray-800 px-2 py-1 rounded text-sm">
+                        {typeof genre === 'string' ? genre : genre.name}
+                      </span>
+                    ))}
+                  </div>
+                ) : movie.genres && movie.genres.length > 0 ? (
                   <div className="flex items-center flex-wrap gap-2">
                     <FaFilm className="mr-2 text-primary" />
                     {movie.genres.map((genre, index) => (
@@ -190,7 +196,7 @@ const MovieDetailsPage = () => {
                       </span>
                     ))}
                   </div>
-                )}
+                ) : null}
               </div>
 
               <div className="bg-gray-800/50 p-4 rounded-lg mb-6 backdrop-blur-sm">
@@ -284,7 +290,18 @@ const MovieDetailsPage = () => {
                       </div>
                     )}
 
-                    {movie.genres && movie.genres.length > 0 && (
+                    {movie.genre && movie.genre.length > 0 ? (
+                      <div className="bg-gray-800/50 p-3 rounded-lg">
+                        <h4 className="font-semibold text-primary mb-2">Genres:</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {movie.genre.map((genre, idx) => (
+                            <span key={idx} className="bg-gray-700 text-white px-2 py-1 rounded-md text-sm">
+                              {typeof genre === 'string' ? genre : genre.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : movie.genres && movie.genres.length > 0 ? (
                       <div className="bg-gray-800/50 p-3 rounded-lg">
                         <h4 className="font-semibold text-primary mb-2">Genres:</h4>
                         <div className="flex flex-wrap gap-2">
@@ -295,7 +312,7 @@ const MovieDetailsPage = () => {
                           ))}
                         </div>
                       </div>
-                    )}
+                    ) : null}
                   </div>
 
                   <div className="space-y-4">
@@ -494,11 +511,10 @@ const MovieDetailsPage = () => {
               </div>
             </div>
 
-            {/* Right Column - AI-Powered Similar Movies */}
+            {/* Right Column - Similar Movies */}
             <div>
               <div className="flex items-center mb-6">
-                <h2 className="text-2xl font-bold mr-2">AI Insights</h2>
-                <FaRobot className="text-primary" />
+                <h2 className="text-2xl font-bold mr-2">More Info</h2>
                 <div className="ml-4 h-px bg-gradient-to-r from-primary to-transparent flex-grow"></div>
               </div>
 
@@ -507,34 +523,37 @@ const MovieDetailsPage = () => {
                 <h3 className="text-xl font-semibold mb-6 flex items-center">
                   <span className="inline-block w-1 h-6 bg-blue-500 mr-3"></span>
                   <span>Similar Movies</span>
-                  <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded-full">AI Powered</span>
                 </h3>
 
-                <SimilarMovies movieId={id} limit={3} />
+                <div className="text-center py-4 text-gray-400">
+                  Check out other movies in the {movie.genre && movie.genre.length > 0 ? movie.genre[0] : ''} genre
+                </div>
               </div>
 
-              {/* AI Sentiment Analysis */}
+              {/* Audience Sentiment */}
               {movie.reviews && movie.reviews.length > 0 && (
                 <div className="bg-secondary p-6 rounded-lg mb-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
                   <h3 className="text-xl font-semibold mb-4 flex items-center">
                     <span className="inline-block w-1 h-6 bg-green-500 mr-3"></span>
                     <span>Audience Sentiment</span>
-                    <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded-full">AI Powered</span>
                   </h3>
-                  <SentimentAnalysis reviews={movie.reviews} />
+                  <div className="text-center py-4 text-gray-400">
+                    Based on {movie.reviews.length} user reviews
+                  </div>
                 </div>
               )}
 
-              {/* AI Trend Prediction */}
+              {/* Box Office Info */}
               <div className="bg-secondary p-6 rounded-lg mb-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <h3 className="text-xl font-semibold mb-4 flex items-center">
                   <span className="inline-block w-1 h-6 bg-purple-500 mr-3"></span>
                   <FaChartLine className="mr-2 text-purple-500" />
-                  <span>Box Office Prediction</span>
-                  <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded-full">AI Powered</span>
+                  <span>Box Office Info</span>
                 </h3>
 
-                <MovieTrendPrediction movieId={id} />
+                <div className="text-center py-4 text-gray-400">
+                  {movie.status === 'Now Playing' ? 'Currently showing in theaters' : 'Coming soon to theaters'}
+                </div>
               </div>
 
               {/* Media Gallery */}
