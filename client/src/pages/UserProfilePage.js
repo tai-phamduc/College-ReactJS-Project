@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaUser, FaEnvelope, FaTicketAlt, FaCog, FaHistory, FaStar, FaEdit, FaRobot } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaTicketAlt, FaCog, FaHistory, FaStar, FaEdit, FaRobot, FaFilm } from 'react-icons/fa';
 import { authService, movieService } from '../services/api';
 import UserInsights from '../components/analytics/UserInsights';
 
@@ -19,68 +19,44 @@ const UserProfilePage = () => {
         // Get current user
         const currentUser = authService.getCurrentUser();
 
-        // In development mode, allow access without login for testing
-        if (!currentUser && process.env.NODE_ENV !== 'development') {
+        // Require login for profile page
+        if (!currentUser) {
           setError('You must be logged in to view this page');
           setLoading(false);
           return;
         }
 
-        // Use mock user data in development mode if not logged in
-        if (!currentUser && process.env.NODE_ENV === 'development') {
-          setUser({
-            _id: 'dev-user-id',
-            name: 'Development User',
-            email: 'dev@example.com',
-            role: 'User',
-            profilePicture: null
-          });
-        } else {
-          setUser(currentUser);
+        setUser(currentUser);
+
+        // Fetch user's bookings from the API
+        try {
+          const userBookings = await bookingService.getUserBookings();
+          // Sort bookings by date (most recent first)
+          const sortedBookings = userBookings.sort((a, b) =>
+            new Date(b.bookingDate || b.createdAt) - new Date(a.bookingDate || a.createdAt)
+          );
+          // Limit to the 2 most recent bookings for the profile page
+          setBookings(sortedBookings.slice(0, 2));
+        } catch (bookingError) {
+          console.error('Error fetching user bookings:', bookingError);
+          // Continue with empty bookings
+          setBookings([]);
         }
 
-        // In a real implementation, these would be API calls
-        // For now, we'll use mock data
-
-        // Mock bookings
-        setBookings([
-          {
-            _id: '1',
-            movie: { _id: '1', title: 'Inception', poster: 'https://example.com/inception.jpg' },
-            showtime: { date: '2023-11-15T19:00:00Z', theater: { name: 'Cinema City' } },
-            seats: ['A1', 'A2'],
-            totalAmount: 25,
-            createdAt: '2023-11-10T14:30:00Z'
-          },
-          {
-            _id: '2',
-            movie: { _id: '3', title: 'The Dark Knight', poster: 'https://example.com/dark-knight.jpg' },
-            showtime: { date: '2023-11-20T20:30:00Z', theater: { name: 'Starlight Cinema' } },
-            seats: ['B5', 'B6'],
-            totalAmount: 30,
-            createdAt: '2023-11-18T10:15:00Z'
-          }
-        ]);
-
-        // Mock reviews
-        setReviews([
-          {
-            _id: '1',
-            movie: { _id: '1', title: 'Inception', poster: 'https://example.com/inception.jpg' },
-            rating: 4.5,
-            title: 'Mind-blowing experience',
-            comment: 'One of the best movies I\'ve ever seen. The concept is brilliant and the execution is flawless.',
-            createdAt: '2023-11-12T09:45:00Z'
-          },
-          {
-            _id: '2',
-            movie: { _id: '3', title: 'The Dark Knight', poster: 'https://example.com/dark-knight.jpg' },
-            rating: 5,
-            title: 'A masterpiece',
-            comment: 'Heath Ledger\'s performance as the Joker is legendary. This movie redefined superhero films.',
-            createdAt: '2023-11-22T16:20:00Z'
-          }
-        ]);
+        // Fetch user's reviews from the API
+        try {
+          const userReviews = await movieService.getUserReviews(currentUser._id);
+          // Sort reviews by date (most recent first)
+          const sortedReviews = userReviews.sort((a, b) =>
+            new Date(b.createdAt) - new Date(a.createdAt)
+          );
+          // Limit to the 2 most recent reviews for the profile page
+          setReviews(sortedReviews.slice(0, 2));
+        } catch (reviewError) {
+          console.error('Error fetching user reviews:', reviewError);
+          // Continue with empty reviews
+          setReviews([]);
+        }
 
         setLoading(false);
       } catch (err) {
@@ -221,28 +197,41 @@ const UserProfilePage = () => {
                       <div key={booking._id} className="bg-gray-800 p-4 rounded-lg">
                         <div className="flex items-center">
                           <div className="w-16 h-24 bg-gray-700 rounded mr-4">
-                            {booking.movie.poster && (
+                            {booking.moviePoster || (booking.movieDetails && booking.movieDetails.poster) ? (
                               <img
-                                src={booking.movie.poster}
-                                alt={booking.movie.title}
+                                src={booking.moviePoster || (booking.movieDetails && booking.movieDetails.poster)}
+                                alt={booking.movieTitle || (booking.movieDetails && booking.movieDetails.title)}
                                 className="w-full h-full object-cover rounded"
                               />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gray-700 text-gray-500">
+                                No Image
+                              </div>
                             )}
                           </div>
                           <div>
-                            <h5 className="font-semibold">{booking.movie.title}</h5>
+                            <h5 className="font-semibold">
+                              {booking.movieTitle || (booking.movieDetails && booking.movieDetails.title) || 'Unknown Movie'}
+                            </h5>
                             <p className="text-sm text-gray-400">
-                              {new Date(booking.showtime.date).toLocaleDateString('en-US', {
+                              {booking.showtimeDate ? new Date(booking.showtimeDate).toLocaleDateString('en-US', {
                                 year: 'numeric',
                                 month: 'short',
                                 day: 'numeric',
-                              })} at {new Date(booking.showtime.date).toLocaleTimeString('en-US', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
+                              }) : (booking.showtimeDetails && booking.showtimeDetails.date)}
+                              {booking.showtimeDisplay || (booking.showtimeDetails && booking.showtimeDetails.time) ?
+                                ` at ${booking.showtimeDisplay || (booking.showtimeDetails && booking.showtimeDetails.time)}` :
+                                booking.showtimeDate ? ` at ${new Date(booking.showtimeDate).toLocaleTimeString('en-US', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}` : ''}
                             </p>
-                            <p className="text-sm text-gray-400">{booking.showtime.theater.name}</p>
-                            <p className="text-sm text-gray-400">Seats: {booking.seats.join(', ')}</p>
+                            <p className="text-sm text-gray-400">
+                              {booking.theaterName || (booking.theaterDetails && booking.theaterDetails.name) || 'Unknown Theater'}
+                            </p>
+                            <p className="text-sm text-gray-400">
+                              Seats: {Array.isArray(booking.seats) ? booking.seats.join(', ') : 'Not specified'}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -268,16 +257,22 @@ const UserProfilePage = () => {
                       <div key={review._id} className="bg-gray-800 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <div className="w-12 h-16 bg-gray-700 rounded mr-4">
-                            {review.movie.poster && (
+                            {review.movie && review.movie.poster ? (
                               <img
                                 src={review.movie.poster}
                                 alt={review.movie.title}
                                 className="w-full h-full object-cover rounded"
                               />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gray-700 text-gray-500">
+                                <FaFilm size={16} />
+                              </div>
                             )}
                           </div>
                           <div>
-                            <h5 className="font-semibold">{review.movie.title}</h5>
+                            <h5 className="font-semibold">
+                              {review.movie ? review.movie.title : review.movieTitle || 'Unknown Movie'}
+                            </h5>
                             <div className="flex items-center">
                               {[1, 2, 3, 4, 5].map((star) => (
                                 <FaStar
@@ -292,14 +287,14 @@ const UserProfilePage = () => {
                             </div>
                           </div>
                         </div>
-                        <h6 className="font-semibold text-sm">{review.title}</h6>
-                        <p className="text-sm text-gray-300 mt-1">{review.comment}</p>
+                        <h6 className="font-semibold text-sm">{review.title || 'Review'}</h6>
+                        <p className="text-sm text-gray-300 mt-1">{review.comment || review.content || 'No comment provided'}</p>
                         <p className="text-xs text-gray-400 mt-2">
-                          {new Date(review.createdAt).toLocaleDateString('en-US', {
+                          {review.createdAt ? new Date(review.createdAt).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
-                          })}
+                          }) : 'Date not available'}
                         </p>
                       </div>
                     ))}
