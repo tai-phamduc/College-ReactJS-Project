@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FaArrowLeft, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaTicketAlt, FaCouch, FaMoneyBillWave } from 'react-icons/fa';
-import { movieService } from '../services/api';
+import { movieService, bookingService, authService } from '../services/api';
 
 const BookingPage = () => {
   const { id } = useParams();
@@ -14,6 +14,16 @@ const BookingPage = () => {
   const [selectedShowtime, setSelectedShowtime] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [step, setStep] = useState(1);
+  const [theaters, setTheaters] = useState([]);
+  const [showtimes, setShowtimes] = useState([]);
+  const [availableSeats, setAvailableSeats] = useState([]);
+  const [loadingTheaters, setLoadingTheaters] = useState(false);
+  const [loadingShowtimes, setLoadingShowtimes] = useState(false);
+  const [loadingSeats, setLoadingSeats] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [bookingError, setBookingError] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
   // Generate 7 days from today
   const generateDates = () => {
@@ -161,6 +171,10 @@ const BookingPage = () => {
   const seatMap = generateSeatMap();
 
   useEffect(() => {
+    // Check if user is logged in
+    const user = authService.getCurrentUser();
+    setCurrentUser(user);
+
     const fetchMovie = async () => {
       try {
         setLoading(true);
@@ -176,6 +190,78 @@ const BookingPage = () => {
 
     fetchMovie();
   }, [id]);
+
+  // Fetch theaters when a date is selected
+  useEffect(() => {
+    if (!selectedDate) return;
+
+    const fetchTheaters = async () => {
+      try {
+        setLoadingTheaters(true);
+        // In a real implementation, you would fetch theaters based on the movie and date
+        // For now, we'll use the sample theaters data
+        const response = await fetch('https://movie-ticket-booking-api.vercel.app/api/theaters');
+        const data = await response.json();
+        setTheaters(data);
+        setLoadingTheaters(false);
+      } catch (err) {
+        console.error('Error fetching theaters:', err);
+        setTheaters([]);
+        setLoadingTheaters(false);
+      }
+    };
+
+    fetchTheaters();
+  }, [selectedDate]);
+
+  // Fetch showtimes when a theater is selected
+  useEffect(() => {
+    if (!selectedTheater || !selectedDate) return;
+
+    const fetchShowtimes = async () => {
+      try {
+        setLoadingShowtimes(true);
+        // In a real implementation, you would fetch showtimes based on the movie, date, and theater
+        // For now, we'll use the sample showtimes data
+        const formattedDate = selectedDate.date.toISOString().split('T')[0];
+        const response = await fetch(`https://movie-ticket-booking-api.vercel.app/api/showtimes?movieId=${id}&theaterId=${selectedTheater._id}&date=${formattedDate}`);
+        const data = await response.json();
+
+        // Format the showtimes for display
+        const formattedShowtimes = data.map(showtime => ({
+          id: showtime._id,
+          time: new Date(showtime.startTime).toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+          }),
+          format: showtime.format,
+          price: showtime.price || 12.99,
+          hall: showtime.hall,
+          startTime: showtime.startTime,
+          endTime: showtime.endTime,
+          seatsAvailable: showtime.seatsAvailable,
+          bookedSeats: showtime.bookedSeats || []
+        }));
+
+        setShowtimes(formattedShowtimes);
+        setLoadingShowtimes(false);
+      } catch (err) {
+        console.error('Error fetching showtimes:', err);
+        // Fallback to sample data if API fails
+        setShowtimes([
+          { id: 1, time: '10:00 AM', format: '2D', price: 12.99, hall: 'Hall 1' },
+          { id: 2, time: '1:00 PM', format: '2D', price: 12.99, hall: 'Hall 2' },
+          { id: 3, time: '4:00 PM', format: '4DX', price: 17.99, hall: '4DX' },
+          { id: 4, time: '7:00 PM', format: '3D', price: 14.99, hall: 'Hall 3' },
+          { id: 5, time: '10:00 PM', format: '4DX', price: 19.99, hall: '4DX' }
+        ]);
+        setLoadingShowtimes(false);
+      }
+    };
+
+    fetchShowtimes();
+  }, [id, selectedTheater, selectedDate]);
 
   const handleDateSelect = (date) => {
     setSelectedDate(date);
@@ -209,15 +295,52 @@ const BookingPage = () => {
     }
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (step === 1 && selectedShowtime) {
       setStep(2);
     } else if (step === 2 && selectedSeats.length > 0) {
       setStep(3);
     } else if (step === 3) {
-      // Submit booking
-      alert('Booking successful! This is a demo implementation.');
-      navigate(`/movies/${id}`);
+      // Check if user is logged in
+      if (!currentUser) {
+        // Redirect to login page with return URL
+        navigate(`/login?redirect=/booking/${id}`);
+        return;
+      }
+
+      try {
+        setPaymentProcessing(true);
+        setBookingError(null);
+
+        // Calculate total price
+        const totals = calculateTotal();
+
+        // Create booking object
+        const bookingData = {
+          movieId: id,
+          showtimeId: selectedShowtime.id,
+          seats: selectedSeats.map(seat => seat.id),
+          totalPrice: parseFloat(totals.total),
+          paymentMethod: 'credit_card', // Default to credit card
+          paymentStatus: 'completed', // For demo purposes
+          bookingStatus: 'confirmed', // For demo purposes
+        };
+
+        // Submit booking to API
+        const response = await bookingService.createBooking(bookingData);
+
+        setPaymentProcessing(false);
+        setBookingSuccess(true);
+
+        // Show success message and redirect after a delay
+        setTimeout(() => {
+          navigate('/my-tickets');
+        }, 3000);
+      } catch (err) {
+        console.error('Error creating booking:', err);
+        setPaymentProcessing(false);
+        setBookingError('Failed to process your booking. Please try again.');
+      }
     }
   };
 
@@ -374,50 +497,80 @@ const BookingPage = () => {
               {selectedDate && (
                 <>
                   <h3 className="text-xl font-semibold mb-4">Select Theater</h3>
-                  <div className="space-y-4 mb-8">
-                    {theaters.map(theater => (
-                      <button
-                        key={theater.id}
-                        className={`w-full p-4 rounded-lg border ${selectedTheater?.id === theater.id ? 'border-primary bg-primary bg-opacity-20' : 'border-gray-700'} hover:border-primary transition-colors text-left`}
-                        onClick={() => handleTheaterSelect(theater)}
-                      >
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <h4 className="font-semibold">{theater.name}</h4>
-                            <div className="flex items-center text-gray-400 text-sm mt-1">
-                              <FaMapMarkerAlt className="mr-1" />
-                              <span>{theater.location}</span>
+
+                  {loadingTheaters ? (
+                    <div className="flex justify-center items-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                    </div>
+                  ) : theaters.length === 0 ? (
+                    <div className="bg-gray-800 p-6 rounded-lg text-center mb-8">
+                      <p className="text-gray-400">No theaters available for this date. Please select another date.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 mb-8">
+                      {theaters.map(theater => (
+                        <button
+                          key={theater._id}
+                          className={`w-full p-4 rounded-lg border ${selectedTheater?._id === theater._id ? 'border-primary bg-primary bg-opacity-20' : 'border-gray-700'} hover:border-primary transition-colors text-left`}
+                          onClick={() => handleTheaterSelect(theater)}
+                        >
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <h4 className="font-semibold">{theater.name}</h4>
+                              <div className="flex items-center text-gray-400 text-sm mt-1">
+                                <FaMapMarkerAlt className="mr-1" />
+                                <span>{theater.location}</span>
+                              </div>
                             </div>
+                            <span className="text-gray-400 text-sm">{theater.distance || ''}</span>
                           </div>
-                          <span className="text-gray-400 text-sm">{theater.distance}</span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </>
               )}
 
               {selectedTheater && (
                 <>
                   <h3 className="text-xl font-semibold mb-4">Select Showtime</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8">
-                    {showtimes.map(showtime => (
-                      <button
-                        key={showtime.id}
-                        className={`p-3 rounded-lg border ${selectedShowtime?.id === showtime.id ? 'border-primary bg-primary bg-opacity-20' : 'border-gray-700'} hover:border-primary transition-colors`}
-                        onClick={() => handleShowtimeSelect(showtime)}
-                      >
-                        <div className="flex flex-col items-center">
-                          <span className="font-semibold mb-1">{showtime.time}</span>
-                          <div className="flex items-center gap-1 mb-1">
-                            <span className="text-xs px-1.5 py-0.5 bg-gray-700 rounded">{showtime.format}</span>
-                            <span className="text-xs px-1.5 py-0.5 bg-gray-700 rounded">{showtime.hall}</span>
+
+                  {loadingShowtimes ? (
+                    <div className="flex justify-center items-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                    </div>
+                  ) : showtimes.length === 0 ? (
+                    <div className="bg-gray-800 p-6 rounded-lg text-center mb-8">
+                      <p className="text-gray-400">No showtimes available for this date and theater. Please select another date or theater.</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8">
+                      {showtimes.map(showtime => (
+                        <button
+                          key={showtime.id}
+                          className={`p-3 rounded-lg border ${selectedShowtime?.id === showtime.id ? 'border-primary bg-primary bg-opacity-20' : 'border-gray-700'} hover:border-primary transition-colors`}
+                          onClick={() => handleShowtimeSelect(showtime)}
+                          disabled={showtime.seatsAvailable === 0}
+                        >
+                          <div className="flex flex-col items-center">
+                            <span className="font-semibold mb-1">{showtime.time}</span>
+                            <div className="flex items-center gap-1 mb-1">
+                              <span className="text-xs px-1.5 py-0.5 bg-gray-700 rounded">{showtime.format}</span>
+                              <span className="text-xs px-1.5 py-0.5 bg-gray-700 rounded">{showtime.hall}</span>
+                            </div>
+                            <span className="text-sm">${showtime.price.toFixed(2)}</span>
+                            {showtime.seatsAvailable !== undefined && (
+                              <span className={`text-xs mt-1 ${showtime.seatsAvailable < 10 ? 'text-red-400' : 'text-gray-400'}`}>
+                                {showtime.seatsAvailable === 0 ? 'Sold Out' :
+                                 showtime.seatsAvailable < 10 ? `${showtime.seatsAvailable} seats left` :
+                                 'Available'}
+                              </span>
+                            )}
                           </div>
-                          <span className="text-sm">${showtime.price}</span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </>
               )}
             </div>
@@ -784,23 +937,61 @@ const BookingPage = () => {
             </div>
           )}
 
+          {/* Success Message */}
+          {bookingSuccess && (
+            <div className="bg-green-900/50 border border-green-500 p-6 rounded-lg mb-6 text-center">
+              <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Booking Successful!</h3>
+              <p className="text-gray-300 mb-4">Your tickets have been booked successfully. You will be redirected to your tickets page shortly.</p>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {bookingError && (
+            <div className="bg-red-900/50 border border-red-500 p-6 rounded-lg mb-6">
+              <h3 className="text-xl font-bold mb-2">Booking Failed</h3>
+              <p className="text-gray-300 mb-4">{bookingError}</p>
+            </div>
+          )}
+
           <div className="flex justify-between mt-8">
             <button
               onClick={handleBack}
               className="btn btn-secondary"
+              disabled={paymentProcessing || bookingSuccess}
             >
               {step === 1 ? 'Cancel' : 'Back'}
             </button>
             <button
               onClick={handleContinue}
-              disabled={(step === 1 && !selectedShowtime) || (step === 2 && selectedSeats.length === 0)}
+              disabled={
+                (step === 1 && !selectedShowtime) ||
+                (step === 2 && selectedSeats.length === 0) ||
+                paymentProcessing ||
+                bookingSuccess
+              }
               className={`btn btn-primary ${
-                (step === 1 && !selectedShowtime) || (step === 2 && selectedSeats.length === 0)
+                (step === 1 && !selectedShowtime) ||
+                (step === 2 && selectedSeats.length === 0) ||
+                paymentProcessing ||
+                bookingSuccess
                   ? 'opacity-50 cursor-not-allowed'
                   : ''
               }`}
             >
-              {step === 3 ? 'Confirm Payment' : 'Continue'}
+              {paymentProcessing ? (
+                <span className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Processing...
+                </span>
+              ) : step === 3 ? 'Confirm Payment' : 'Continue'}
             </button>
           </div>
         </div>
