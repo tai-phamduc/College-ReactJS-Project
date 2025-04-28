@@ -255,39 +255,34 @@ const MoviesPage = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {filteredMovies.map((movie) => (
-                  <div key={movie._id} className="card movie-card bg-secondary rounded-lg overflow-hidden shadow-lg">
-                    <div className="aspect-[2/3] bg-gray-800 overflow-hidden">
-                      <img
-                        src={movie.poster}
-                        alt={movie.title}
-                        className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = 'https://via.placeholder.com/300x450?text=No+Image';
-                        }}
-                      />
+                  <div key={movie._id} className="card movie-card">
+                    <div className="aspect-[2/3] bg-light-gray overflow-hidden">
+                      <div
+                        className="movie-poster h-full w-full bg-cover bg-center"
+                        style={{ backgroundImage: `url(${movie.poster || 'https://via.placeholder.com/300x450?text=No+Image'})` }}
+                      ></div>
                     </div>
-                    <div className="p-4">
-                      <h3 className="text-xl font-bold mb-1 line-clamp-1">{movie.title}</h3>
+                    <div className="movie-info">
+                      <h3 className="text-xl font-bold mb-1">{movie.title}</h3>
                       <div className="flex items-center mb-2">
                         <span className="text-primary mr-2">
-                          {Array(Math.round(movie.rating || 0)).fill(0).map((_, i) => (
-                            <FaStar key={i} className="inline-block" />
+                          {Array.from({ length: Math.round(movie.rating / 2) || 0 }).map((_, i) => (
+                            <FaStar key={i} className="inline" />
                           ))}
                         </span>
-                        <span className="text-sm text-gray-400">{movie.rating ? movie.rating.toFixed(1) : 'N/A'}/5</span>
+                        <span className="text-sm text-muted">{movie.rating ? movie.rating.toFixed(1) : 'N/A'}/5</span>
                       </div>
-                      <div className="flex items-center text-sm text-gray-400 mb-2">
+                      <div className="flex items-center text-sm text-muted mb-2">
                         <FaCalendarAlt className="mr-1" />
                         <span>{movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : 'N/A'}</span>
                         <span className="mx-2">•</span>
                         <FaClock className="mr-1" />
                         <span>{movie.duration ? formatDuration(movie.duration) : 'N/A'}</span>
                       </div>
-                      <p className="text-sm text-gray-400 mb-3 line-clamp-1">
+                      <p className="text-sm text-muted mb-3">
                         {movie.genre ? (Array.isArray(movie.genre) ? movie.genre.join(', ') : movie.genre) : 'N/A'}
                       </p>
-                      <Link to={`/movies/${movie._id}`} className="btn btn-primary btn-sm w-full text-center">
+                      <Link to={`/movies/${movie._id}`} className="btn btn-primary btn-sm">
                         {movie.status === 'Now Playing' ? 'Book Now' : 'View Details'}
                       </Link>
                     </div>
