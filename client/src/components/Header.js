@@ -59,11 +59,11 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-secondary py-4 shadow-md">
+    <header className="bg-secondary py-4 shadow-md sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold text-white">
-          MovieHub
+        <Link to="/" className="text-2xl font-bold text-white flex items-center">
+          <span className="text-primary">Movie</span>Hub
         </Link>
 
         {/* Mobile Menu Button */}

@@ -1,6 +1,5 @@
 // Test file for sentiment analysis services
-import sentimentService from '../services/sentimentService';
-import advancedSentimentService from '../services/advancedSentimentService';
+import enhancedSentimentService from '../services/enhancedSentimentService';
 
 // Sample reviews for testing
 const sampleReviews = [
@@ -41,36 +40,36 @@ const sampleReviews = [
 // Test basic sentiment analysis
 async function testBasicSentimentAnalysis() {
   console.log('=== Testing Basic Sentiment Analysis ===');
-  
+
   // Test single review sentiment
   const singleReview = sampleReviews[0].comment;
-  const singleResult = await sentimentService.analyzeSentiment(singleReview);
+  const singleResult = await enhancedSentimentService.analyzeSentiment(singleReview);
   console.log('Single review sentiment:', singleResult);
-  
+
   // Test multiple reviews sentiment
-  const multiResult = await sentimentService.analyzeReviews(sampleReviews);
+  const multiResult = await enhancedSentimentService.analyzeReviews(sampleReviews);
   console.log('Multiple reviews sentiment:', multiResult);
-  
+
   return { singleResult, multiResult };
 }
 
 // Test advanced sentiment analysis
 async function testAdvancedSentimentAnalysis() {
   console.log('\n=== Testing Advanced Sentiment Analysis ===');
-  
+
   // Test aspect-based sentiment analysis
   const singleReview = sampleReviews[0].comment;
-  const aspectResult = await advancedSentimentService.analyzeWithAspects(singleReview);
+  const aspectResult = await enhancedSentimentService.analyzeWithAspects(singleReview);
   console.log('Aspect-based sentiment:', aspectResult);
-  
+
   // Test multiple reviews with aspects
-  const multiAspectResult = await advancedSentimentService.analyzeReviewsWithAspects(sampleReviews);
+  const multiAspectResult = await enhancedSentimentService.analyzeReviewsWithAspects(sampleReviews);
   console.log('Multiple reviews with aspects:', multiAspectResult);
-  
+
   // Test insights generation
-  const insights = await advancedSentimentService.generateInsights(sampleReviews);
+  const insights = enhancedSentimentService.generateInsights(sampleReviews);
   console.log('Generated insights:', insights);
-  
+
   return { aspectResult, multiAspectResult, insights };
 }
 
@@ -79,7 +78,7 @@ async function runAllTests() {
   try {
     const basicResults = await testBasicSentimentAnalysis();
     const advancedResults = await testAdvancedSentimentAnalysis();
-    
+
     console.log('\n=== Test Summary ===');
     console.log('Basic sentiment analysis:', basicResults.singleResult.sentiment);
     console.log('Multiple reviews sentiment:', basicResults.multiResult.sentiment);
@@ -87,7 +86,7 @@ async function runAllTests() {
       aspect => advancedResults.aspectResult.aspects[aspect].count > 0
     ));
     console.log('Generated insights count:', advancedResults.insights.length);
-    
+
     return {
       success: true,
       basicResults,

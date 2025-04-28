@@ -1,6 +1,6 @@
 import * as tf from '@tensorflow/tfjs';
 import { movieService, searchService } from './api';
-import sentimentService from './sentimentService';
+import enhancedSentimentService from './enhancedSentimentService';
 
 // Trend Prediction Service
 const trendPredictionService = {
@@ -10,25 +10,25 @@ const trendPredictionService = {
       // Get movie details
       const movie = await movieService.getMovieById(movieId);
       if (!movie) throw new Error('Movie not found');
-      
+
       // In a real implementation, this would use a trained model
       // For now, we'll use a rule-based approach
-      
+
       // Factors that influence popularity:
       // 1. Release date (newer movies tend to be more popular)
       // 2. Genre popularity
       // 3. Rating
       // 4. Cast popularity
       // 5. Director popularity
-      
+
       // Calculate days since release
       const releaseDate = new Date(movie.releaseDate);
       const today = new Date();
       const daysSinceRelease = Math.floor((today - releaseDate) / (1000 * 60 * 60 * 24));
-      
+
       // Calculate base popularity score
       let popularityScore = 0;
-      
+
       // Factor 1: Release date (newer movies get higher scores)
       if (daysSinceRelease < 0) {
         // Upcoming movie
@@ -43,24 +43,24 @@ const trendPredictionService = {
         // Older release
         popularityScore += Math.max(30 - (daysSinceRelease - 90) / 30, 0);
       }
-      
+
       // Factor 2: Genre popularity
       const genrePopularityBonus = getGenrePopularityBonus(movie.genres);
       popularityScore += genrePopularityBonus;
-      
+
       // Factor 3: Rating
       const rating = parseFloat(movie.rating) || 0;
       popularityScore += rating * 5; // 0-50 points based on rating
-      
+
       // Factor 4 & 5: Cast and Director popularity
       // In a real implementation, this would use actual popularity data
       // For now, we'll use a random bonus
       const castDirectorBonus = Math.random() * 20;
       popularityScore += castDirectorBonus;
-      
+
       // Normalize to 0-100 range
       popularityScore = Math.min(Math.max(Math.round(popularityScore), 0), 100);
-      
+
       // Determine trend direction
       let trendDirection = 'stable';
       if (daysSinceRelease < 0) {
@@ -76,7 +76,7 @@ const trendPredictionService = {
         // Older release
         trendDirection = 'falling';
       }
-      
+
       // Generate prediction text
       const predictionText = generatePopularityPredictionText(
         movie.title,
@@ -85,7 +85,7 @@ const trendPredictionService = {
         daysSinceRelease,
         rating
       );
-      
+
       return {
         movieId,
         title: movie.title,
@@ -104,17 +104,17 @@ const trendPredictionService = {
       return null;
     }
   },
-  
+
   // Predict box office revenue
   predictBoxOffice: async (movieId) => {
     try {
       // Get movie details
       const movie = await movieService.getMovieById(movieId);
       if (!movie) throw new Error('Movie not found');
-      
+
       // In a real implementation, this would use a trained model
       // For now, we'll use a rule-based approach
-      
+
       // Factors that influence box office:
       // 1. Genre
       // 2. Rating
@@ -122,32 +122,32 @@ const trendPredictionService = {
       // 4. Director popularity
       // 5. Release timing
       // 6. Budget (not available in our data)
-      
+
       // Base revenue range by genre
       const baseRevenue = getBaseRevenueByGenre(movie.genres);
-      
+
       // Rating multiplier
       const rating = parseFloat(movie.rating) || 3;
       const ratingMultiplier = 0.7 + (rating / 5) * 0.6; // 0.7-1.3x
-      
+
       // Cast/Director multiplier (simplified)
       const castDirectorMultiplier = 0.8 + Math.random() * 0.4; // 0.8-1.2x
-      
+
       // Release timing multiplier
       const releaseDate = new Date(movie.releaseDate);
       const month = releaseDate.getMonth();
       const releaseMultiplier = getReleaseDateMultiplier(month);
-      
+
       // Calculate predicted revenue
       const predictedRevenue = baseRevenue * ratingMultiplier * castDirectorMultiplier * releaseMultiplier;
-      
+
       // Round to nearest million
       const roundedRevenue = Math.round(predictedRevenue / 1000000) * 1000000;
-      
+
       // Generate prediction range (±20%)
       const lowerBound = Math.round(roundedRevenue * 0.8 / 1000000) * 1000000;
       const upperBound = Math.round(roundedRevenue * 1.2 / 1000000) * 1000000;
-      
+
       // Format as currency
       const formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -155,11 +155,11 @@ const trendPredictionService = {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
       });
-      
+
       const formattedRevenue = formatter.format(roundedRevenue);
       const formattedLowerBound = formatter.format(lowerBound);
       const formattedUpperBound = formatter.format(upperBound);
-      
+
       // Generate prediction text
       const predictionText = generateBoxOfficePredictionText(
         movie.title,
@@ -168,7 +168,7 @@ const trendPredictionService = {
         movie.genres,
         rating
       );
-      
+
       return {
         movieId,
         title: movie.title,
@@ -192,20 +192,20 @@ const trendPredictionService = {
       return null;
     }
   },
-  
+
   // Predict audience demographics
   predictAudienceDemographics: async (movieId) => {
     try {
       // Get movie details
       const movie = await movieService.getMovieById(movieId);
       if (!movie) throw new Error('Movie not found');
-      
+
       // In a real implementation, this would use a trained model
       // For now, we'll use genre-based predictions
-      
+
       // Get demographics based on genre
       const demographics = predictDemographicsByGenre(movie.genres);
-      
+
       return {
         movieId,
         title: movie.title,
@@ -217,14 +217,14 @@ const trendPredictionService = {
       return null;
     }
   },
-  
+
   // Get trending movies
   getTrendingMovies: async (limit = 5) => {
     try {
       // In a real implementation, this would use actual trending data
       // For now, we'll use featured movies as a proxy
       const featuredMovies = await movieService.getFeaturedMovies();
-      
+
       // Calculate trending score for each movie
       const trendingMovies = await Promise.all(
         featuredMovies.slice(0, limit * 2).map(async (movie) => {
@@ -236,7 +236,7 @@ const trendPredictionService = {
           };
         })
       );
-      
+
       // Sort by trending score and return top results
       return trendingMovies
         .sort((a, b) => b.trendingScore - a.trendingScore)
@@ -246,27 +246,27 @@ const trendPredictionService = {
       return [];
     }
   },
-  
+
   // Predict sentiment for upcoming movie
   predictSentiment: async (movieId) => {
     try {
       // Get movie details
       const movie = await movieService.getMovieById(movieId);
       if (!movie) throw new Error('Movie not found');
-      
+
       // In a real implementation, this would analyze social media, etc.
       // For now, we'll use a simplified approach based on genre and director
-      
+
       // Base sentiment score by genre
       const baseSentiment = getSentimentScoreByGenre(movie.genres);
-      
+
       // Director factor (random for demo)
       const directorFactor = Math.random() * 0.4 - 0.2; // -0.2 to 0.2
-      
+
       // Calculate sentiment score (-1 to 1)
       let sentimentScore = baseSentiment + directorFactor;
       sentimentScore = Math.max(Math.min(sentimentScore, 1), -1);
-      
+
       // Determine sentiment label
       let sentiment = 'neutral';
       if (sentimentScore > 0.2) {
@@ -274,12 +274,12 @@ const trendPredictionService = {
       } else if (sentimentScore < -0.2) {
         sentiment = 'negative';
       }
-      
+
       // Calculate percentages
       const positive = Math.round((sentimentScore + 1) / 2 * 70 + 15);
       const negative = Math.round((1 - sentimentScore) / 2 * 70 + 15);
       const neutral = 100 - positive - negative;
-      
+
       return {
         movieId,
         title: movie.title,
@@ -307,7 +307,7 @@ const trendPredictionService = {
 // Helper function to get genre popularity bonus
 const getGenrePopularityBonus = (genres) => {
   if (!genres || !Array.isArray(genres)) return 0;
-  
+
   // Genre popularity weights (0-10 scale)
   const genreWeights = {
     'Action': 9,
@@ -330,11 +330,11 @@ const getGenrePopularityBonus = (genres) => {
     'War': 5,
     'Western': 4
   };
-  
+
   // Calculate average genre popularity
   let totalWeight = 0;
   let genreCount = 0;
-  
+
   genres.forEach(genre => {
     const genreName = typeof genre === 'string' ? genre : (genre.name || '');
     if (genreName && genreWeights[genreName]) {
@@ -342,7 +342,7 @@ const getGenrePopularityBonus = (genres) => {
       genreCount++;
     }
   });
-  
+
   // Return scaled bonus (0-20 points)
   return genreCount > 0 ? (totalWeight / genreCount) * 2 : 0;
 };
@@ -350,7 +350,7 @@ const getGenrePopularityBonus = (genres) => {
 // Helper function to get base revenue by genre
 const getBaseRevenueByGenre = (genres) => {
   if (!genres || !Array.isArray(genres)) return 50000000; // Default $50M
-  
+
   // Base revenue by genre (in millions)
   const genreRevenue = {
     'Action': 120000000,
@@ -373,11 +373,11 @@ const getBaseRevenueByGenre = (genres) => {
     'War': 80000000,
     'Western': 40000000
   };
-  
+
   // Calculate average genre revenue
   let totalRevenue = 0;
   let genreCount = 0;
-  
+
   genres.forEach(genre => {
     const genreName = typeof genre === 'string' ? genre : (genre.name || '');
     if (genreName && genreRevenue[genreName]) {
@@ -385,7 +385,7 @@ const getBaseRevenueByGenre = (genres) => {
       genreCount++;
     }
   });
-  
+
   // Return average or default
   return genreCount > 0 ? totalRevenue / genreCount : 50000000;
 };
@@ -407,7 +407,7 @@ const getReleaseDateMultiplier = (month) => {
     1.1,  // November (holiday season)
     1.2   // December
   ];
-  
+
   return monthMultipliers[month] || 1.0;
 };
 
@@ -419,17 +419,17 @@ const predictDemographicsByGenre = (genres) => {
       age: { '18-24': 20, '25-34': 30, '35-44': 25, '45-54': 15, '55+': 10 }
     };
   }
-  
+
   // Default demographics
   const demographics = {
     gender: { male: 50, female: 50 },
     age: { '18-24': 20, '25-34': 30, '35-44': 25, '45-54': 15, '55+': 10 }
   };
-  
+
   // Adjust based on genres
   genres.forEach(genre => {
     const genreName = typeof genre === 'string' ? genre : (genre.name || '');
-    
+
     switch (genreName) {
       case 'Action':
       case 'Science Fiction':
@@ -440,7 +440,7 @@ const predictDemographicsByGenre = (genres) => {
         demographics.age['25-34'] += 2;
         demographics.age['55+'] -= 5;
         break;
-        
+
       case 'Romance':
         demographics.gender.male -= 10;
         demographics.gender.female += 10;
@@ -448,14 +448,14 @@ const predictDemographicsByGenre = (genres) => {
         demographics.age['18-24'] += 3;
         demographics.age['55+'] += 2;
         break;
-        
+
       case 'Horror':
         demographics.age['18-24'] += 10;
         demographics.age['25-34'] += 5;
         demographics.age['45-54'] -= 5;
         demographics.age['55+'] -= 10;
         break;
-        
+
       case 'Drama':
       case 'History':
         demographics.age['35-44'] += 5;
@@ -463,7 +463,7 @@ const predictDemographicsByGenre = (genres) => {
         demographics.age['55+'] += 5;
         demographics.age['18-24'] -= 10;
         break;
-        
+
       case 'Animation':
       case 'Family':
         demographics.age['18-24'] -= 5;
@@ -472,22 +472,22 @@ const predictDemographicsByGenre = (genres) => {
         demographics.gender.female += 5;
         demographics.gender.male -= 5;
         break;
-        
+
       // Add more genre adjustments as needed
     }
   });
-  
+
   // Normalize gender to 100%
   const totalGender = demographics.gender.male + demographics.gender.female;
   demographics.gender.male = Math.round(demographics.gender.male / totalGender * 100);
   demographics.gender.female = 100 - demographics.gender.male;
-  
+
   // Normalize age to 100%
   const totalAge = Object.values(demographics.age).reduce((sum, val) => sum + val, 0);
   Object.keys(demographics.age).forEach(key => {
     demographics.age[key] = Math.round(demographics.age[key] / totalAge * 100);
   });
-  
+
   // Ensure age adds up to 100% (adjust rounding errors)
   const ageSum = Object.values(demographics.age).reduce((sum, val) => sum + val, 0);
   if (ageSum !== 100) {
@@ -497,14 +497,14 @@ const predictDemographicsByGenre = (genres) => {
       .sort((a, b) => b[1] - a[1])[0][0];
     demographics.age[largestGroup] += diff;
   }
-  
+
   return demographics;
 };
 
 // Helper function to get sentiment score by genre
 const getSentimentScoreByGenre = (genres) => {
   if (!genres || !Array.isArray(genres)) return 0;
-  
+
   // Genre sentiment bias (-0.5 to 0.5 scale)
   const genreSentiment = {
     'Action': 0.3,
@@ -527,11 +527,11 @@ const getSentimentScoreByGenre = (genres) => {
     'War': -0.1,
     'Western': 0.1
   };
-  
+
   // Calculate average sentiment
   let totalSentiment = 0;
   let genreCount = 0;
-  
+
   genres.forEach(genre => {
     const genreName = typeof genre === 'string' ? genre : (genre.name || '');
     if (genreName && genreSentiment[genreName] !== undefined) {
@@ -539,14 +539,14 @@ const getSentimentScoreByGenre = (genres) => {
       genreCount++;
     }
   });
-  
+
   return genreCount > 0 ? totalSentiment / genreCount : 0;
 };
 
 // Helper function to generate popularity prediction text
 const generatePopularityPredictionText = (title, score, trend, daysSinceRelease, rating) => {
   let text = '';
-  
+
   if (daysSinceRelease < 0) {
     // Upcoming movie
     text = `Based on pre-release buzz, "${title}" is predicted to have ${
@@ -569,67 +569,67 @@ const generatePopularityPredictionText = (title, score, trend, daysSinceRelease,
       trend === 'rising' ? 'surprisingly increasing' : (trend === 'falling' ? 'gradually declining' : 'remaining stable')
     } at this stage of its run.`;
   }
-  
+
   // Add rating context if available
   if (rating > 0) {
     text += ` With an average rating of ${rating}/5, the film has received ${
       rating >= 4.5 ? 'exceptional' : (rating >= 4 ? 'very positive' : (rating >= 3.5 ? 'positive' : (rating >= 3 ? 'mixed to positive' : (rating >= 2.5 ? 'mixed' : 'negative'))))
     } reviews.`;
   }
-  
+
   return text;
 };
 
 // Helper function to generate box office prediction text
 const generateBoxOfficePredictionText = (title, lowerBound, upperBound, genres, rating) => {
   // Get primary genre
-  const primaryGenre = genres && genres.length > 0 ? 
-    (typeof genres[0] === 'string' ? genres[0] : (genres[0].name || 'this genre')) : 
+  const primaryGenre = genres && genres.length > 0 ?
+    (typeof genres[0] === 'string' ? genres[0] : (genres[0].name || 'this genre')) :
     'this genre';
-  
+
   let text = `Based on our AI analysis, "${title}" is projected to earn between ${lowerBound} and ${upperBound} at the box office. `;
-  
+
   // Add genre context
   text += `For ${primaryGenre} films, this would be ${
-    upperBound.includes('$200,000,000') || upperBound.includes('$300,000,000') ? 'an exceptional performance' : 
-    (upperBound.includes('$100,000,000') ? 'a strong performance' : 
+    upperBound.includes('$200,000,000') || upperBound.includes('$300,000,000') ? 'an exceptional performance' :
+    (upperBound.includes('$100,000,000') ? 'a strong performance' :
     (upperBound.includes('$50,000,000') ? 'a solid performance' : 'a modest performance'))
   }. `;
-  
+
   // Add rating context if available
   if (rating > 0) {
     text += `With its current rating of ${rating}/5, the film's ${
-      rating >= 4 ? 'positive reception is likely to boost its earnings through word-of-mouth' : 
-      (rating >= 3 ? 'mixed-to-positive reception may help sustain its run' : 
+      rating >= 4 ? 'positive reception is likely to boost its earnings through word-of-mouth' :
+      (rating >= 3 ? 'mixed-to-positive reception may help sustain its run' :
       'less favorable reception might limit its long-term potential')
     }.`;
   } else {
     text += `Critical reception will play a key role in determining where within this range the final box office lands.`;
   }
-  
+
   return text;
 };
 
 // Helper function to generate sentiment prediction text
 const generateSentimentPredictionText = (title, sentiment, positivePercentage, genres) => {
   // Get primary genre
-  const primaryGenre = genres && genres.length > 0 ? 
-    (typeof genres[0] === 'string' ? genres[0] : (genres[0].name || 'this genre')) : 
+  const primaryGenre = genres && genres.length > 0 ?
+    (typeof genres[0] === 'string' ? genres[0] : (genres[0].name || 'this genre')) :
     'this genre';
-  
+
   let text = `Our AI predicts that "${title}" will receive ${
-    sentiment === 'positive' ? 'predominantly positive' : 
+    sentiment === 'positive' ? 'predominantly positive' :
     (sentiment === 'negative' ? 'mixed to negative' : 'mixed')
   } audience sentiment upon release. `;
-  
+
   text += `Approximately ${positivePercentage}% of audience reactions are expected to be positive. `;
-  
+
   text += `This is ${
-    sentiment === 'positive' && positivePercentage > 70 ? 'above average' : 
-    (sentiment === 'positive' ? 'typical' : 
+    sentiment === 'positive' && positivePercentage > 70 ? 'above average' :
+    (sentiment === 'positive' ? 'typical' :
     (sentiment === 'negative' ? 'below average' : 'average'))
   } for ${primaryGenre} films.`;
-  
+
   return text;
 };
 

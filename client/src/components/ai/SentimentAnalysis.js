@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaSmile, FaMeh, FaFrown, FaChartPie } from 'react-icons/fa';
-import sentimentService from '../../services/sentimentService';
+import enhancedSentimentService from '../../services/enhancedSentimentService';
 
 const SentimentAnalysis = ({ reviews }) => {
   const [sentiment, setSentiment] = useState(null);
@@ -24,8 +24,15 @@ const SentimentAnalysis = ({ reviews }) => {
           return;
         }
 
-        const result = await sentimentService.analyzeReviews(reviews);
-        setSentiment(result);
+        const result = await enhancedSentimentService.analyzeReviews(reviews);
+        setSentiment({
+          score: result.score,
+          sentiment: result.sentiment,
+          positive: result.distribution['very positive'] + result.distribution['positive'],
+          negative: result.distribution['negative'] + result.distribution['very negative'],
+          neutral: result.distribution['neutral'],
+          total: result.reviewCount
+        });
         setLoading(false);
       } catch (err) {
         console.error('Error analyzing sentiment:', err);
@@ -95,7 +102,11 @@ const SentimentAnalysis = ({ reviews }) => {
       <div className="mb-4">
         <div className="flex justify-between mb-1">
           <span className="text-sm">Overall Sentiment:</span>
-          <span className={`text-sm font-semibold capitalize ${sentimentService.getSentimentColor(sentiment.sentiment)}`}>
+          <span className={`text-sm font-semibold capitalize ${
+            sentiment.sentiment.includes('positive') ? 'text-green-500' :
+            sentiment.sentiment.includes('negative') ? 'text-red-500' :
+            'text-yellow-500'
+          }`}>
             {sentiment.sentiment}
           </span>
         </div>
