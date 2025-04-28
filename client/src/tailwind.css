@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .container {
+    @apply px-4 mx-auto max-w-7xl;
+  }
+
+  .btn {
+    @apply px-6 py-2 font-medium transition-all duration-300 rounded-md;
+  }
+
+  .btn-primary {
+    @apply text-white bg-primary hover:bg-orange-700;
+  }
+
+  .btn-secondary {
+    @apply text-white bg-secondary hover:bg-gray-800;
+  }
+
+  .section-title {
+    @apply mb-8 text-3xl font-bold text-center md:text-4xl;
+  }
+}
