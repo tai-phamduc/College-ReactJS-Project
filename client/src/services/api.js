@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { sampleMovies, sampleEvents, sampleNews } from '../data/sampleData';
 
 // Create an axios instance
 const api = axios.create({
@@ -128,12 +127,10 @@ export const movieService = {
   getMovies: async (params = {}) => {
     try {
       const response = await api.get('/movies', { params });
-      // If API returns empty array, use sample data
-      return response.data && response.data.length > 0 ? response.data : sampleMovies;
+      return response.data;
     } catch (error) {
       console.error('Error fetching movies:', error);
-      // Return sample data if API fails
-      return sampleMovies;
+      return [];
     }
   },
 
@@ -144,7 +141,6 @@ export const movieService = {
       return response.data;
     } catch (error) {
       console.error(`Error fetching movie with ID ${id}:`, error);
-      // Return default movie data if API fails
       return { ...defaultMovieData, _id: id };
     }
   },
@@ -153,15 +149,10 @@ export const movieService = {
   getMoviesByStatus: async (status) => {
     try {
       const response = await api.get(`/movies/status/${status}`);
-      // If API returns empty array, use filtered sample data
-      if (!response.data || response.data.length === 0) {
-        return sampleMovies.filter(movie => movie.status === status);
-      }
       return response.data;
     } catch (error) {
       console.error(`Error fetching movies with status ${status}:`, error);
-      // Return filtered sample data if API fails
-      return sampleMovies.filter(movie => movie.status === status);
+      return [];
     }
   },
 
@@ -172,7 +163,6 @@ export const movieService = {
       return response.data;
     } catch (error) {
       console.error(`Error fetching movies with genre ${genre}:`, error);
-      // Return empty array if API fails
       return [];
     }
   },
@@ -181,15 +171,10 @@ export const movieService = {
   getFeaturedMovies: async () => {
     try {
       const response = await api.get('/movies/featured');
-      // If API returns empty array, use filtered sample data
-      if (!response.data || response.data.length === 0) {
-        return sampleMovies.filter(movie => movie.isFeatured);
-      }
       return response.data;
     } catch (error) {
       console.error('Error fetching featured movies:', error);
-      // Return filtered sample data if API fails
-      return sampleMovies.filter(movie => movie.isFeatured);
+      return [];
     }
   },
 
@@ -201,7 +186,6 @@ export const movieService = {
       return response.data;
     } catch (error) {
       console.error(`Error searching movies with query ${query}:`, error);
-      // Return empty array if API fails
       return [];
     }
   },
@@ -215,12 +199,10 @@ export const eventService = {
       console.log('Calling API: GET /events');
       const response = await api.get('/events');
       console.log('API response:', response);
-      // If API returns empty array, use sample data
-      return response.data && response.data.length > 0 ? response.data : sampleEvents;
+      return response.data;
     } catch (error) {
       console.error('Error fetching events:', error);
-      // Return sample data if API fails
-      return sampleEvents;
+      return [];
     }
   },
 
@@ -231,9 +213,7 @@ export const eventService = {
       return response.data;
     } catch (error) {
       console.error(`Error fetching event with ID ${id}:`, error);
-      // Return sample event data if API fails
-      const sampleEvent = sampleEvents.find(event => event._id === id) || sampleEvents[0];
-      return { ...sampleEvent, _id: id };
+      return null;
     }
   },
 
@@ -241,15 +221,10 @@ export const eventService = {
   getFeaturedEvents: async () => {
     try {
       const response = await api.get('/events/featured');
-      // If API returns empty array, use filtered sample data
-      if (!response.data || response.data.length === 0) {
-        return sampleEvents.filter(event => event.isFeatured);
-      }
       return response.data;
     } catch (error) {
       console.error('Error fetching featured events:', error);
-      // Return filtered sample data if API fails
-      return sampleEvents.filter(event => event.isFeatured);
+      return [];
     }
   },
 
@@ -260,7 +235,6 @@ export const eventService = {
       return response.data;
     } catch (error) {
       console.error(`Error fetching events with category ${category}:`, error);
-      // Return empty array if API fails
       return [];
     }
   },
@@ -272,7 +246,6 @@ export const eventService = {
       return response.data;
     } catch (error) {
       console.error('Error fetching upcoming events:', error);
-      // Return empty array if API fails
       return [];
     }
   },
@@ -284,7 +257,6 @@ export const eventService = {
       return response.data;
     } catch (error) {
       console.error(`Error searching events with query ${query}:`, error);
-      // Return empty array if API fails
       return [];
     }
   },
@@ -319,12 +291,10 @@ export const newsService = {
       console.log('Calling API: GET /news');
       const response = await api.get('/news');
       console.log('API response:', response);
-      // If API returns empty array, use sample data
-      return response.data && response.data.length > 0 ? response.data : sampleNews;
+      return response.data;
     } catch (error) {
       console.error('Error fetching news:', error);
-      // Return sample data if API fails
-      return sampleNews;
+      return [];
     }
   },
 
@@ -335,9 +305,7 @@ export const newsService = {
       return response.data;
     } catch (error) {
       console.error(`Error fetching news with ID ${id}:`, error);
-      // Return sample news data if API fails
-      const sampleNewsItem = sampleNews.find(news => news._id === id) || sampleNews[0];
-      return { ...sampleNewsItem, _id: id };
+      return null;
     }
   },
 
@@ -348,7 +316,6 @@ export const newsService = {
       return response.data;
     } catch (error) {
       console.error(`Error fetching news with category ${category}:`, error);
-      // Return empty array if API fails
       return [];
     }
   },
@@ -360,7 +327,6 @@ export const newsService = {
       return response.data;
     } catch (error) {
       console.error(`Error searching news with query ${query}:`, error);
-      // Return empty array if API fails
       return [];
     }
   },
@@ -375,7 +341,6 @@ export const bookingService = {
       return response.data;
     } catch (error) {
       console.error(`Error fetching showtimes for movie ${movieId}:`, error);
-      // Return empty array if API fails
       return [];
     }
   },
@@ -387,7 +352,6 @@ export const bookingService = {
       return response.data;
     } catch (error) {
       console.error(`Error fetching seats for showtime ${showtimeId}:`, error);
-      // Return empty array if API fails
       return [];
     }
   },
@@ -410,8 +374,6 @@ export const bookingService = {
       return response.data;
     } catch (error) {
       console.error('Error fetching user bookings:', error);
-
-      // Return empty array if API fails
       return [];
     }
   },
