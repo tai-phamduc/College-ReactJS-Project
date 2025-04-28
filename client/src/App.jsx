@@ -1,24 +1,15 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import MoviesPage from './pages/MoviesPage';
+import EventsPage from './pages/EventsPage';
+import NewsPage from './pages/NewsPage';
+import HeroSlider from './components/HeroSlider';
 
-// Simple HomePage component
+// HomePage component
 const HomePage = () => (
   <div className="min-h-screen bg-dark text-white">
-    {/* Hero Section */}
-    <section className="relative h-[70vh] overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-dark to-transparent z-10"></div>
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1925&auto=format&fit=crop')] bg-cover bg-center animate-subtle-zoom"></div>
-      <div className="container relative z-20 flex flex-col justify-center h-full">
-        <h1 className="text-5xl md:text-6xl font-bold mb-4">
-          <span className="text-primary">Movie</span>Hub
-        </h1>
-        <p className="text-xl md:text-2xl mb-8 max-w-2xl">Your premier destination for movies and entertainment</p>
-        <div className="flex flex-wrap gap-4">
-          <a href="/movies" className="btn btn-primary">Browse Movies</a>
-          <a href="/events" className="btn btn-outline">Upcoming Events</a>
-        </div>
-      </div>
-    </section>
+    {/* Hero Slider */}
+    <HeroSlider />
 
     {/* Now Showing Section */}
     <section className="py-16 bg-dark">
@@ -169,6 +160,21 @@ function App() {
       <Route path="/" element={
         <Layout>
           <HomePage />
+        </Layout>
+      } />
+      <Route path="/movies" element={
+        <Layout>
+          <MoviesPage />
+        </Layout>
+      } />
+      <Route path="/events" element={
+        <Layout>
+          <EventsPage />
+        </Layout>
+      } />
+      <Route path="/news" element={
+        <Layout>
+          <NewsPage />
         </Layout>
       } />
       <Route path="*" element={

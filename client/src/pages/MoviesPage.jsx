@@ -1,0 +1,91 @@
+import React from 'react';
+
+const MoviesPage = () => {
+  return (
+    <div className="min-h-screen bg-dark text-white py-16">
+      <div className="container">
+        <h1 className="section-title">
+          <span className="text-primary">Our</span> Movies
+        </h1>
+        
+        {/* Filter Section */}
+        <div className="bg-secondary p-6 rounded-lg mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm mb-2">Genre</label>
+              <select className="w-full bg-light-gray text-white p-2 rounded-md">
+                <option value="">All Genres</option>
+                <option value="action">Action</option>
+                <option value="comedy">Comedy</option>
+                <option value="drama">Drama</option>
+                <option value="horror">Horror</option>
+                <option value="sci-fi">Sci-Fi</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm mb-2">Language</label>
+              <select className="w-full bg-light-gray text-white p-2 rounded-md">
+                <option value="">All Languages</option>
+                <option value="english">English</option>
+                <option value="vietnamese">Vietnamese</option>
+                <option value="korean">Korean</option>
+                <option value="japanese">Japanese</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm mb-2">Format</label>
+              <select className="w-full bg-light-gray text-white p-2 rounded-md">
+                <option value="">All Formats</option>
+                <option value="2d">2D</option>
+                <option value="3d">3D</option>
+                <option value="imax">IMAX</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm mb-2">Sort By</label>
+              <select className="w-full bg-light-gray text-white p-2 rounded-md">
+                <option value="popularity">Popularity</option>
+                <option value="release_date">Release Date</option>
+                <option value="title">Title</option>
+                <option value="rating">Rating</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        {/* Movies Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+            <div key={item} className="card movie-card">
+              <div className="aspect-[2/3] bg-light-gray overflow-hidden">
+                <div className="movie-poster h-full w-full bg-[url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1925&auto=format&fit=crop')] bg-cover bg-center"></div>
+              </div>
+              <div className="movie-info">
+                <h3 className="text-xl font-bold mb-1">Sample Movie {item}</h3>
+                <div className="flex items-center mb-2">
+                  <span className="text-primary mr-2">★★★★</span>
+                  <span className="text-sm text-muted">4.5/5</span>
+                </div>
+                <p className="text-sm text-muted mb-3">Action, Adventure</p>
+                <a href={`/movies/${item}`} className="btn btn-primary btn-sm">Book Now</a>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {/* Pagination */}
+        <div className="flex justify-center">
+          <div className="flex space-x-2">
+            <button className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-primary transition-colors">Previous</button>
+            <button className="px-4 py-2 bg-primary text-white rounded-md">1</button>
+            <button className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-primary transition-colors">2</button>
+            <button className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-primary transition-colors">3</button>
+            <button className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-primary transition-colors">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default MoviesPage;
