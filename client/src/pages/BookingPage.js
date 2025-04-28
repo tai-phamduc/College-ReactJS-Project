@@ -50,24 +50,7 @@ const BookingPage = () => {
 
   const dates = generateDates();
 
-  const theaters = [
-    { id: 1, name: 'Cinema City', location: '123 Main Street, New York, NY', distance: '1.2 miles' },
-    { id: 2, name: 'Starlight Multiplex', location: '456 Broadway Avenue, Los Angeles, CA', distance: '2.5 miles' },
-  ];
-
-  const showtimes = [
-    { id: 1, time: '10:00 AM', format: '2D', price: 12.99, hall: 'Hall 1' },
-    { id: 2, time: '1:00 PM', format: '2D', price: 12.99, hall: 'Hall 2' },
-    { id: 3, time: '4:00 PM', format: '4DX', price: 17.99, hall: '4DX' },
-    { id: 4, time: '7:00 PM', format: '3D', price: 14.99, hall: 'Hall 3' },
-    { id: 5, time: '10:00 PM', format: '4DX', price: 19.99, hall: '4DX' },
-    { id: 6, time: '1:00 PM', format: 'VIP', price: 22.99, hall: 'VIP' },
-    { id: 7, time: '4:00 PM', format: 'VIP', price: 22.99, hall: 'VIP' },
-    { id: 8, time: '7:00 PM', format: 'VIP', price: 24.99, hall: 'VIP' },
-    { id: 9, time: '10:00 AM', format: 'IMAX', price: 19.99, hall: 'IMAX' },
-    { id: 10, time: '1:00 PM', format: 'IMAX', price: 19.99, hall: 'IMAX' },
-    { id: 11, time: '10:00 PM', format: 'IMAX', price: 21.99, hall: 'IMAX' },
-  ];
+  // Theaters and showtimes will be fetched from the API
 
   // Generate a more realistic seat map with different seat types and sections
   const generateSeatMap = () => {
@@ -198,15 +181,50 @@ const BookingPage = () => {
     const fetchTheaters = async () => {
       try {
         setLoadingTheaters(true);
-        // In a real implementation, you would fetch theaters based on the movie and date
-        // For now, we'll use the sample theaters data
+
+        // Fetch theaters from the API
         const response = await fetch('https://movie-ticket-booking-api.vercel.app/api/theaters');
         const data = await response.json();
-        setTheaters(data);
+
+        // Add distance information (this would normally come from the API)
+        const theatersWithDistance = data.map(theater => ({
+          ...theater,
+          distance: `${(Math.random() * 5 + 0.5).toFixed(1)} miles` // Random distance for demo
+        }));
+
+        setTheaters(theatersWithDistance);
         setLoadingTheaters(false);
       } catch (err) {
         console.error('Error fetching theaters:', err);
-        setTheaters([]);
+
+        // Fallback to sample data if API fails
+        const sampleTheaters = [
+          {
+            _id: '1',
+            name: 'Cinema City',
+            location: '123 Main Street, New York, NY',
+            distance: '1.2 miles',
+            halls: [
+              { name: 'Hall 1', capacity: 100, type: 'Standard' },
+              { name: 'Hall 2', capacity: 80, type: 'VIP' },
+              { name: 'Hall 3', capacity: 120, type: 'IMAX' }
+            ]
+          },
+          {
+            _id: '2',
+            name: 'Starlight Multiplex',
+            location: '456 Broadway Avenue, Los Angeles, CA',
+            distance: '2.5 miles',
+            halls: [
+              { name: 'Hall 1', capacity: 90, type: 'Standard' },
+              { name: 'Hall 2', capacity: 90, type: 'Standard' },
+              { name: 'Hall 3', capacity: 70, type: 'Premium' },
+              { name: 'Hall 4', capacity: 60, type: '4DX' }
+            ]
+          },
+        ];
+
+        setTheaters(sampleTheaters);
         setLoadingTheaters(false);
       }
     };
@@ -221,27 +239,34 @@ const BookingPage = () => {
     const fetchShowtimes = async () => {
       try {
         setLoadingShowtimes(true);
-        // In a real implementation, you would fetch showtimes based on the movie, date, and theater
-        // For now, we'll use the sample showtimes data
         const formattedDate = selectedDate.date.toISOString().split('T')[0];
-        const response = await fetch(`https://movie-ticket-booking-api.vercel.app/api/showtimes?movieId=${id}&theaterId=${selectedTheater._id}&date=${formattedDate}`);
-        const data = await response.json();
+
+        // Use the bookingService to get showtimes
+        const data = await bookingService.getShowtimesByMovie(id);
+
+        // Filter showtimes by date and theater
+        const filteredShowtimes = data.filter(showtime => {
+          const showtimeDate = new Date(showtime.date).toISOString().split('T')[0];
+          return showtimeDate === formattedDate &&
+                 showtime.theater.toString() === selectedTheater._id.toString();
+        });
 
         // Format the showtimes for display
-        const formattedShowtimes = data.map(showtime => ({
+        const formattedShowtimes = filteredShowtimes.map(showtime => ({
           id: showtime._id,
           time: new Date(showtime.startTime).toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
             hour12: true
           }),
-          format: showtime.format,
+          format: showtime.format || '2D',
           price: showtime.price || 12.99,
-          hall: showtime.hall,
+          hall: showtime.hall || 'Hall 1',
           startTime: showtime.startTime,
           endTime: showtime.endTime,
-          seatsAvailable: showtime.seatsAvailable,
-          bookedSeats: showtime.bookedSeats || []
+          seatsAvailable: showtime.seatsAvailable || 100,
+          bookedSeats: showtime.bookedSeats || [],
+          reservedSeats: showtime.reservedSeats || []
         }));
 
         setShowtimes(formattedShowtimes);
@@ -249,13 +274,14 @@ const BookingPage = () => {
       } catch (err) {
         console.error('Error fetching showtimes:', err);
         // Fallback to sample data if API fails
-        setShowtimes([
-          { id: 1, time: '10:00 AM', format: '2D', price: 12.99, hall: 'Hall 1' },
-          { id: 2, time: '1:00 PM', format: '2D', price: 12.99, hall: 'Hall 2' },
-          { id: 3, time: '4:00 PM', format: '4DX', price: 17.99, hall: '4DX' },
-          { id: 4, time: '7:00 PM', format: '3D', price: 14.99, hall: 'Hall 3' },
-          { id: 5, time: '10:00 PM', format: '4DX', price: 19.99, hall: '4DX' }
-        ]);
+        const sampleShowtimes = [
+          { id: '1', time: '10:00 AM', format: '2D', price: 12.99, hall: 'Hall 1', seatsAvailable: 85 },
+          { id: '2', time: '1:00 PM', format: '2D', price: 12.99, hall: 'Hall 2', seatsAvailable: 92 },
+          { id: '3', time: '4:00 PM', format: '4DX', price: 17.99, hall: '4DX', seatsAvailable: 45 },
+          { id: '4', time: '7:00 PM', format: '3D', price: 14.99, hall: 'Hall 3', seatsAvailable: 78 },
+          { id: '5', time: '10:00 PM', format: '4DX', price: 19.99, hall: '4DX', seatsAvailable: 60 }
+        ];
+        setShowtimes(sampleShowtimes);
         setLoadingShowtimes(false);
       }
     };
@@ -276,9 +302,44 @@ const BookingPage = () => {
     setSelectedSeats([]);
   };
 
-  const handleShowtimeSelect = (showtime) => {
+  const handleShowtimeSelect = async (showtime) => {
     setSelectedShowtime(showtime);
     setSelectedSeats([]);
+
+    // Fetch available seats for this showtime
+    try {
+      setLoadingSeats(true);
+      const seats = await bookingService.getAvailableSeats(showtime.id);
+
+      // If we have seat data from the API, use it to update the seat map
+      if (seats && seats.length > 0) {
+        // Update the seat map with the booked seats from the API
+        const bookedSeatsMap = {};
+        showtime.bookedSeats.forEach(seatId => {
+          bookedSeatsMap[seatId] = true;
+        });
+
+        // Update the seat map
+        const updatedSeatMap = seatMap.map(seat => {
+          if (seat.id && bookedSeatsMap[seat.id]) {
+            return { ...seat, status: 'booked' };
+          }
+          return seat;
+        });
+
+        setAvailableSeats(updatedSeatMap);
+      } else {
+        // If no seat data, use the generated seat map
+        setAvailableSeats(seatMap);
+      }
+
+      setLoadingSeats(false);
+    } catch (err) {
+      console.error('Error fetching available seats:', err);
+      // Fallback to the generated seat map
+      setAvailableSeats(seatMap);
+      setLoadingSeats(false);
+    }
   };
 
   const handleSeatSelect = (seat) => {
@@ -593,9 +654,13 @@ const BookingPage = () => {
                 <div className="max-w-4xl mx-auto mb-8 overflow-x-auto pb-4">
                   <div className="grid grid-flow-row gap-2 min-w-max">
                     {/* Seat Map */}
-                    {rows.map(row => (
+                    {loadingSeats ? (
+                      <div className="flex justify-center items-center py-16 col-span-full">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+                      </div>
+                    ) : rows.map(row => (
                       <div key={row} className="flex items-center gap-2">
-                        {seatMap
+                        {(availableSeats.length > 0 ? availableSeats : seatMap)
                           .filter(seat => seat.row === row || (seat.isLabel && seat.label === row))
                           .map(seat => {
                             if (seat.isLabel) {
