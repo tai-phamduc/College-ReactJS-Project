@@ -6,6 +6,8 @@ import NewsPage from './pages/NewsPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import UserProfilePage from './pages/UserProfilePage';
+import BookingPage from './pages/BookingPage';
+import MovieDetailsPage from './pages/MovieDetailsPage';
 import HeroSlider from './components/HeroSlider';
 import UpcomingEvents from './components/UpcomingEvents';
 import NowShowingMovies from './components/NowShowingMovies';
@@ -58,6 +60,11 @@ function App() {
           <MoviesPage />
         </Layout>
       } />
+      <Route path="/movies/:id" element={
+        <Layout>
+          <MovieDetailsPage />
+        </Layout>
+      } />
       <Route path="/events" element={
         <Layout>
           <EventsPage />
@@ -81,6 +88,11 @@ function App() {
       <Route path="/profile" element={
         <Layout>
           <UserProfilePage />
+        </Layout>
+      } />
+      <Route path="/booking/:id" element={
+        <Layout>
+          <BookingPage />
         </Layout>
       } />
       <Route path="*" element={
