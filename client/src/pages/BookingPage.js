@@ -535,22 +535,76 @@ const BookingPage = () => {
         // Calculate total price
         const totals = calculateTotal();
 
-        // Create booking object
+        // Get payment method (credit_card or paypal)
+        const paymentMethod = document.getElementById('credit-card').checked ? 'credit_card' : 'paypal';
+
+        // Get current date and time
+        const bookingDate = new Date().toISOString();
+
+        // Create booking object with detailed information
         const bookingData = {
+          // Basic booking info
           movieId: id,
           showtimeId: selectedShowtime.id,
+          theaterId: selectedTheater._id,
+          userId: currentUser._id || currentUser.id,
+
+          // Seat information
           seats: selectedSeats.map(seat => seat.id),
+          seatCount: selectedSeats.length,
+
+          // Price details
+          basePrice: parseFloat(selectedShowtime.price),
+          subtotal: parseFloat(totals.subtotal),
+          tax: parseFloat(totals.tax),
+          serviceFee: parseFloat(totals.serviceFee),
           totalPrice: parseFloat(totals.total),
-          paymentMethod: 'credit_card', // Default to credit card
+
+          // Payment details
+          paymentMethod: paymentMethod,
           paymentStatus: 'completed', // For demo purposes
           bookingStatus: 'confirmed', // For demo purposes
+
+          // Additional information
+          bookingDate: bookingDate,
+          bookingReference: `BK-${Date.now().toString().slice(-8)}`, // Generate a booking reference
+
+          // Movie and showtime details for history
+          movieDetails: {
+            title: movie.title,
+            poster: movie.poster,
+            duration: movie.duration
+          },
+          showtimeDetails: {
+            date: selectedDate.display,
+            time: selectedShowtime.time,
+            format: selectedShowtime.format,
+            hall: selectedShowtime.hall
+          },
+          theaterDetails: {
+            name: selectedTheater.name,
+            location: selectedTheater.formattedLocation || selectedTheater.location?.address || 'Location not available'
+          }
         };
 
         // Submit booking to API
         const response = await bookingService.createBooking(bookingData);
 
+        // Save booking to history
+        if (response && response._id) {
+          try {
+            await bookingService.saveBookingToHistory(response._id);
+          } catch (historyError) {
+            console.error('Error saving booking to history:', historyError);
+            // Continue with success flow even if history saving fails
+          }
+        }
+
         setPaymentProcessing(false);
         setBookingSuccess(true);
+
+        // Store booking reference in local storage for display on tickets page
+        localStorage.setItem('lastBookingReference', bookingData.bookingReference);
 
         // Show success message and redirect after a delay
         setTimeout(() => {
@@ -559,7 +613,15 @@ const BookingPage = () => {
       } catch (err) {
         console.error('Error creating booking:', err);
         setPaymentProcessing(false);
-        setBookingError('Failed to process your booking. Please try again.');
+
+        // Provide more specific error message based on the error
+        if (err.response && err.response.data && err.response.data.message) {
+          setBookingError(err.response.data.message);
+        } else if (err.message && err.message.includes('network')) {
+          setBookingError('Network error. Please check your internet connection and try again.');
+        } else {
+          setBookingError('Failed to process your booking. Please try again.');
+        }
       }
     }
   };
@@ -1163,14 +1225,57 @@ const BookingPage = () => {
 
           {/* Success Message */}
           {bookingSuccess && (
-            <div className="bg-green-900/50 border border-green-500 p-6 rounded-lg mb-6 text-center">
-              <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+            <div className="bg-green-900/50 border border-green-500 p-6 rounded-lg mb-6">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold mb-2">Booking Successful!</h3>
+                <p className="text-gray-300 mb-4">Your tickets have been booked successfully. You will be redirected to your tickets page shortly.</p>
               </div>
-              <h3 className="text-xl font-bold mb-2">Booking Successful!</h3>
-              <p className="text-gray-300 mb-4">Your tickets have been booked successfully. You will be redirected to your tickets page shortly.</p>
+
+              <div className="bg-gray-800 p-4 rounded-lg mb-4">
+                <h4 className="font-semibold text-primary mb-3">Booking Reference: {`BK-${Date.now().toString().slice(-8)}`}</h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Movie</p>
+                    <p className="font-medium">{movie.title}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Date & Time</p>
+                    <p className="font-medium">{selectedDate.display}, {selectedShowtime.time}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Theater</p>
+                    <p className="font-medium">{selectedTheater.name}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Seats</p>
+                    <p className="font-medium">{selectedSeats.map(seat => seat.id).join(', ')}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Format</p>
+                    <p className="font-medium">{selectedShowtime.format}, {selectedShowtime.hall}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Total Amount</p>
+                    <p className="font-medium text-primary">${calculateTotal().total}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center text-sm text-gray-400">
+                <p>A confirmation email has been sent to your registered email address.</p>
+                <p className="mt-2">You can view your booking details in the "My Tickets" section.</p>
+              </div>
             </div>
           )}
 
