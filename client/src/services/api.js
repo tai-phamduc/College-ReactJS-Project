@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { sampleMovies, sampleEvents, sampleNews } from '../data/sampleData';
 
 // Create an axios instance
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'https://movie-booking-api-pink.vercel.app/api',
+  baseURL: process.env.REACT_APP_API_URL || 'https://movie-ticket-booking-api.vercel.app/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -127,11 +128,12 @@ export const movieService = {
   getMovies: async (params = {}) => {
     try {
       const response = await api.get('/movies', { params });
-      return response.data;
+      // If API returns empty array, use sample data
+      return response.data && response.data.length > 0 ? response.data : sampleMovies;
     } catch (error) {
       console.error('Error fetching movies:', error);
-      // Return empty array if API fails
-      return [];
+      // Return sample data if API fails
+      return sampleMovies;
     }
   },
 
@@ -151,11 +153,15 @@ export const movieService = {
   getMoviesByStatus: async (status) => {
     try {
       const response = await api.get(`/movies/status/${status}`);
+      // If API returns empty array, use filtered sample data
+      if (!response.data || response.data.length === 0) {
+        return sampleMovies.filter(movie => movie.status === status);
+      }
       return response.data;
     } catch (error) {
       console.error(`Error fetching movies with status ${status}:`, error);
-      // Return empty array if API fails
-      return [];
+      // Return filtered sample data if API fails
+      return sampleMovies.filter(movie => movie.status === status);
     }
   },
 
@@ -175,11 +181,15 @@ export const movieService = {
   getFeaturedMovies: async () => {
     try {
       const response = await api.get('/movies/featured');
+      // If API returns empty array, use filtered sample data
+      if (!response.data || response.data.length === 0) {
+        return sampleMovies.filter(movie => movie.isFeatured);
+      }
       return response.data;
     } catch (error) {
       console.error('Error fetching featured movies:', error);
-      // Return empty array if API fails
-      return [];
+      // Return filtered sample data if API fails
+      return sampleMovies.filter(movie => movie.isFeatured);
     }
   },
 
@@ -197,22 +207,6 @@ export const movieService = {
   },
 };
 
-// Default event data in case API fails
-const defaultEventData = {
-  _id: '1',
-  title: 'Sample Event',
-  description: 'This is a sample event description.',
-  startDate: '2025-05-25T19:00:00Z',
-  endDate: '2025-05-25T23:00:00Z',
-  location: 'Sample Location',
-  category: 'Premiere',
-  ticketPrice: 50,
-  image: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=1000&auto=format&fit=crop',
-  featured: true,
-  capacity: 300,
-  registeredAttendees: 275
-};
-
 // Event API services
 export const eventService = {
   // Get all events
@@ -221,11 +215,12 @@ export const eventService = {
       console.log('Calling API: GET /events');
       const response = await api.get('/events');
       console.log('API response:', response);
-      return response.data;
+      // If API returns empty array, use sample data
+      return response.data && response.data.length > 0 ? response.data : sampleEvents;
     } catch (error) {
       console.error('Error fetching events:', error);
-      // Return empty array if API fails
-      return [];
+      // Return sample data if API fails
+      return sampleEvents;
     }
   },
 
@@ -236,8 +231,9 @@ export const eventService = {
       return response.data;
     } catch (error) {
       console.error(`Error fetching event with ID ${id}:`, error);
-      // Return default event data if API fails
-      return { ...defaultEventData, _id: id };
+      // Return sample event data if API fails
+      const sampleEvent = sampleEvents.find(event => event._id === id) || sampleEvents[0];
+      return { ...sampleEvent, _id: id };
     }
   },
 
@@ -245,11 +241,15 @@ export const eventService = {
   getFeaturedEvents: async () => {
     try {
       const response = await api.get('/events/featured');
+      // If API returns empty array, use filtered sample data
+      if (!response.data || response.data.length === 0) {
+        return sampleEvents.filter(event => event.isFeatured);
+      }
       return response.data;
     } catch (error) {
       console.error('Error fetching featured events:', error);
-      // Return empty array if API fails
-      return [];
+      // Return filtered sample data if API fails
+      return sampleEvents.filter(event => event.isFeatured);
     }
   },
 
@@ -311,18 +311,6 @@ export const eventService = {
   },
 };
 
-// Default news data in case API fails
-const defaultNewsData = {
-  _id: '1',
-  title: 'Sample News Article',
-  content: 'This is a sample news article content.',
-  summary: 'This is a sample news article summary.',
-  category: 'Movie News',
-  author: 'Author Name',
-  publishedAt: '2023-09-15T10:30:00Z',
-  image: 'https://images.unsplash.com/photo-1635805737707-575885ab0820?q=80&w=1000&auto=format&fit=crop'
-};
-
 // News API services
 export const newsService = {
   // Get all news articles
@@ -331,11 +319,12 @@ export const newsService = {
       console.log('Calling API: GET /news');
       const response = await api.get('/news');
       console.log('API response:', response);
-      return response.data;
+      // If API returns empty array, use sample data
+      return response.data && response.data.length > 0 ? response.data : sampleNews;
     } catch (error) {
       console.error('Error fetching news:', error);
-      // Return empty array if API fails
-      return [];
+      // Return sample data if API fails
+      return sampleNews;
     }
   },
 
@@ -346,8 +335,9 @@ export const newsService = {
       return response.data;
     } catch (error) {
       console.error(`Error fetching news with ID ${id}:`, error);
-      // Return default news data if API fails
-      return { ...defaultNewsData, _id: id };
+      // Return sample news data if API fails
+      const sampleNewsItem = sampleNews.find(news => news._id === id) || sampleNews[0];
+      return { ...sampleNewsItem, _id: id };
     }
   },
 
