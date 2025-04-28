@@ -15,7 +15,7 @@
       color: #f5f5f5;
     }
     h1 {
-      color: #e50914;
+      color: #ff6000;
       margin-bottom: 20px;
     }
     .container {
@@ -46,7 +46,7 @@
       font-size: 16px;
     }
     button {
-      background-color: #e50914;
+      background-color: #ff6000;
       color: white;
       border: none;
       cursor: pointer;
@@ -55,7 +55,7 @@
       margin-top: 10px;
     }
     button:hover {
-      background-color: #f40612;
+      background-color: #ff7a30;
     }
     .response-container {
       background-color: #1e1e1e;
@@ -100,13 +100,13 @@
 </head>
 <body>
   <h1>API Test Page</h1>
-  
+
   <div class="auth-container">
     <div id="auth-status">Not authenticated</div>
     <button id="login-btn">Login as Admin</button>
     <button id="logout-btn" style="display: none;">Logout</button>
   </div>
-  
+
   <div class="grid">
     <div class="form-container">
       <h2>Request</h2>
@@ -130,7 +130,7 @@
         </select>
         <input type="text" id="custom-endpoint" placeholder="Custom endpoint" style="margin-top: 10px;">
       </div>
-      
+
       <div class="form-group">
         <label for="method">Method</label>
         <select id="method">
@@ -140,22 +140,22 @@
           <option value="DELETE">DELETE</option>
         </select>
       </div>
-      
+
       <div class="form-group" id="body-container" style="display: none;">
         <label for="body">Request Body (JSON)</label>
         <textarea id="body" rows="8" placeholder='{"key": "value"}'></textarea>
       </div>
-      
+
       <button id="send-btn">Send Request</button>
     </div>
-    
+
     <div class="response-container">
       <h2>Response</h2>
       <div id="error" class="error" style="display: none;"></div>
       <pre id="response"></pre>
     </div>
   </div>
-  
+
   <script>
     // DOM elements
     const endpointSelect = document.getElementById('endpoint');
@@ -169,7 +169,7 @@
     const authStatusElement = document.getElementById('auth-status');
     const loginBtn = document.getElementById('login-btn');
     const logoutBtn = document.getElementById('logout-btn');
-    
+
     // Show/hide body textarea based on method
     methodSelect.addEventListener('change', () => {
       if (methodSelect.value === 'POST' || methodSelect.value === 'PUT') {
@@ -178,19 +178,19 @@
         bodyContainer.style.display = 'none';
       }
     });
-    
+
     // Update endpoint when custom endpoint changes
     customEndpointInput.addEventListener('input', () => {
       if (customEndpointInput.value) {
         endpointSelect.value = customEndpointInput.value;
       }
     });
-    
+
     // Update custom endpoint when endpoint select changes
     endpointSelect.addEventListener('change', () => {
       customEndpointInput.value = endpointSelect.value;
     });
-    
+
     // Check if user is authenticated
     function checkAuth() {
       const token = localStorage.getItem('token');
@@ -206,7 +206,7 @@
         logoutBtn.style.display = 'none';
       }
     }
-    
+
     // Login as admin
     loginBtn.addEventListener('click', async () => {
       try {
@@ -220,13 +220,13 @@
             password: '123456',
           }),
         });
-        
+
         const data = await response.json();
-        
+
         if (data.token) {
           localStorage.setItem('token', data.token);
           checkAuth();
-          
+
           // Show response
           errorElement.style.display = 'none';
           responseElement.textContent = JSON.stringify(data, null, 2);
@@ -239,27 +239,27 @@
         responseElement.textContent = '';
       }
     });
-    
+
     // Logout
     logoutBtn.addEventListener('click', () => {
       localStorage.removeItem('token');
       checkAuth();
     });
-    
+
     // Send request
     sendBtn.addEventListener('click', async () => {
       try {
         // Get endpoint
         let endpoint = customEndpointInput.value || endpointSelect.value;
-        
+
         // Make sure endpoint starts with /api
         if (!endpoint.startsWith('/api')) {
           endpoint = `/api${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
         }
-        
+
         // Get method
         const method = methodSelect.value;
-        
+
         // Get body if needed
         let body = null;
         if ((method === 'POST' || method === 'PUT') && bodyTextarea.value) {
@@ -269,29 +269,29 @@
             throw new Error('Invalid JSON in request body');
           }
         }
-        
+
         // Get token if available
         const token = localStorage.getItem('token');
-        
+
         // Build headers
         const headers = {
           'Content-Type': 'application/json',
         };
-        
+
         if (token) {
           headers.Authorization = `Bearer ${token}`;
         }
-        
+
         // Send request
         const response = await fetch(endpoint, {
           method,
           headers,
           body: body ? JSON.stringify(body) : undefined,
         });
-        
+
         // Parse response
         const data = await response.json();
-        
+
         // Show response
         errorElement.style.display = 'none';
         responseElement.textContent = JSON.stringify(data, null, 2);
@@ -301,7 +301,7 @@
         responseElement.textContent = '';
       }
     });
-    
+
     // Initialize
     checkAuth();
     customEndpointInput.value = endpointSelect.value;

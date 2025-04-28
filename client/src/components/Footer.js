@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Column 1 - About */}
           <div>
-            <h3 className="text-xl font-bold mb-4">MovieHub</h3>
+            <h3 className="text-xl font-bold mb-4"><span className="text-primary">Movie</span>Hub</h3>
             <p className="text-gray-300 mb-4">
               The best movie booking platform for all your entertainment needs. Book tickets, explore events, and stay updated with the latest news.
             </p>
@@ -94,7 +94,7 @@ const Footer = () => {
               <input
                 type="email"
                 placeholder="Your email address"
-                className="px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                className="px-4 py-2 bg-dark text-white rounded-md focus:outline-none focus:ring-2 focus:ring-primary border border-gray-700"
               />
               <button type="submit" className="btn btn-primary">
                 Subscribe
