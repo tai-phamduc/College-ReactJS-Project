@@ -37,17 +37,17 @@ const HeroSlider = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       nextSlide();
-    }, 5000); // Change slide every 5 seconds
+    }, 3000); // Change slide every 3 seconds
 
     return () => clearInterval(interval);
-  }, [currentSlide]);
+  }, []);
 
   // Handle slide transition
   const nextSlide = () => {
     if (!isAnimating) {
       setIsAnimating(true);
       setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-      setTimeout(() => setIsAnimating(false), 500); // Match this with CSS transition time
+      setTimeout(() => setIsAnimating(false), 700); // Match this with CSS transition time
     }
   };
 
@@ -55,7 +55,7 @@ const HeroSlider = () => {
     if (!isAnimating) {
       setIsAnimating(true);
       setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-      setTimeout(() => setIsAnimating(false), 500); // Match this with CSS transition time
+      setTimeout(() => setIsAnimating(false), 700); // Match this with CSS transition time
     }
   };
 
@@ -64,7 +64,7 @@ const HeroSlider = () => {
     if (!isAnimating && index !== currentSlide) {
       setIsAnimating(true);
       setCurrentSlide(index);
-      setTimeout(() => setIsAnimating(false), 500); // Match this with CSS transition time
+      setTimeout(() => setIsAnimating(false), 700); // Match this with CSS transition time
     }
   };
 
@@ -74,19 +74,19 @@ const HeroSlider = () => {
       {slides.map((slide, index) => (
         <div
           key={slide.id}
-          className={`absolute inset-0 transition-opacity duration-1000 ${
+          className={`absolute inset-0 transition-opacity duration-700 ${
             index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
           }`}
         >
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-dark to-transparent z-10"></div>
-          
+
           {/* Background image */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center animate-subtle-zoom"
+          <div
+            className="absolute inset-0 bg-cover bg-center transform transition-transform duration-10000 scale-105 hover:scale-100"
             style={{ backgroundImage: `url(${slide.image})` }}
           ></div>
-          
+
           {/* Content */}
           <div className="container relative z-20 flex flex-col justify-center h-full">
             <h1 className="text-5xl md:text-6xl font-bold mb-4">
@@ -102,7 +102,7 @@ const HeroSlider = () => {
       ))}
 
       {/* Navigation arrows */}
-      <button 
+      <button
         className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/50 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
         onClick={prevSlide}
       >
@@ -110,8 +110,8 @@ const HeroSlider = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
       </button>
-      
-      <button 
+
+      <button
         className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/50 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
         onClick={nextSlide}
       >

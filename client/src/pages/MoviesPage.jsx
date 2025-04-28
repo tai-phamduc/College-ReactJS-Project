@@ -7,52 +7,94 @@ const MoviesPage = () => {
         <h1 className="section-title">
           <span className="text-primary">Our</span> Movies
         </h1>
-        
+
         {/* Filter Section */}
-        <div className="bg-secondary p-6 rounded-lg mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm mb-2">Genre</label>
-              <select className="w-full bg-light-gray text-white p-2 rounded-md">
-                <option value="">All Genres</option>
-                <option value="action">Action</option>
-                <option value="comedy">Comedy</option>
-                <option value="drama">Drama</option>
-                <option value="horror">Horror</option>
-                <option value="sci-fi">Sci-Fi</option>
-              </select>
+        <div className="bg-secondary p-6 rounded-lg mb-8 shadow-lg">
+          <h2 className="text-xl font-bold mb-4 flex items-center text-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clipRule="evenodd" />
+            </svg>
+            Filter Movies
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="filter-group">
+              <label className="block text-sm font-medium mb-2 text-gray-300">Genre</label>
+              <div className="relative">
+                <select className="w-full bg-dark border border-gray-700 text-white p-3 rounded-md appearance-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                  <option value="">All Genres</option>
+                  <option value="action">Action</option>
+                  <option value="comedy">Comedy</option>
+                  <option value="drama">Drama</option>
+                  <option value="horror">Horror</option>
+                  <option value="sci-fi">Sci-Fi</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                  </svg>
+                </div>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm mb-2">Language</label>
-              <select className="w-full bg-light-gray text-white p-2 rounded-md">
-                <option value="">All Languages</option>
-                <option value="english">English</option>
-                <option value="vietnamese">Vietnamese</option>
-                <option value="korean">Korean</option>
-                <option value="japanese">Japanese</option>
-              </select>
+            <div className="filter-group">
+              <label className="block text-sm font-medium mb-2 text-gray-300">Language</label>
+              <div className="relative">
+                <select className="w-full bg-dark border border-gray-700 text-white p-3 rounded-md appearance-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                  <option value="">All Languages</option>
+                  <option value="english">English</option>
+                  <option value="vietnamese">Vietnamese</option>
+                  <option value="korean">Korean</option>
+                  <option value="japanese">Japanese</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                  </svg>
+                </div>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm mb-2">Format</label>
-              <select className="w-full bg-light-gray text-white p-2 rounded-md">
-                <option value="">All Formats</option>
-                <option value="2d">2D</option>
-                <option value="3d">3D</option>
-                <option value="imax">IMAX</option>
-              </select>
+            <div className="filter-group">
+              <label className="block text-sm font-medium mb-2 text-gray-300">Format</label>
+              <div className="relative">
+                <select className="w-full bg-dark border border-gray-700 text-white p-3 rounded-md appearance-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                  <option value="">All Formats</option>
+                  <option value="2d">2D</option>
+                  <option value="3d">3D</option>
+                  <option value="imax">IMAX</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                  </svg>
+                </div>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm mb-2">Sort By</label>
-              <select className="w-full bg-light-gray text-white p-2 rounded-md">
-                <option value="popularity">Popularity</option>
-                <option value="release_date">Release Date</option>
-                <option value="title">Title</option>
-                <option value="rating">Rating</option>
-              </select>
+            <div className="filter-group">
+              <label className="block text-sm font-medium mb-2 text-gray-300">Sort By</label>
+              <div className="relative">
+                <select className="w-full bg-dark border border-gray-700 text-white p-3 rounded-md appearance-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                  <option value="popularity">Popularity</option>
+                  <option value="release_date">Release Date</option>
+                  <option value="title">Title</option>
+                  <option value="rating">Rating</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
+          <div className="mt-6 flex justify-end">
+            <button className="btn bg-dark text-white hover:bg-gray-800 mr-3">
+              Reset
+            </button>
+            <button className="btn btn-primary">
+              Apply Filters
+            </button>
+          </div>
         </div>
-        
+
         {/* Movies Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
@@ -72,7 +114,7 @@ const MoviesPage = () => {
             </div>
           ))}
         </div>
-        
+
         {/* Pagination */}
         <div className="flex justify-center">
           <div className="flex space-x-2">
