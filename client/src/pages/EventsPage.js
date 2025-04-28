@@ -37,27 +37,43 @@ const EventsPage = () => {
 
     if (searchQuery) {
       filtered = filtered.filter(item =>
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.location.toLowerCase().includes(searchQuery.toLowerCase())
+        item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.location?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     // Filter by event date
     const now = new Date();
     if (activeTab === 'upcoming') {
-      filtered = filtered.filter(item => new Date(item.date) > now);
+      filtered = filtered.filter(item => {
+        // Use startDate if available, otherwise fall back to date
+        const eventDate = item.startDate ? new Date(item.startDate) : (item.date ? new Date(item.date) : null);
+        return eventDate && eventDate > now;
+      });
     } else if (activeTab === 'past') {
-      filtered = filtered.filter(item => new Date(item.date) < now);
+      filtered = filtered.filter(item => {
+        // Use startDate if available, otherwise fall back to date
+        const eventDate = item.startDate ? new Date(item.startDate) : (item.date ? new Date(item.date) : null);
+        return eventDate && eventDate < now;
+      });
     }
 
     // Sort upcoming events by date (ascending)
     if (activeTab === 'upcoming') {
-      filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+      filtered.sort((a, b) => {
+        const dateA = a.startDate ? new Date(a.startDate) : (a.date ? new Date(a.date) : new Date(0));
+        const dateB = b.startDate ? new Date(b.startDate) : (b.date ? new Date(b.date) : new Date(0));
+        return dateA - dateB;
+      });
     }
     // Sort past events by date (descending)
     else if (activeTab === 'past') {
-      filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+      filtered.sort((a, b) => {
+        const dateA = a.startDate ? new Date(a.startDate) : (a.date ? new Date(a.date) : new Date(0));
+        const dateB = b.startDate ? new Date(b.startDate) : (b.date ? new Date(b.date) : new Date(0));
+        return dateB - dateA;
+      });
     }
 
     setFilteredEvents(filtered);
@@ -68,8 +84,14 @@ const EventsPage = () => {
   };
 
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-US', options);
+    if (!dateString) return 'Date not available';
+    try {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('en-US', options);
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid date';
+    }
   };
 
   if (loading) {
@@ -170,7 +192,8 @@ const EventsPage = () => {
         {filteredEvents.length > 0 ? (
           <div className="space-y-6">
             {filteredEvents.map((event) => {
-              const isUpcoming = new Date(event.date) > new Date();
+              const eventDate = event.startDate ? new Date(event.startDate) : (event.date ? new Date(event.date) : null);
+              const isUpcoming = eventDate && eventDate > new Date();
 
               return (
                 <div
@@ -180,7 +203,7 @@ const EventsPage = () => {
                   <div className="flex flex-col md:flex-row">
                     <div className="md:w-1/3 h-48 md:h-auto relative">
                       <img
-                        src={event.image || `https://via.placeholder.com/800x450/1A202C/FFFFFF?text=${encodeURIComponent(event.title)}`}
+                        src={event.featuredImage || event.image || `https://via.placeholder.com/800x450/1A202C/FFFFFF?text=${encodeURIComponent(event.title)}`}
                         alt={event.title}
                         className={`w-full h-full object-cover ${!isUpcoming ? 'opacity-80 grayscale-[30%]' : ''}`}
                         loading="lazy"
@@ -227,31 +250,38 @@ const EventsPage = () => {
                         <div className="flex items-center text-gray-300">
                           <FaCalendarAlt className={`mr-2 ${isUpcoming ? 'text-primary' : 'text-gray-500'}`} />
                           <span>
-                            {formatDate(event.date)}
+                            {formatDate(event.startDate || event.date)}
                           </span>
                         </div>
 
                         <div className="flex items-center text-gray-300">
                           <FaClock className={`mr-2 ${isUpcoming ? 'text-primary' : 'text-gray-500'}`} />
-                          <span>{event.startTime} - {event.endTime}</span>
+                          <span>
+                            {event.startTime && event.endTime
+                              ? `${event.startTime} - ${event.endTime}`
+                              : event.startDate && event.endDate
+                                ? `${new Date(event.startDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${new Date(event.endDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`
+                                : 'Time not specified'
+                            }
+                          </span>
                         </div>
 
                         <div className="flex items-center text-gray-300">
                           <FaMapMarkerAlt className={`mr-2 ${isUpcoming ? 'text-primary' : 'text-gray-500'}`} />
-                          <span>{event.location}</span>
+                          <span>{event.location || 'Location not specified'}</span>
                           {!isUpcoming && event.venue && (
                             <span className="ml-1 text-gray-500">({event.venue})</span>
                           )}
                         </div>
 
-                        {event.ticketPrice && (
+                        {(event.ticketPrice || event.ticketPrice === 0) && (
                           <div className="flex items-center text-gray-300">
                             <FaTicketAlt className={`mr-2 ${isUpcoming ? 'text-primary' : 'text-gray-500'}`} />
                             <span>
                               {typeof event.ticketPrice === 'number'
                                 ? `$${event.ticketPrice.toFixed(2)}`
                                 : event.ticketPrice}
-                              {!isUpcoming &&
+                              {!isUpcoming && event.capacity &&
                                 ` · ${event.attendees || 0}/${event.capacity} attended`}
                             </span>
                           </div>

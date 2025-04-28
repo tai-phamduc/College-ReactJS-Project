@@ -1,11 +1,55 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FaFilter, FaSearch, FaTimes } from 'react-icons/fa';
+import { movieService } from '../services/api.js';
 
 const MoviesPage = () => {
   const [searchParams] = useSearchParams();
   const statusFilter = searchParams.get('status') || 'All';
   const genreDropdownRef = useRef(null);
+  const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch movies from API
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        setLoading(true);
+        let data;
+
+        if (statusFilter === 'All') {
+          data = await movieService.getMovies();
+        } else {
+          data = await movieService.getMoviesByStatus(statusFilter);
+        }
+
+        // If data is an object with movies property, extract it
+        const moviesArray = data.movies || data;
+
+        // Transform API data to match the expected format
+        const formattedMovies = moviesArray.map(movie => ({
+          id: movie._id,
+          title: movie.title,
+          genre: Array.isArray(movie.genre) ? movie.genre.join(', ') : movie.genre,
+          duration: `${movie.duration} Mins`,
+          status: movie.status,
+          image: movie.poster || '/images/placeholder.jpg',
+          link: `/movies/${movie._id}`,
+        }));
+
+        setMovies(formattedMovies);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching movies:', err);
+        setError('Failed to load movies. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMovies();
+  }, [statusFilter]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -20,82 +64,6 @@ const MoviesPage = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  // This would be replaced with actual data from the API
-  const movies = [
-    {
-      id: 1,
-      title: 'The Fifth Day',
-      genre: 'Comedy',
-      duration: '180 Mins',
-      status: 'Now Playing',
-      image: '/images/placeholder.jpg',
-      link: '/movies/1',
-    },
-    {
-      id: 2,
-      title: 'Black and White Twins',
-      genre: 'Animation, Comedy',
-      duration: '190 Mins',
-      status: 'Now Playing',
-      image: '/images/placeholder.jpg',
-      link: '/movies/2',
-    },
-    {
-      id: 3,
-      title: 'The Scariest Dream',
-      genre: 'Thriller',
-      duration: '180 Mins',
-      status: 'Now Playing',
-      image: '/images/placeholder.jpg',
-      link: '/movies/3',
-    },
-    {
-      id: 4,
-      title: 'The Pursuit of Dreams',
-      genre: 'Animation',
-      duration: '180 Mins',
-      status: 'Now Playing',
-      image: '/images/placeholder.jpg',
-      link: '/movies/4',
-    },
-    {
-      id: 5,
-      title: 'Into the Wild',
-      genre: 'Adventure',
-      duration: '190 Mins',
-      status: 'Coming Soon',
-      image: '/images/placeholder.jpg',
-      link: '/movies/5',
-    },
-    {
-      id: 6,
-      title: 'Wrong Turns Part 2',
-      genre: 'Thriller',
-      duration: '180 Mins',
-      status: 'Coming Soon',
-      image: '/images/placeholder.jpg',
-      link: '/movies/6',
-    },
-    {
-      id: 7,
-      title: 'The Witcher Season 2',
-      genre: 'Action, Thriller',
-      duration: '180 Mins',
-      status: 'Featured',
-      image: '/images/placeholder.jpg',
-      link: '/movies/7',
-    },
-    {
-      id: 8,
-      title: 'The Way of Water',
-      genre: 'Adventure, Crime',
-      duration: '190 Mins',
-      status: 'Featured',
-      image: '/images/placeholder.jpg',
-      link: '/movies/8',
-    },
-  ];
 
   // Filter movies based on status
   const filteredMovies = statusFilter === 'All'
@@ -310,12 +278,34 @@ const MoviesPage = () => {
           </div>
         </div>
 
-        {/* Movies Grid */}
-        {displayedMovies.length > 0 ? (
+        {/* Loading and Error States */}
+        {loading ? (
+          <div className="text-center py-12">
+            <h3 className="text-xl font-semibold mb-2">Loading movies...</h3>
+            <p className="text-gray-400">Please wait while we fetch the latest movies.</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <h3 className="text-xl font-semibold mb-2">Error</h3>
+            <p className="text-gray-400">{error}</p>
+          </div>
+        ) : displayedMovies.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {displayedMovies.map((movie) => (
               <div key={movie.id} className="bg-secondary rounded-lg overflow-hidden shadow-lg">
-                <div className="h-64 bg-gray-700"></div>
+                <div className="h-64 bg-gray-700 relative overflow-hidden">
+                  {movie.image && (
+                    <img
+                      src={movie.image}
+                      alt={movie.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/images/placeholder.jpg';
+                      }}
+                    />
+                  )}
+                </div>
                 <div className="p-4">
                   <h3 className="text-lg font-semibold mb-2">{movie.title}</h3>
                   <div className="flex justify-between items-center mb-4">

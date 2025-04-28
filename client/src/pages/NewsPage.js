@@ -44,14 +44,22 @@ const NewsPage = () => {
 
     if (searchQuery) {
       filtered = filtered.filter(item =>
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.content.toLowerCase().includes(searchQuery.toLowerCase())
+        (item.title && item.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (item.content && item.content.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (item.excerpt && item.excerpt.toLowerCase().includes(searchQuery.toLowerCase()))
       );
     }
 
-    if (selectedCategory !== 'all') {
+    if (selectedCategory !== 'all' && selectedCategory) {
       filtered = filtered.filter(item => item.category === selectedCategory);
     }
+
+    // Sort by publish date (newest first)
+    filtered.sort((a, b) => {
+      const dateA = a.publishedAt ? new Date(a.publishedAt) : (a.publishDate ? new Date(a.publishDate) : new Date(0));
+      const dateB = b.publishedAt ? new Date(b.publishedAt) : (b.publishDate ? new Date(b.publishDate) : new Date(0));
+      return dateB - dateA;
+    });
 
     setFilteredNews(filtered);
   }, [searchQuery, selectedCategory, news]);
@@ -143,22 +151,38 @@ const NewsPage = () => {
                 <div className="p-6">
                   <div className="flex justify-between items-center mb-3">
                     <span className="bg-primary text-white text-xs px-2 py-1 rounded">
-                      {item.category}
+                      {item.category || 'General'}
                     </span>
                     <div className="flex items-center text-gray-400 text-sm">
                       <FaCalendarAlt className="mr-1" />
-                      <span>{new Date(item.publishDate).toLocaleDateString()}</span>
+                      <span>
+                        {item.publishedAt
+                          ? new Date(item.publishedAt).toLocaleDateString()
+                          : item.publishDate
+                            ? new Date(item.publishDate).toLocaleDateString()
+                            : 'Date not available'
+                        }
+                      </span>
                     </div>
                   </div>
 
                   <h2 className="text-xl font-bold mb-3 line-clamp-2">{item.title}</h2>
 
-                  <p className="text-gray-400 mb-4 line-clamp-3">{item.excerpt || item.content.substring(0, 150)}...</p>
+                  <p className="text-gray-400 mb-4 line-clamp-3">
+                    {item.excerpt
+                      ? item.excerpt
+                      : item.content
+                        ? (typeof item.content === 'string'
+                            ? item.content.substring(0, 150) + '...'
+                            : 'Content not available')
+                        : 'Content not available'
+                    }
+                  </p>
 
                   <div className="flex justify-between items-center">
                     <div className="flex items-center text-gray-400 text-sm">
                       <FaUser className="mr-1" />
-                      <span>{item.authorName || 'Staff Writer'}</span>
+                      <span>{item.authorName || item.author || 'Staff Writer'}</span>
                     </div>
                     <Link
                       to={`/news/${item._id}`}
