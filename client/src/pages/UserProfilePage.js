@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaUser, FaEnvelope, FaTicketAlt, FaCog, FaHistory, FaStar, FaEdit, FaRobot, FaFilm } from 'react-icons/fa';
-import { authService, movieService } from '../services/api';
+import { authService, movieService, bookingService } from '../services/api';
 import UserInsights from '../components/analytics/UserInsights';
 
 const UserProfilePage = () => {
@@ -31,12 +31,20 @@ const UserProfilePage = () => {
         // Fetch user's bookings from the API
         try {
           const userBookings = await bookingService.getUserBookings();
-          // Sort bookings by date (most recent first)
-          const sortedBookings = userBookings.sort((a, b) =>
-            new Date(b.bookingDate || b.createdAt) - new Date(a.bookingDate || a.createdAt)
-          );
-          // Limit to the 2 most recent bookings for the profile page
-          setBookings(sortedBookings.slice(0, 2));
+
+          // Check if we got valid bookings
+          if (userBookings && Array.isArray(userBookings) && userBookings.length > 0) {
+            // Sort bookings by date (most recent first)
+            const sortedBookings = userBookings.sort((a, b) =>
+              new Date(b.bookingDate || b.createdAt || Date.now()) -
+              new Date(a.bookingDate || a.createdAt || Date.now())
+            );
+            // Limit to the 2 most recent bookings for the profile page
+            setBookings(sortedBookings.slice(0, 2));
+          } else {
+            // No bookings found
+            setBookings([]);
+          }
         } catch (bookingError) {
           console.error('Error fetching user bookings:', bookingError);
           // Continue with empty bookings
@@ -45,13 +53,20 @@ const UserProfilePage = () => {
 
         // Fetch user's reviews from the API
         try {
-          const userReviews = await movieService.getUserReviews(currentUser._id);
-          // Sort reviews by date (most recent first)
-          const sortedReviews = userReviews.sort((a, b) =>
-            new Date(b.createdAt) - new Date(a.createdAt)
-          );
-          // Limit to the 2 most recent reviews for the profile page
-          setReviews(sortedReviews.slice(0, 2));
+          const userReviews = await movieService.getUserReviews(currentUser._id || currentUser.id);
+
+          // Check if we got valid reviews
+          if (userReviews && Array.isArray(userReviews) && userReviews.length > 0) {
+            // Sort reviews by date (most recent first)
+            const sortedReviews = userReviews.sort((a, b) =>
+              new Date(b.createdAt || Date.now()) - new Date(a.createdAt || Date.now())
+            );
+            // Limit to the 2 most recent reviews for the profile page
+            setReviews(sortedReviews.slice(0, 2));
+          } else {
+            // No reviews found
+            setReviews([]);
+          }
         } catch (reviewError) {
           console.error('Error fetching user reviews:', reviewError);
           // Continue with empty reviews

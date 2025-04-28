@@ -189,6 +189,39 @@ export const movieService = {
       return [];
     }
   },
+
+  // Get user reviews
+  getUserReviews: async (userId) => {
+    try {
+      const response = await api.get(`/reviews/user/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching reviews for user ${userId}:`, error);
+      return [];
+    }
+  },
+
+  // Get movie reviews
+  getMovieReviews: async (movieId) => {
+    try {
+      const response = await api.get(`/reviews/movie/${movieId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching reviews for movie ${movieId}:`, error);
+      return [];
+    }
+  },
+
+  // Add a review
+  addReview: async (reviewData) => {
+    try {
+      const response = await api.post('/reviews', reviewData);
+      return response.data;
+    } catch (error) {
+      console.error('Error adding review:', error);
+      throw error;
+    }
+  },
 };
 
 // Event API services
