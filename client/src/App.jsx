@@ -9,7 +9,9 @@ import AdminLayout from './layouts/AdminLayout';
 // Public Pages
 import MoviesPage from './pages/MoviesPage';
 import EventsPage from './pages/EventsPage';
+import EventDetailPage from './pages/EventDetailPage';
 import NewsPage from './pages/NewsPage';
+import NewsDetailPage from './pages/NewsDetailPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import MovieDetailsPage from './pages/MovieDetailsPage';
@@ -61,7 +63,9 @@ function App() {
         <Route path="/movies" element={<MoviesPage />} />
         <Route path="/movies/:id" element={<MovieDetailsPage />} />
         <Route path="/events" element={<EventsPage />} />
+        <Route path="/events/:id" element={<EventDetailPage />} />
         <Route path="/news" element={<NewsPage />} />
+        <Route path="/news/:id" element={<NewsDetailPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -72,7 +76,7 @@ function App() {
       <Route element={<UserLayout />}>
         <Route path="/profile" element={<UserProfilePage />} />
         <Route path="/booking/:id" element={<BookingPage />} />
-        <Route path="/my-bookings" element={<div>My Bookings Page</div>} />
+
         <Route path="/favorites" element={<div>Favorites Page</div>} />
         <Route path="/my-reviews" element={<div>My Reviews Page</div>} />
         <Route path="/account/reminders" element={<div>Reminders Settings Page</div>} />

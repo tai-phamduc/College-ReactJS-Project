@@ -170,13 +170,7 @@ const Header = () => {
                     </Link>
                   )}
 
-                  <Link
-                    to="/my-bookings"
-                    className="block px-4 py-2 text-white hover:bg-gray-700 flex items-center"
-                  >
-                    <FaTicketAlt className="mr-2" />
-                    My Bookings
-                  </Link>
+
                   <Link
                     to="/account/reminders"
                     className="block px-4 py-2 text-white hover:bg-gray-700 flex items-center"
@@ -307,14 +301,7 @@ const Header = () => {
                       </Link>
                     )}
 
-                    <Link
-                      to="/my-bookings"
-                      className="flex items-center text-white hover:text-primary"
-                      onClick={toggleMenu}
-                    >
-                      <FaTicketAlt className="mr-2" />
-                      My Bookings
-                    </Link>
+
                     <Link
                       to="/account/reminders"
                       className="flex items-center text-white hover:text-primary"

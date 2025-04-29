@@ -12,10 +12,10 @@ const ComingSoonMovies = () => {
       try {
         setLoading(true);
         const response = await movieService.getMovies({ status: 'Coming Soon', limit: 3 });
-        
+
         // Check if response is an array or has a movies property
         const moviesData = Array.isArray(response) ? response : response.movies || [];
-        
+
         setMovies(moviesData);
         setLoading(false);
       } catch (err) {
@@ -41,7 +41,7 @@ const ComingSoonMovies = () => {
         <h2 className="section-title">
           <span className="text-primary">Coming</span> Soon
         </h2>
-        
+
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -60,10 +60,29 @@ const ComingSoonMovies = () => {
             {movies.map((movie) => (
               <div key={movie._id} className="card">
                 <div className="aspect-[2/3] bg-light-gray overflow-hidden">
-                  <div 
-                    className="h-full w-full bg-cover bg-center"
-                    style={{ backgroundImage: `url(${movie.poster})` }}
-                  ></div>
+                  <img
+                    src={
+                      movie.poster ||
+                      movie.images?.[0] ||
+                      movie.posterUrl ||
+                      movie.image ||
+                      'https://placehold.co/300x450/222222/FFA500?text=' + encodeURIComponent(movie.title || 'Movie')
+                    }
+                    alt={movie.title}
+                    className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                    onError={(e) => {
+                      e.target.onerror = null; // Prevent infinite loop
+                      // Try with http if https fails
+                      if (e.target.src.startsWith('https://')) {
+                        const httpUrl = e.target.src.replace('https://', 'http://');
+                        console.log('Trying HTTP URL instead:', httpUrl);
+                        e.target.src = httpUrl;
+                      } else {
+                        // Use a placeholder with the movie title
+                        e.target.src = 'https://placehold.co/300x450/222222/FFA500?text=' + encodeURIComponent(movie.title || 'Movie');
+                      }
+                    }}
+                  />
                 </div>
                 <div className="card-body">
                   <h3 className="text-xl font-bold mb-2">{movie.title}</h3>
@@ -75,7 +94,7 @@ const ComingSoonMovies = () => {
             ))}
           </div>
         )}
-        
+
         <div className="text-center mt-12">
           <Link to="/movies" className="btn btn-outline">View All Movies</Link>
         </div>

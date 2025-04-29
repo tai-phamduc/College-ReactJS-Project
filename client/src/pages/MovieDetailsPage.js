@@ -118,13 +118,21 @@ const MovieDetailsPage = () => {
             <div className="hidden md:block transform hover:scale-105 transition-transform duration-300">
               {movie.poster ? (
                 <img
-                  src={movie.poster}
+                  src={movie.poster || movie.images?.[0] || movie.posterUrl || movie.image}
                   alt={movie.title}
                   className="h-[450px] w-auto rounded-lg shadow-2xl object-cover border-4 border-gray-800"
                   loading="eager"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = `https://via.placeholder.com/500x750/1A202C/FFFFFF?text=${encodeURIComponent(movie.title)}`;
+                    // Try with http if https fails
+                    if (e.target.src.startsWith('https://')) {
+                      const httpUrl = e.target.src.replace('https://', 'http://');
+                      console.log('Trying HTTP URL instead:', httpUrl);
+                      e.target.src = httpUrl;
+                    } else {
+                      // Use a placeholder with the movie title
+                      e.target.src = `https://placehold.co/500x750/222222/FFA500?text=${encodeURIComponent(movie.title || 'Movie')}`;
+                    }
                   }}
                 />
               ) : (
@@ -397,7 +405,15 @@ const MovieDetailsPage = () => {
                               loading="lazy"
                               onError={(e) => {
                                 e.target.onerror = null;
-                                e.target.src = `https://via.placeholder.com/300x450/1A202C/FFFFFF?text=${encodeURIComponent(actor.name)}`;
+                                // Try with http if https fails
+                                if (e.target.src.startsWith('https://')) {
+                                  const httpUrl = e.target.src.replace('https://', 'http://');
+                                  console.log('Trying HTTP URL instead:', httpUrl);
+                                  e.target.src = httpUrl;
+                                } else {
+                                  // Use a placeholder with the actor name
+                                  e.target.src = `https://placehold.co/300x450/222222/FFA500?text=${encodeURIComponent(actor.name)}`;
+                                }
                               }}
                             />
                           ) : (
@@ -573,7 +589,15 @@ const MovieDetailsPage = () => {
                           loading="lazy"
                           onError={(e) => {
                             e.target.onerror = null;
-                            e.target.src = `https://via.placeholder.com/400x300/1A202C/FFFFFF?text=Gallery+${index+1}`;
+                            // Try with http if https fails
+                            if (e.target.src.startsWith('https://')) {
+                              const httpUrl = e.target.src.replace('https://', 'http://');
+                              console.log('Trying HTTP URL instead:', httpUrl);
+                              e.target.src = httpUrl;
+                            } else {
+                              // Use a placeholder
+                              e.target.src = `https://placehold.co/400x300/222222/FFA500?text=Gallery+${index+1}`;
+                            }
                           }}
                         />
                       </div>
@@ -633,9 +657,21 @@ const MovieDetailsPage = () => {
         <div className="absolute inset-0 z-0">
           {movie.backdrop ? (
             <img
-              src={movie.backdrop}
+              src={movie.backdrop || movie.images?.[0] || movie.posterUrl || movie.image}
               alt="Background"
               className="w-full h-full object-cover opacity-20 blur-sm"
+              onError={(e) => {
+                e.target.onerror = null;
+                // Try with http if https fails
+                if (e.target.src.startsWith('https://')) {
+                  const httpUrl = e.target.src.replace('https://', 'http://');
+                  console.log('Trying HTTP URL instead:', httpUrl);
+                  e.target.src = httpUrl;
+                } else {
+                  // Remove the image element if all attempts fail
+                  e.target.style.display = 'none';
+                }
+              }}
             />
           ) : null}
           <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-red-700/90"></div>
@@ -648,9 +684,21 @@ const MovieDetailsPage = () => {
               <div className="w-full md:w-1/3">
                 <div className="relative">
                   <img
-                    src={movie.poster || `https://via.placeholder.com/300x450/1A202C/FFFFFF?text=${encodeURIComponent(movie.title)}`}
+                    src={movie.poster || movie.images?.[0] || movie.posterUrl || movie.image}
                     alt={movie.title}
                     className="w-full h-auto rounded-lg shadow-lg transform rotate-1 border-4 border-white/10"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      // Try with http if https fails
+                      if (e.target.src.startsWith('https://')) {
+                        const httpUrl = e.target.src.replace('https://', 'http://');
+                        console.log('Trying HTTP URL instead:', httpUrl);
+                        e.target.src = httpUrl;
+                      } else {
+                        // Use a placeholder with the movie title
+                        e.target.src = `https://placehold.co/300x450/222222/FFA500?text=${encodeURIComponent(movie.title || 'Movie')}`;
+                      }
+                    }}
                   />
                   {movie.rating && (
                     <div className="absolute -top-3 -right-3 bg-yellow-500 text-gray-900 font-bold rounded-full w-12 h-12 flex items-center justify-center shadow-lg border-2 border-gray-900">

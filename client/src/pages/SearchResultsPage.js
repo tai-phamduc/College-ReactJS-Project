@@ -54,7 +54,7 @@ const SearchResultsPage = () => {
             .map(movie => movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : null)
             .filter(year => year !== null)
         )].sort((a, b) => b - a); // Sort years in descending order
-        
+
         setYears(uniqueYears);
         setLoading(false);
       } catch (err) {
@@ -73,24 +73,24 @@ const SearchResultsPage = () => {
     if (filters.genre && (!movie.genres || !movie.genres.some(g => g._id === filters.genre))) {
       return false;
     }
-    
+
     // Filter by year
     if (filters.year && (!movie.releaseDate || new Date(movie.releaseDate).getFullYear() !== parseInt(filters.year))) {
       return false;
     }
-    
+
     // Filter by rating
     if (filters.rating && (!movie.rating || parseFloat(movie.rating) < parseFloat(filters.rating))) {
       return false;
     }
-    
+
     return true;
   });
 
   // Get visible results based on active tab
-  const visibleResults = activeTab === 'all' 
+  const visibleResults = activeTab === 'all'
     ? { movies: filteredMovies, events: results.events, news: results.news }
-    : activeTab === 'movies' 
+    : activeTab === 'movies'
       ? { movies: filteredMovies, events: [], news: [] }
       : activeTab === 'events'
         ? { movies: [], events: results.events, news: [] }
@@ -98,12 +98,12 @@ const SearchResultsPage = () => {
 
   // Total count of results
   const totalCount = filteredMovies.length + results.events.length + results.news.length;
-  
+
   // Handle filter changes
   const handleFilterChange = (name, value) => {
     setFilters(prev => ({ ...prev, [name]: value }));
   };
-  
+
   // Clear all filters
   const clearFilters = () => {
     setFilters({ genre: '', year: '', rating: '' });
@@ -168,7 +168,7 @@ const SearchResultsPage = () => {
                 <FaFilter className="mr-2" />
                 {showFilters ? 'Hide Filters' : 'Show Filters'}
               </button>
-              
+
               {Object.values(filters).some(v => v) && (
                 <button
                   className="flex items-center text-gray-400 hover:text-white"
@@ -179,7 +179,7 @@ const SearchResultsPage = () => {
                 </button>
               )}
             </div>
-            
+
             {showFilters && (
               <div className="bg-secondary p-4 rounded-lg mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -199,7 +199,7 @@ const SearchResultsPage = () => {
                       ))}
                     </select>
                   </div>
-                  
+
                   {/* Year Filter */}
                   <div>
                     <label className="block text-gray-300 mb-2">Year</label>
@@ -216,7 +216,7 @@ const SearchResultsPage = () => {
                       ))}
                     </select>
                   </div>
-                  
+
                   {/* Rating Filter */}
                   <div>
                     <label className="block text-gray-300 mb-2">Minimum Rating</label>
@@ -274,13 +274,23 @@ const SearchResultsPage = () => {
                   {visibleResults.movies.map(movie => (
                     <div key={movie._id} className="bg-secondary rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105">
                       <div className="h-64 bg-gray-700 relative">
-                        {movie.poster && (
-                          <img 
-                            src={movie.poster} 
-                            alt={movie.title} 
-                            className="w-full h-full object-cover"
-                          />
-                        )}
+                        <img
+                          src={movie.poster || movie.images?.[0] || movie.posterUrl || movie.image || `https://placehold.co/300x450/222222/FFA500?text=${encodeURIComponent(movie.title || 'Movie')}`}
+                          alt={movie.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            // Try with http if https fails
+                            if (e.target.src.startsWith('https://')) {
+                              const httpUrl = e.target.src.replace('https://', 'http://');
+                              console.log('Trying HTTP URL instead:', httpUrl);
+                              e.target.src = httpUrl;
+                            } else {
+                              // Use a placeholder with the movie title
+                              e.target.src = `https://placehold.co/300x450/222222/FFA500?text=${encodeURIComponent(movie.title || 'Movie')}`;
+                            }
+                          }}
+                        />
                         {movie.rating && (
                           <div className="absolute top-2 right-2 bg-primary text-white text-sm font-bold px-2 py-1 rounded">
                             <FaStar className="inline mr-1" />
@@ -320,13 +330,23 @@ const SearchResultsPage = () => {
                   {visibleResults.events.map(event => (
                     <div key={event._id} className="flex bg-secondary rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105">
                       <div className="w-1/3 bg-gray-700 relative">
-                        {event.image && (
-                          <img 
-                            src={event.image} 
-                            alt={event.title} 
-                            className="w-full h-full object-cover"
-                          />
-                        )}
+                        <img
+                          src={event.image || event.images?.[0] || event.imageUrl || `https://placehold.co/300x450/222222/FFA500?text=${encodeURIComponent(event.title || 'Event')}`}
+                          alt={event.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            // Try with http if https fails
+                            if (e.target.src.startsWith('https://')) {
+                              const httpUrl = e.target.src.replace('https://', 'http://');
+                              console.log('Trying HTTP URL instead:', httpUrl);
+                              e.target.src = httpUrl;
+                            } else {
+                              // Use a placeholder with the event title
+                              e.target.src = `https://placehold.co/300x450/222222/FFA500?text=${encodeURIComponent(event.title || 'Event')}`;
+                            }
+                          }}
+                        />
                       </div>
                       <div className="w-2/3 p-4">
                         <div className="flex items-center text-primary mb-2">
@@ -355,13 +375,23 @@ const SearchResultsPage = () => {
                   {visibleResults.news.map(item => (
                     <div key={item._id} className="bg-secondary rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105">
                       <div className="h-48 bg-gray-700 relative">
-                        {item.image && (
-                          <img 
-                            src={item.image} 
-                            alt={item.title} 
-                            className="w-full h-full object-cover"
-                          />
-                        )}
+                        <img
+                          src={item.image || item.featuredImage || item.images?.[0] || item.imageUrl || `https://placehold.co/800x450/222222/FFA500?text=${encodeURIComponent(item.title || 'News')}`}
+                          alt={item.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            // Try with http if https fails
+                            if (e.target.src.startsWith('https://')) {
+                              const httpUrl = e.target.src.replace('https://', 'http://');
+                              console.log('Trying HTTP URL instead:', httpUrl);
+                              e.target.src = httpUrl;
+                            } else {
+                              // Use a placeholder with the news title
+                              e.target.src = `https://placehold.co/800x450/222222/FFA500?text=${encodeURIComponent(item.title || 'News')}`;
+                            }
+                          }}
+                        />
                       </div>
                       <div className="p-4">
                         <div className="flex items-center text-gray-400 mb-2">
