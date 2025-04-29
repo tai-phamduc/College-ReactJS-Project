@@ -760,17 +760,18 @@ const BookingPage = () => {
           {step === 1 && (
             <div>
               <h3 className="text-xl font-semibold mb-4">Select Date</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-8">
+              <div className="flex overflow-x-auto md:grid md:grid-cols-7 gap-2 mb-8 pb-2 -mx-1 px-1">
                 {dates.map(date => (
                   <button
                     key={date.id}
-                    className={`p-3 rounded-lg border ${selectedDate?.id === date.id ? 'border-primary bg-primary bg-opacity-20' : 'border-gray-700'} hover:border-primary transition-colors`}
+                    className={`p-2 rounded-lg border flex-shrink-0 md:flex-shrink w-[calc(100%/7-0.5rem)] md:w-auto mx-1 md:mx-0 ${selectedDate?.id === date.id ? 'border-primary bg-primary bg-opacity-20' : 'border-gray-700'} hover:border-primary transition-colors`}
                     onClick={() => handleDateSelect(date)}
                   >
                     <div className="flex flex-col items-center">
-                      <FaCalendarAlt className={`mb-2 ${date.isToday ? 'text-primary' : ''}`} />
-                      <span>{date.isToday ? 'Today' : date.display}</span>
-                      {date.isToday && <span className="text-xs text-primary mt-1">Today</span>}
+                      <FaCalendarAlt className={`${date.isToday ? 'text-primary' : ''}`} />
+                      <span className="text-xs font-medium mt-1">{date.isToday ? 'Today' : date.date.toLocaleDateString('en-US', {weekday: 'short'})}</span>
+                      <span className="text-xs mt-0.5">{date.date.getDate()}</span>
+                      <span className="text-xs text-gray-400">{date.date.toLocaleDateString('en-US', {month: 'short'})}</span>
                     </div>
                   </button>
                 ))}
