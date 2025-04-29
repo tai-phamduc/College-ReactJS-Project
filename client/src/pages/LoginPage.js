@@ -35,7 +35,8 @@ const LoginPage = () => {
 
       // Always enable sample users for testing
       if (true &&
-          (email === 'user@example.com' ||
+          (email === 'admin@example.com' ||
+           email === 'user@example.com' ||
            email === 'johndoe@example.com' ||
            email === 'janesmith@example.com') &&
           password === 'password123') {
@@ -44,14 +45,16 @@ const LoginPage = () => {
 
         // Create a mock user response
         const mockUserData = {
-          _id: email === 'user@example.com' ? '68103f6d15a978dacd8967b8' :
+          _id: email === 'admin@example.com' ? '68103f6d15a978dacd8967b7' :
+               email === 'user@example.com' ? '68103f6d15a978dacd8967b8' :
                email === 'johndoe@example.com' ? '68103f8a15a978dacd8967b9' :
                '68103fae15a978dacd8967ba',
-          name: email === 'user@example.com' ? 'Regular User' :
+          name: email === 'admin@example.com' ? 'Admin User' :
+                email === 'user@example.com' ? 'Regular User' :
                 email === 'johndoe@example.com' ? 'John Doe' :
                 'Jane Smith',
           email: email,
-          role: 'user',
+          role: email === 'admin@example.com' ? 'admin' : 'user',
           token: 'mock-token-' + Date.now()
         };
 
@@ -63,9 +66,13 @@ const LoginPage = () => {
         window.dispatchEvent(new Event('auth-change'));
 
         // Redirect based on user role
+        console.log('Login successful with mock user:', mockUserData);
+
         if (mockUserData.role === 'admin') {
+          console.log('Redirecting admin to /admin');
           navigate('/admin');
         } else {
+          console.log('Redirecting user to /dashboard');
           navigate('/dashboard');
         }
         return;
@@ -86,9 +93,13 @@ const LoginPage = () => {
         // and dispatching the auth-change event
 
         // Redirect based on user role
+        console.log('Login successful with API response:', response);
+
         if (response.role === 'admin') {
+          console.log('Redirecting admin to /admin');
           navigate('/admin');
         } else {
+          console.log('Redirecting user to /dashboard');
           navigate('/dashboard');
         }
       } catch (apiError) {

@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
-  FaTachometerAlt, 
-  FaFilm, 
-  FaCalendarAlt, 
-  FaNewspaper, 
-  FaUsers, 
-  FaTicketAlt, 
-  FaComments, 
-  FaCog, 
-  FaChartBar, 
-  FaBars, 
-  FaTimes 
+import {
+  FaTachometerAlt,
+  FaFilm,
+  FaCalendarAlt,
+  FaNewspaper,
+  FaUsers,
+  FaTicketAlt,
+  FaComments,
+  FaCog,
+  FaChartBar,
+  FaBars,
+  FaTimes
 } from 'react-icons/fa';
 
 const AdminSidebar = () => {
@@ -40,7 +40,7 @@ const AdminSidebar = () => {
 
   const sidebarClasses = `bg-dark h-screen ${
     collapsed ? 'w-20' : 'w-64'
-  } transition-all duration-300 ease-in-out hidden md:block`;
+  } transition-all duration-300 ease-in-out md:block`;
 
   const mobileSidebarClasses = `fixed inset-0 bg-dark z-50 md:hidden ${
     mobileOpen ? 'block' : 'hidden'

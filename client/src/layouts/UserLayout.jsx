@@ -44,6 +44,15 @@ const UserLayout = () => {
     return <Navigate to="/login" replace />;
   }
 
+  // Log user info for debugging
+  console.log('UserLayout - User info:', user);
+
+  // Redirect admin to admin dashboard
+  if (user.role === 'admin') {
+    console.log('User is admin, redirecting to admin dashboard');
+    return <Navigate to="/admin" replace />;
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />

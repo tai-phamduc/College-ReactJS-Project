@@ -39,19 +39,27 @@ const AdminLayout = () => {
   }
 
   // Redirect if not logged in or not admin
-  if (!user || user.role !== 'admin') {
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 
+  // Log user info for debugging
+  console.log('AdminLayout - User info:', user);
+
+  if (user.role !== 'admin') {
+    console.log('User is not admin, redirecting to dashboard');
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
-    <div className="flex h-screen bg-dark text-white">
+    <div className="flex h-screen bg-dark text-white overflow-hidden">
       {/* Sidebar */}
       <AdminSidebar />
-      
+
       {/* Main Content */}
       <div className="flex flex-col flex-1 overflow-hidden">
         <AdminHeader user={user} />
-        
+
         <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-secondary">
           <Outlet />
         </main>
