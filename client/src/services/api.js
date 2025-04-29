@@ -548,17 +548,27 @@ export const authService = {
   // Login user
   login: async (credentials) => {
     try {
+      console.log('AuthService: Attempting login with credentials:', { email: credentials.email });
+
       const response = await api.post('/users/login', credentials);
+      console.log('AuthService: Login API response:', response.data);
+
       // Store the token in localStorage
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data));
+        console.log('AuthService: User data stored in localStorage');
 
         // Dispatch auth-change event
         window.dispatchEvent(new Event('auth-change'));
+        console.log('AuthService: Auth change event dispatched');
+      } else {
+        console.warn('AuthService: No token received in login response');
       }
+
       return response.data;
     } catch (error) {
+      console.error('AuthService: Login error:', error);
       throw error;
     }
   },
