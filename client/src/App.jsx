@@ -8,6 +8,8 @@ import ContactPage from './pages/ContactPage';
 import UserProfilePage from './pages/UserProfilePage';
 import BookingPage from './pages/BookingPage';
 import MovieDetailsPage from './pages/MovieDetailsPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import HeroSlider from './components/HeroSlider';
 import UpcomingEvents from './components/UpcomingEvents';
 import NowShowingMovies from './components/NowShowingMovies';
@@ -93,6 +95,16 @@ function App() {
       <Route path="/booking/:id" element={
         <Layout>
           <BookingPage />
+        </Layout>
+      } />
+      <Route path="/login" element={
+        <Layout>
+          <LoginPage />
+        </Layout>
+      } />
+      <Route path="/register" element={
+        <Layout>
+          <RegisterPage />
         </Layout>
       } />
       <Route path="*" element={

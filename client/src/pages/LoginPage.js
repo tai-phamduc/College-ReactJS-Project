@@ -30,109 +30,137 @@ const LoginPage = () => {
       setLoading(true);
       setError('');
 
-      // For demo purposes, we'll use a mock login
-      // In a real app, this would call the API
+      // Call the login API
+      const response = await authService.login({
+        email,
+        password
+      });
 
-      // Mock user data
-      const userData = {
-        id: '1',
-        name: 'Demo User',
-        email: email,
-        role: 'user',
-        token: 'mock-token-12345'
-      };
-
-      // Store in localStorage
-      localStorage.setItem('token', userData.token);
-      localStorage.setItem('user', JSON.stringify(userData));
-
-      // Dispatch auth-change event to update Header
-      window.dispatchEvent(new Event('auth-change'));
+      // The authService.login method already handles storing the token and user data in localStorage
+      // and dispatching the auth-change event
 
       // Redirect to profile page
       navigate('/profile');
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+
+      // Provide more specific error messages based on the error
+      if (err.response) {
+        // Server responded with an error status
+        switch (err.response.status) {
+          case 401:
+            setError('Invalid email or password. Please try again.');
+            break;
+          case 404:
+            setError('User not found. Please check your email or register a new account.');
+            break;
+          case 429:
+            setError('Too many login attempts. Please try again later.');
+            break;
+          case 500:
+            setError('Server error. Please try again later.');
+            break;
+          default:
+            setError(err.response.data?.message || 'Login failed. Please try again.');
+        }
+      } else if (err.request) {
+        // Request was made but no response received (network error)
+        setError('Network error. Please check your internet connection and try again.');
+      } else {
+        // Something else happened while setting up the request
+        setError('Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-dark min-h-screen py-12">
-      <div className="container max-w-md mx-auto">
-        <div className="bg-secondary rounded-lg shadow-lg p-8">
+    <div className="min-h-screen bg-dark flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full bg-secondary rounded-lg shadow-lg overflow-hidden">
+        <div className="px-6 py-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold">Login</h1>
-            <p className="text-gray-400 mt-2">Welcome back to MovieHub</p>
+            <h2 className="text-3xl font-bold text-white">Welcome Back</h2>
+            <p className="mt-2 text-gray-400">Sign in to your account</p>
           </div>
 
           {error && (
-            <div className="bg-red-900 bg-opacity-20 text-red-500 p-4 rounded-lg mb-6">
+            <div className="mb-6 p-4 bg-red-900/50 border border-red-500 text-red-200 rounded-lg">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit}>
-            <div className="mb-6">
-              <label htmlFor="email" className="block text-gray-400 mb-2">Email</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <FaUser className="text-gray-500" />
+            <div className="space-y-6">
+              {/* Email field */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaUser className="text-gray-500" />
+                  </div>
+                  <input
+                    type="email"
+                    id="email"
+                    className="bg-gray-800 text-white w-full pl-10 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
                 </div>
-                <input
-                  type="email"
-                  id="email"
-                  className="bg-gray-800 text-white w-full pl-10 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
               </div>
-            </div>
 
-            <div className="mb-6">
-              <label htmlFor="password" className="block text-gray-400 mb-2">Password</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <FaLock className="text-gray-500" />
+              {/* Password field */}
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaLock className="text-gray-500" />
+                  </div>
+                  <input
+                    type="password"
+                    id="password"
+                    className="bg-gray-800 text-white w-full pl-10 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
                 </div>
-                <input
-                  type="password"
-                  id="password"
-                  className="bg-gray-800 text-white w-full pl-10 pr-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="remember"
+                    className="w-4 h-4 text-primary bg-gray-800 border-gray-700 rounded focus:ring-primary"
+                  />
+                  <label htmlFor="remember" className="ml-2 text-sm text-gray-400">Remember me</label>
+                </div>
+                <a href="#" className="text-sm text-primary hover:underline">Forgot password?</a>
               </div>
             </div>
 
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="remember"
-                  className="w-4 h-4 text-primary bg-gray-800 border-gray-700 rounded focus:ring-primary"
-                />
-                <label htmlFor="remember" className="ml-2 text-sm text-gray-400">Remember me</label>
-              </div>
-              <a href="#" className="text-sm text-primary hover:underline">Forgot password?</a>
+            <div className="mt-8">
+              <button
+                type="submit"
+                className="w-full bg-primary text-white py-3 rounded-lg flex items-center justify-center hover:bg-red-700 transition-colors"
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></span>
+                ) : (
+                  <FaSignInAlt className="mr-2" />
+                )}
+                {loading ? 'Signing In...' : 'Sign In'}
+              </button>
             </div>
-
-            <button
-              type="submit"
-              className="w-full bg-primary text-white py-3 rounded-lg flex items-center justify-center hover:bg-red-700 transition-colors"
-              disabled={loading}
-            >
-              {loading ? (
-                <span className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></span>
-              ) : (
-                <FaSignInAlt className="mr-2" />
-              )}
-              {loading ? 'Logging in...' : 'Login'}
-            </button>
           </form>
 
           <div className="mt-6 text-center">
