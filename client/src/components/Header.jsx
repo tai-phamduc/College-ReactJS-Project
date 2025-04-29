@@ -152,6 +152,23 @@ const Header = () => {
 
               {isUserMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-secondary rounded-md shadow-lg py-1 z-50">
+                  {currentUser.role === 'admin' ? (
+                    <Link
+                      to="/admin"
+                      className="block px-4 py-2 text-white hover:bg-gray-700 flex items-center"
+                    >
+                      <FaUser className="mr-2" />
+                      Admin Dashboard
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/dashboard"
+                      className="block px-4 py-2 text-white hover:bg-gray-700 flex items-center"
+                    >
+                      <FaUser className="mr-2" />
+                      My Dashboard
+                    </Link>
+                  )}
                   <Link
                     to="/profile"
                     className="block px-4 py-2 text-white hover:bg-gray-700 flex items-center"
@@ -173,15 +190,6 @@ const Header = () => {
                     <FaCog className="mr-2" />
                     Settings
                   </Link>
-                  {currentUser.role === 'admin' && (
-                    <Link
-                      to="/admin"
-                      className="block px-4 py-2 text-white hover:bg-gray-700 flex items-center"
-                    >
-                      <FaUser className="mr-2" />
-                      Admin Panel
-                    </Link>
-                  )}
                   <button
                     onClick={handleLogout}
                     className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700 flex items-center"
@@ -267,15 +275,17 @@ const Header = () => {
                 Contact
               </NavLink>
 
-              <NavLink
-                to="/admin"
-                className={({ isActive }) =>
-                  isActive ? 'text-primary font-medium' : 'text-white hover:text-primary'
-                }
-                onClick={toggleMenu}
-              >
-                Admin
-              </NavLink>
+              {currentUser?.role === 'admin' && (
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) =>
+                    isActive ? 'text-primary font-medium' : 'text-white hover:text-primary'
+                  }
+                  onClick={toggleMenu}
+                >
+                  Admin
+                </NavLink>
+              )}
               <div className="flex flex-col space-y-2 pt-4 border-t border-gray-700">
                 {currentUser ? (
                   <>
@@ -283,6 +293,33 @@ const Header = () => {
                       <FaUserCircle className="mr-2 text-xl" />
                       <span>{currentUser.name}</span>
                     </div>
+                    {currentUser.role === 'admin' ? (
+                      <Link
+                        to="/admin"
+                        className="flex items-center text-white hover:text-primary"
+                        onClick={toggleMenu}
+                      >
+                        <FaUser className="mr-2" />
+                        Admin Dashboard
+                      </Link>
+                    ) : (
+                      <Link
+                        to="/dashboard"
+                        className="flex items-center text-white hover:text-primary"
+                        onClick={toggleMenu}
+                      >
+                        <FaUser className="mr-2" />
+                        My Dashboard
+                      </Link>
+                    )}
+                    <Link
+                      to="/profile"
+                      className="flex items-center text-white hover:text-primary"
+                      onClick={toggleMenu}
+                    >
+                      <FaUser className="mr-2" />
+                      My Profile
+                    </Link>
                     <Link
                       to="/my-bookings"
                       className="flex items-center text-white hover:text-primary"
@@ -299,16 +336,6 @@ const Header = () => {
                       <FaCog className="mr-2" />
                       Settings
                     </Link>
-                    {currentUser.role === 'admin' && (
-                      <Link
-                        to="/admin"
-                        className="flex items-center text-white hover:text-primary"
-                        onClick={toggleMenu}
-                      >
-                        <FaUser className="mr-2" />
-                        Admin Panel
-                      </Link>
-                    )}
                     <button
                       onClick={() => {
                         handleLogout();

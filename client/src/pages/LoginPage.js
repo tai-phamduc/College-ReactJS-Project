@@ -62,8 +62,12 @@ const LoginPage = () => {
         // Dispatch auth-change event
         window.dispatchEvent(new Event('auth-change'));
 
-        // Redirect to profile page
-        navigate('/profile');
+        // Redirect based on user role
+        if (mockUserData.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
         return;
       }
 
@@ -81,8 +85,12 @@ const LoginPage = () => {
         // The authService.login method already handles storing the token and user data in localStorage
         // and dispatching the auth-change event
 
-        // Redirect to profile page
-        navigate('/profile');
+        // Redirect based on user role
+        if (response.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
       } catch (apiError) {
         console.error('API login error details:', apiError);
         throw apiError; // Re-throw to be caught by the outer catch block
