@@ -176,20 +176,24 @@ const BookingPage = () => {
 
   // Fetch theaters when a date is selected
   useEffect(() => {
-    if (!selectedDate) return;
+    if (!selectedDate || !id) return;
 
     const fetchTheaters = async () => {
       try {
         setLoadingTheaters(true);
 
-        // Fetch theaters from the API
-        const response = await fetch('https://movie-ticket-booking-api.vercel.app/api/theaters');
+        // Format the date for API request
+        const formattedDate = selectedDate.date.toISOString().split('T')[0];
 
-        if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
+        // Use the bookingService to get theaters for the movie and date
+        const data = await bookingService.getTheatersByMovieAndDate(id, formattedDate);
+
+        if (!data || data.length === 0) {
+          console.log('No theaters available for this movie and date');
+          setTheaters([]);
+          setLoadingTheaters(false);
+          return;
         }
-
-        const data = await response.json();
 
         // Format the theater data for display
         const formattedTheaters = data.map(theater => {
@@ -250,11 +254,11 @@ const BookingPage = () => {
     }, 100);
 
     return () => clearTimeout(timerId);
-  }, [selectedDate]);
+  }, [id, selectedDate]);
 
   // Fetch showtimes when a theater is selected
   useEffect(() => {
-    if (!selectedTheater || !selectedDate) return;
+    if (!selectedTheater || !selectedDate || !id) return;
 
     const fetchShowtimes = async () => {
       try {
@@ -263,25 +267,22 @@ const BookingPage = () => {
         // Format the date for API request
         const formattedDate = selectedDate.date.toISOString().split('T')[0];
 
-        // Use the bookingService to get showtimes for the movie
-        const data = await bookingService.getShowtimesByMovie(id);
+        // Use the bookingService to get showtimes for the movie, theater, and date
+        const data = await bookingService.getShowtimesByMovieTheaterDate(
+          id,
+          selectedTheater._id,
+          formattedDate
+        );
 
         if (!data || data.length === 0) {
-          throw new Error('No showtimes available');
+          console.log('No showtimes available for this movie, theater, and date');
+          setShowtimes([]);
+          setLoadingShowtimes(false);
+          return;
         }
 
-        // Filter showtimes by date and theater
-        const filteredShowtimes = data.filter(showtime => {
-          // Convert showtime date to YYYY-MM-DD format for comparison
-          const showtimeDate = new Date(showtime.date).toISOString().split('T')[0];
-
-          // Check if the showtime matches the selected date and theater
-          return showtimeDate === formattedDate &&
-                 showtime.theater.toString() === selectedTheater._id.toString();
-        });
-
         // Format the showtimes for display
-        const formattedShowtimes = filteredShowtimes.map(showtime => ({
+        const formattedShowtimes = data.map(showtime => ({
           id: showtime._id,
           time: showtime.displayTime || new Date(showtime.startTime).toLocaleTimeString('en-US', {
             hour: '2-digit',

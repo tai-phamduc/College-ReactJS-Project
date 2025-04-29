@@ -480,7 +480,40 @@ export const newsService = {
 
 // Booking API services
 export const bookingService = {
-  // Get showtimes for a movie
+  // Get theaters by movie and date
+  getTheatersByMovieAndDate: async (movieId, date) => {
+    try {
+      const response = await api.get(`/theaters/movie/${movieId}/date/${date}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching theaters for movie ${movieId} on date ${date}:`, error);
+      return [];
+    }
+  },
+
+  // Get showtimes by movie and date
+  getShowtimesByMovieAndDate: async (movieId, date) => {
+    try {
+      const response = await api.get(`/showtimes/movie/${movieId}/date/${date}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching showtimes for movie ${movieId} on date ${date}:`, error);
+      return [];
+    }
+  },
+
+  // Get showtimes by movie, theater, and date
+  getShowtimesByMovieTheaterDate: async (movieId, theaterId, date) => {
+    try {
+      const response = await api.get(`/showtimes/movie/${movieId}/theater/${theaterId}/date/${date}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching showtimes for movie ${movieId} at theater ${theaterId} on date ${date}:`, error);
+      return [];
+    }
+  },
+
+  // Get showtimes for a movie (legacy method)
   getShowtimesByMovie: async (movieId) => {
     try {
       const response = await api.get(`/showtimes/movie/${movieId}`);
