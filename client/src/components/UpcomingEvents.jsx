@@ -14,15 +14,51 @@ const UpcomingEvents = () => {
         setLoading(true);
         console.log('UpcomingEvents: Fetching events...');
         const allEvents = await eventService.getEvents();
+        console.log('UpcomingEvents: API response type:', typeof allEvents);
+        console.log('UpcomingEvents: API response keys:', allEvents ? Object.keys(allEvents) : 'null');
         console.log('UpcomingEvents: API response:', allEvents);
 
-        // Make sure allEvents is an array
-        const eventsArray = Array.isArray(allEvents) ? allEvents : [];
-        console.log('UpcomingEvents: Events array:', eventsArray);
+        // Kiểm tra chi tiết cấu trúc dữ liệu
+        let eventsArray = [];
+
+        if (Array.isArray(allEvents)) {
+          console.log('UpcomingEvents: Response is an array with length:', allEvents.length);
+          eventsArray = allEvents;
+        } else if (allEvents && typeof allEvents === 'object') {
+          console.log('UpcomingEvents: Response is an object');
+
+          // Kiểm tra nếu response có thuộc tính events
+          if (allEvents.events && Array.isArray(allEvents.events)) {
+            console.log('UpcomingEvents: Found events array in response with length:', allEvents.events.length);
+            eventsArray = allEvents.events;
+          } else {
+            // Kiểm tra tất cả các thuộc tính của response để tìm mảng
+            for (const key in allEvents) {
+              if (Array.isArray(allEvents[key])) {
+                console.log(`UpcomingEvents: Found array in response.${key} with length:`, allEvents[key].length);
+                if (allEvents[key].length > 0 && allEvents[key][0].title && allEvents[key][0].date) {
+                  console.log(`UpcomingEvents: Array in response.${key} contains event objects`);
+                  eventsArray = allEvents[key];
+                  break;
+                }
+              }
+            }
+
+            // Nếu không tìm thấy mảng nào, kiểm tra xem response có phải là một event object không
+            if (eventsArray.length === 0 && allEvents.title && allEvents.date) {
+              console.log('UpcomingEvents: Response is a single event object');
+              eventsArray = [allEvents];
+            }
+          }
+        }
+
+        console.log('UpcomingEvents: Events array after processing:', eventsArray);
 
         // Sort events by date
-        eventsArray.sort((a, b) => new Date(a.date) - new Date(b.date));
-        console.log('UpcomingEvents: Sorted events:', eventsArray);
+        if (eventsArray.length > 0) {
+          eventsArray.sort((a, b) => new Date(a.date) - new Date(b.date));
+          console.log('UpcomingEvents: Sorted events:', eventsArray);
+        }
 
         // Get only upcoming events
         const now = new Date();
@@ -32,11 +68,51 @@ const UpcomingEvents = () => {
         const upcoming = eventsArray;
         console.log('UpcomingEvents: All events for display:', upcoming);
 
-        // Limit to 3 events for the home page
-        setEvents(upcoming.slice(0, 3));
+        // Sử dụng dữ liệu mẫu nếu không có dữ liệu từ API
+        if (upcoming.length === 0) {
+          console.log('UpcomingEvents: No events data found, using sample data');
+          const sampleEvents = [
+            {
+              _id: '1',
+              title: 'Sample Event 1',
+              date: new Date(Date.now() + 86400000).toISOString(), // Tomorrow
+              startTime: '10:00 AM',
+              location: 'Sample Location 1',
+              category: 'Sample Category',
+              image: 'https://via.placeholder.com/800x600?text=Sample+Event+1',
+              shortDescription: 'This is a sample event description.'
+            },
+            {
+              _id: '2',
+              title: 'Sample Event 2',
+              date: new Date(Date.now() + 172800000).toISOString(), // Day after tomorrow
+              startTime: '2:00 PM',
+              location: 'Sample Location 2',
+              category: 'Sample Category',
+              image: 'https://via.placeholder.com/800x600?text=Sample+Event+2',
+              shortDescription: 'This is another sample event description.'
+            },
+            {
+              _id: '3',
+              title: 'Sample Event 3',
+              date: new Date(Date.now() + 259200000).toISOString(), // 3 days from now
+              startTime: '7:00 PM',
+              location: 'Sample Location 3',
+              category: 'Sample Category',
+              image: 'https://via.placeholder.com/800x600?text=Sample+Event+3',
+              shortDescription: 'This is yet another sample event description.'
+            }
+          ];
+          setEvents(sampleEvents);
+        } else {
+          // Limit to 3 events for the home page
+          setEvents(upcoming.slice(0, 3));
+        }
+
         setLoading(false);
       } catch (err) {
         console.error('Error fetching events:', err);
+        console.error('Error details:', err.message, err.stack);
         setError('Failed to load events. Please try again later.');
         setLoading(false);
       }
@@ -78,7 +154,13 @@ const UpcomingEvents = () => {
               <div key={event._id} className="bg-secondary rounded-lg overflow-hidden shadow-lg h-full flex flex-col">
                 <div className="aspect-[16/9] overflow-hidden">
                   <img
-                    src={event.image}
+                    src={
+                      event.image ||
+                      event.images?.[0] ||
+                      event.imageUrl ||
+                      event.featuredImage ||
+                      `https://via.placeholder.com/800x600?text=${encodeURIComponent(event.title)}`
+                    }
                     alt={event.title}
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                     onError={(e) => {
@@ -106,7 +188,9 @@ const UpcomingEvents = () => {
                     <span>{event.location}</span>
                   </div>
                   <p className="text-sm mb-4 flex-grow">
-                    {event.shortDescription || event.description.substring(0, 120) + '...'}
+                    {event.shortDescription ||
+                     (event.description && typeof event.description === 'string' ? event.description.substring(0, 120) + '...' : '') ||
+                     'Join us for this exciting event. More details coming soon.'}
                   </p>
                   <Link to={`/events/${event._id}`} className="btn btn-primary btn-sm self-start">
                     View Details

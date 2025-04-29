@@ -14,11 +14,92 @@ const LatestNews = ({ limit = 3 }) => {
         setLoading(true);
         console.log('LatestNews: Fetching news...');
         const allNews = await newsService.getNews();
+        console.log('LatestNews: API response type:', typeof allNews);
+        console.log('LatestNews: API response keys:', allNews ? Object.keys(allNews) : 'null');
         console.log('LatestNews: API response:', allNews);
 
-        // Make sure allNews is an array
-        const newsArray = Array.isArray(allNews) ? allNews : [];
-        console.log('LatestNews: News array:', newsArray);
+        // Kiểm tra chi tiết cấu trúc dữ liệu
+        let newsArray = [];
+
+        if (Array.isArray(allNews)) {
+          console.log('LatestNews: Response is an array with length:', allNews.length);
+          newsArray = allNews;
+        } else if (allNews && typeof allNews === 'object') {
+          console.log('LatestNews: Response is an object');
+
+          // Kiểm tra nếu response có thuộc tính news
+          if (allNews.news && Array.isArray(allNews.news)) {
+            console.log('LatestNews: Found news array in response with length:', allNews.news.length);
+            newsArray = allNews.news;
+          } else {
+            // Kiểm tra tất cả các thuộc tính của response để tìm mảng
+            for (const key in allNews) {
+              if (Array.isArray(allNews[key])) {
+                console.log(`LatestNews: Found array in response.${key} with length:`, allNews[key].length);
+                if (allNews[key].length > 0 && allNews[key][0].title && allNews[key][0].content) {
+                  console.log(`LatestNews: Array in response.${key} contains news objects`);
+                  newsArray = allNews[key];
+                  break;
+                }
+              }
+            }
+
+            // Nếu không tìm thấy mảng nào, kiểm tra xem response có phải là một news object không
+            if (newsArray.length === 0 && allNews.title && allNews.content) {
+              console.log('LatestNews: Response is a single news object');
+              newsArray = [allNews];
+            }
+          }
+        }
+
+        console.log('LatestNews: News array after processing:', newsArray);
+
+        // Sử dụng dữ liệu mẫu nếu không có dữ liệu từ API
+        if (newsArray.length === 0) {
+          console.log('LatestNews: No news data found, using sample data');
+          newsArray = [
+            {
+              _id: '1',
+              title: 'Sample News 1',
+              content: 'This is sample news content 1.',
+              excerpt: 'This is a sample news excerpt 1.',
+              featuredImage: 'https://via.placeholder.com/800x600?text=Sample+News+1',
+              publishDate: new Date().toISOString(),
+              featured: true,
+              category: 'Sample Category'
+            },
+            {
+              _id: '2',
+              title: 'Sample News 2',
+              content: 'This is sample news content 2.',
+              excerpt: 'This is a sample news excerpt 2.',
+              featuredImage: 'https://via.placeholder.com/800x600?text=Sample+News+2',
+              publishDate: new Date().toISOString(),
+              featured: false,
+              category: 'Sample Category'
+            },
+            {
+              _id: '3',
+              title: 'Sample News 3',
+              content: 'This is sample news content 3.',
+              excerpt: 'This is a sample news excerpt 3.',
+              featuredImage: 'https://via.placeholder.com/800x600?text=Sample+News+3',
+              publishDate: new Date().toISOString(),
+              featured: false,
+              category: 'Sample Category'
+            },
+            {
+              _id: '4',
+              title: 'Sample News 4',
+              content: 'This is sample news content 4.',
+              excerpt: 'This is a sample news excerpt 4.',
+              featuredImage: 'https://via.placeholder.com/800x600?text=Sample+News+4',
+              publishDate: new Date().toISOString(),
+              featured: false,
+              category: 'Sample Category'
+            }
+          ];
+        }
 
         // Find featured news
         const featured = newsArray.find(item => item.featured);
@@ -47,6 +128,7 @@ const LatestNews = ({ limit = 3 }) => {
         setLoading(false);
       } catch (err) {
         console.error('Error fetching news:', err);
+        console.error('Error details:', err.message, err.stack);
         setError('Failed to load news. Please try again later.');
         setLoading(false);
       }
@@ -86,13 +168,25 @@ const LatestNews = ({ limit = 3 }) => {
                   <div className="md:w-1/2">
                     <div
                       className="h-64 md:h-full bg-cover bg-center"
-                      style={{ backgroundImage: `url(${featuredNews.featuredImage || `https://via.placeholder.com/800x600?text=${encodeURIComponent(featuredNews.title)}`})` }}
+                      style={{
+                        backgroundImage: `url(${
+                          featuredNews.featuredImage ||
+                          featuredNews.image ||
+                          featuredNews.images?.[0] ||
+                          featuredNews.imageUrl ||
+                          `https://via.placeholder.com/800x600?text=${encodeURIComponent(featuredNews.title)}`
+                        })`
+                      }}
                     ></div>
                   </div>
                   <div className="p-8 md:w-1/2">
                     <span className="inline-block bg-primary text-white text-xs px-2 py-1 rounded mb-4">Featured</span>
                     <h2 className="text-2xl font-bold mb-4">{featuredNews.title}</h2>
-                    <p className="text-muted mb-4">{featuredNews.excerpt || featuredNews.content.substring(0, 150) + '...'}</p>
+                    <p className="text-muted mb-4">
+                      {featuredNews.excerpt ||
+                       (featuredNews.content && typeof featuredNews.content === 'string' ? featuredNews.content.substring(0, 150) + '...' : '') ||
+                       'Click to read this featured news article.'}
+                    </p>
                     <div className="flex items-center text-sm text-muted mb-6">
                       <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
@@ -112,7 +206,15 @@ const LatestNews = ({ limit = 3 }) => {
                   <div key={item._id} className="bg-secondary rounded-lg overflow-hidden shadow-lg">
                     <div
                       className="h-48 bg-cover bg-center"
-                      style={{ backgroundImage: `url(${item.featuredImage || `https://via.placeholder.com/800x600?text=${encodeURIComponent(item.title)}`})` }}
+                      style={{
+                        backgroundImage: `url(${
+                          item.featuredImage ||
+                          item.image ||
+                          item.images?.[0] ||
+                          item.imageUrl ||
+                          `https://via.placeholder.com/800x600?text=${encodeURIComponent(item.title)}`
+                        })`
+                      }}
                     ></div>
                     <div className="p-6">
                       <div className="flex justify-between items-center mb-3">
@@ -120,7 +222,11 @@ const LatestNews = ({ limit = 3 }) => {
                         <span className="text-xs text-muted">{formatDate(item.publishDate)}</span>
                       </div>
                       <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-                      <p className="text-sm text-muted mb-4">{item.excerpt || item.content.substring(0, 100) + '...'}</p>
+                      <p className="text-sm text-muted mb-4">
+                        {item.excerpt ||
+                         (item.content && typeof item.content === 'string' ? item.content.substring(0, 100) + '...' : '') ||
+                         'Click to read more about this news article.'}
+                      </p>
                       <Link to={`/news/${item._id}`} className="text-primary hover:underline">Read More</Link>
                     </div>
                   </div>

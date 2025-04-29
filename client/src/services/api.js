@@ -6,7 +6,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000, // 15 seconds timeout for Vercel serverless functions
+  timeout: 30000, // 30 seconds timeout - tăng timeout vì API có thể phản hồi chậm
 });
 
 // Add a request interceptor to include the auth token in requests
@@ -27,16 +27,12 @@ api.interceptors.request.use(
 // Add a response interceptor to handle errors
 api.interceptors.response.use(
   (response) => {
-    console.log('API Interceptor: Successful response from', response.config.url, response.status);
     return response;
   },
   (error) => {
-    console.log('API Interceptor: Error in request to', error.config?.url);
-
     // No response from server (network error)
     if (!error.response) {
-      console.error('API Interceptor: Network Error:', error.message);
-      console.error('API Interceptor: Error details:', error);
+      console.error('Network Error:', error.message);
       // Show a user-friendly message
       const errorMessage = 'Unable to connect to the server. Please check your internet connection and try again.';
       // You can dispatch to a global error state or show a toast notification here
@@ -133,10 +129,46 @@ export const movieService = {
       console.log('MovieService: Fetching movies with params:', params);
       const response = await api.get('/movies', { params });
       console.log('MovieService: Raw API response:', response);
-      console.log('MovieService: Processed data:', response.data);
-      return response.data;
+
+      // Kiểm tra cấu trúc dữ liệu
+      if (response.data) {
+        console.log('MovieService: Response data type:', typeof response.data);
+        console.log('MovieService: Response data is array?', Array.isArray(response.data));
+
+        // Nếu response.data là một mảng, trả về nó
+        if (Array.isArray(response.data)) {
+          return response.data;
+        }
+
+        // Nếu response.data là một object, kiểm tra xem nó có thuộc tính movies không
+        if (typeof response.data === 'object') {
+          if (response.data.movies && Array.isArray(response.data.movies)) {
+            return response.data.movies;
+          }
+
+          // Kiểm tra các thuộc tính khác xem có mảng nào chứa movie objects không
+          for (const key in response.data) {
+            if (Array.isArray(response.data[key]) && response.data[key].length > 0) {
+              // Kiểm tra xem mảng này có phải là mảng movie objects không
+              if (response.data[key][0].title) {
+                return response.data[key];
+              }
+            }
+          }
+
+          // Nếu response.data có thuộc tính title, có thể nó là một movie object
+          if (response.data.title) {
+            return [response.data];
+          }
+        }
+      }
+
+      // Trả về mảng rỗng nếu không tìm thấy dữ liệu hợp lệ
+      console.warn('MovieService: Could not find valid movie data in response');
+      return [];
     } catch (error) {
       console.error('MovieService: Error fetching movies:', error);
+      console.error('MovieService: Error details:', error.message, error.stack);
       return [];
     }
   },
@@ -239,8 +271,43 @@ export const eventService = {
       console.log('EventService: Calling API: GET /events');
       const response = await api.get('/events');
       console.log('EventService: Raw API response:', response);
-      console.log('EventService: Processed data:', response.data);
-      return response.data;
+
+      // Kiểm tra cấu trúc dữ liệu
+      if (response.data) {
+        console.log('EventService: Response data type:', typeof response.data);
+        console.log('EventService: Response data is array?', Array.isArray(response.data));
+
+        // Nếu response.data là một mảng, trả về nó
+        if (Array.isArray(response.data)) {
+          return response.data;
+        }
+
+        // Nếu response.data là một object, kiểm tra xem nó có thuộc tính events không
+        if (typeof response.data === 'object') {
+          if (response.data.events && Array.isArray(response.data.events)) {
+            return response.data.events;
+          }
+
+          // Kiểm tra các thuộc tính khác xem có mảng nào chứa event objects không
+          for (const key in response.data) {
+            if (Array.isArray(response.data[key]) && response.data[key].length > 0) {
+              // Kiểm tra xem mảng này có phải là mảng event objects không
+              if (response.data[key][0].title && response.data[key][0].date) {
+                return response.data[key];
+              }
+            }
+          }
+
+          // Nếu response.data có thuộc tính title và date, có thể nó là một event object
+          if (response.data.title && response.data.date) {
+            return [response.data];
+          }
+        }
+      }
+
+      // Trả về mảng rỗng nếu không tìm thấy dữ liệu hợp lệ
+      console.warn('EventService: Could not find valid event data in response');
+      return [];
     } catch (error) {
       console.error('EventService: Error fetching events:', error);
       console.error('EventService: Error details:', error.message, error.stack);
@@ -333,8 +400,43 @@ export const newsService = {
       console.log('NewsService: Calling API: GET /news');
       const response = await api.get('/news');
       console.log('NewsService: Raw API response:', response);
-      console.log('NewsService: Processed data:', response.data);
-      return response.data;
+
+      // Kiểm tra cấu trúc dữ liệu
+      if (response.data) {
+        console.log('NewsService: Response data type:', typeof response.data);
+        console.log('NewsService: Response data is array?', Array.isArray(response.data));
+
+        // Nếu response.data là một mảng, trả về nó
+        if (Array.isArray(response.data)) {
+          return response.data;
+        }
+
+        // Nếu response.data là một object, kiểm tra xem nó có thuộc tính news không
+        if (typeof response.data === 'object') {
+          if (response.data.news && Array.isArray(response.data.news)) {
+            return response.data.news;
+          }
+
+          // Kiểm tra các thuộc tính khác xem có mảng nào chứa news objects không
+          for (const key in response.data) {
+            if (Array.isArray(response.data[key]) && response.data[key].length > 0) {
+              // Kiểm tra xem mảng này có phải là mảng news objects không
+              if (response.data[key][0].title && response.data[key][0].content) {
+                return response.data[key];
+              }
+            }
+          }
+
+          // Nếu response.data có thuộc tính title và content, có thể nó là một news object
+          if (response.data.title && response.data.content) {
+            return [response.data];
+          }
+        }
+      }
+
+      // Trả về mảng rỗng nếu không tìm thấy dữ liệu hợp lệ
+      console.warn('NewsService: Could not find valid news data in response');
+      return [];
     } catch (error) {
       console.error('NewsService: Error fetching news:', error);
       console.error('NewsService: Error details:', error.message, error.stack);
