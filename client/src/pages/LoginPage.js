@@ -72,8 +72,8 @@ const LoginPage = () => {
           console.log('Redirecting admin to /admin');
           navigate('/admin');
         } else {
-          console.log('Redirecting user to /dashboard');
-          navigate('/dashboard');
+          console.log('Redirecting user to /profile');
+          navigate('/profile');
         }
         return;
       }
@@ -99,8 +99,8 @@ const LoginPage = () => {
           console.log('Redirecting admin to /admin');
           navigate('/admin');
         } else {
-          console.log('Redirecting user to /dashboard');
-          navigate('/dashboard');
+          console.log('Redirecting user to /profile');
+          navigate('/profile');
         }
       } catch (apiError) {
         console.error('API login error details:', apiError);

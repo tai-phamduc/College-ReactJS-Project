@@ -47,8 +47,8 @@ const AdminLayout = () => {
   console.log('AdminLayout - User info:', user);
 
   if (user.role !== 'admin') {
-    console.log('User is not admin, redirecting to dashboard');
-    return <Navigate to="/dashboard" replace />;
+    console.log('User is not admin, redirecting to profile');
+    return <Navigate to="/profile" replace />;
   }
 
   return (

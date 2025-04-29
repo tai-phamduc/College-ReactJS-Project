@@ -19,7 +19,6 @@ import RegisterPage from './pages/RegisterPage';
 // User Pages
 import UserProfilePage from './pages/UserProfilePage';
 import BookingPage from './pages/BookingPage';
-import UserDashboardPage from './pages/UserDashboardPage';
 
 // Admin Pages
 import DashboardPage from './pages/admin/DashboardPage';
@@ -71,12 +70,13 @@ function App() {
 
       {/* User Routes - Protected */}
       <Route element={<UserLayout />}>
-        <Route path="/dashboard" element={<UserDashboardPage />} />
         <Route path="/profile" element={<UserProfilePage />} />
         <Route path="/booking/:id" element={<BookingPage />} />
         <Route path="/my-bookings" element={<div>My Bookings Page</div>} />
         <Route path="/favorites" element={<div>Favorites Page</div>} />
+        <Route path="/my-reviews" element={<div>My Reviews Page</div>} />
         <Route path="/account/reminders" element={<div>Reminders Settings Page</div>} />
+        <Route path="/account/edit" element={<div>Edit Profile Page</div>} />
       </Route>
 
       {/* Admin Routes - Protected */}

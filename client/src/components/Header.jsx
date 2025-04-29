@@ -162,20 +162,14 @@ const Header = () => {
                     </Link>
                   ) : (
                     <Link
-                      to="/dashboard"
+                      to="/profile"
                       className="block px-4 py-2 text-white hover:bg-gray-700 flex items-center"
                     >
                       <FaUser className="mr-2" />
-                      My Dashboard
+                      My Profile
                     </Link>
                   )}
-                  <Link
-                    to="/profile"
-                    className="block px-4 py-2 text-white hover:bg-gray-700 flex items-center"
-                  >
-                    <FaUser className="mr-2" />
-                    My Profile
-                  </Link>
+
                   <Link
                     to="/my-bookings"
                     className="block px-4 py-2 text-white hover:bg-gray-700 flex items-center"
@@ -304,22 +298,15 @@ const Header = () => {
                       </Link>
                     ) : (
                       <Link
-                        to="/dashboard"
+                        to="/profile"
                         className="flex items-center text-white hover:text-primary"
                         onClick={toggleMenu}
                       >
                         <FaUser className="mr-2" />
-                        My Dashboard
+                        My Profile
                       </Link>
                     )}
-                    <Link
-                      to="/profile"
-                      className="flex items-center text-white hover:text-primary"
-                      onClick={toggleMenu}
-                    >
-                      <FaUser className="mr-2" />
-                      My Profile
-                    </Link>
+
                     <Link
                       to="/my-bookings"
                       className="flex items-center text-white hover:text-primary"
