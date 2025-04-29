@@ -166,18 +166,29 @@ const LatestNews = ({ limit = 3 }) => {
               <div className="bg-secondary rounded-lg overflow-hidden shadow-lg mb-12">
                 <div className="md:flex">
                   <div className="md:w-1/2">
-                    <div
-                      className="h-64 md:h-full bg-cover bg-center"
-                      style={{
-                        backgroundImage: `url(${
-                          featuredNews.featuredImage ||
-                          featuredNews.image ||
-                          featuredNews.images?.[0] ||
-                          featuredNews.imageUrl ||
-                          `https://via.placeholder.com/800x600?text=${encodeURIComponent(featuredNews.title)}`
-                        })`
+                    <img
+                      src={
+                        featuredNews.featuredImage ||
+                        featuredNews.image ||
+                        featuredNews.images?.[0] ||
+                        featuredNews.imageUrl ||
+                        `https://placehold.co/800x450/222222/FFA500?text=${encodeURIComponent(featuredNews.title || 'Featured News')}`
+                      }
+                      alt={featuredNews.title}
+                      className="h-64 md:h-full w-full object-cover"
+                      onError={(e) => {
+                        e.target.onerror = null; // Prevent infinite loop
+                        // Try with http if https fails
+                        if (e.target.src.startsWith('https://')) {
+                          const httpUrl = e.target.src.replace('https://', 'http://');
+                          console.log('Trying HTTP URL instead:', httpUrl);
+                          e.target.src = httpUrl;
+                        } else {
+                          // Use a placeholder with the news title
+                          e.target.src = `https://placehold.co/800x450/222222/FFA500?text=${encodeURIComponent(featuredNews.title || 'Featured News')}`;
+                        }
                       }}
-                    ></div>
+                    />
                   </div>
                   <div className="p-8 md:w-1/2">
                     <span className="inline-block bg-primary text-white text-xs px-2 py-1 rounded mb-4">Featured</span>
@@ -204,18 +215,29 @@ const LatestNews = ({ limit = 3 }) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 {news.map((item) => (
                   <div key={item._id} className="bg-secondary rounded-lg overflow-hidden shadow-lg">
-                    <div
-                      className="h-48 bg-cover bg-center"
-                      style={{
-                        backgroundImage: `url(${
-                          item.featuredImage ||
-                          item.image ||
-                          item.images?.[0] ||
-                          item.imageUrl ||
-                          `https://via.placeholder.com/800x600?text=${encodeURIComponent(item.title)}`
-                        })`
+                    <img
+                      src={
+                        item.featuredImage ||
+                        item.image ||
+                        item.images?.[0] ||
+                        item.imageUrl ||
+                        `https://placehold.co/800x450/222222/FFA500?text=${encodeURIComponent(item.title || 'News')}`
+                      }
+                      alt={item.title}
+                      className="h-48 w-full object-cover transition-transform duration-500 hover:scale-105"
+                      onError={(e) => {
+                        e.target.onerror = null; // Prevent infinite loop
+                        // Try with http if https fails
+                        if (e.target.src.startsWith('https://')) {
+                          const httpUrl = e.target.src.replace('https://', 'http://');
+                          console.log('Trying HTTP URL instead:', httpUrl);
+                          e.target.src = httpUrl;
+                        } else {
+                          // Use a placeholder with the news title
+                          e.target.src = `https://placehold.co/800x450/222222/FFA500?text=${encodeURIComponent(item.title || 'News')}`;
+                        }
                       }}
-                    ></div>
+                    />
                     <div className="p-6">
                       <div className="flex justify-between items-center mb-3">
                         <span className="text-xs text-muted">{item.category || 'News'}</span>

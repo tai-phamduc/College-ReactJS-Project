@@ -120,18 +120,29 @@ const NowShowingMovies = () => {
             {movies.map((movie) => (
               <div key={movie._id} className="card movie-card">
                 <div className="aspect-[2/3] bg-light-gray overflow-hidden">
-                  <div
-                    className="movie-poster h-full w-full bg-cover bg-center"
-                    style={{
-                      backgroundImage: `url(${
-                        movie.poster ||
-                        movie.images?.[0] ||
-                        movie.posterUrl ||
-                        movie.image ||
-                        'https://via.placeholder.com/300x450?text=No+Image'
-                      })`
+                  <img
+                    src={
+                      movie.poster ||
+                      movie.images?.[0] ||
+                      movie.posterUrl ||
+                      movie.image ||
+                      'https://placehold.co/300x450/222222/FFA500?text=' + encodeURIComponent(movie.title || 'Movie')
+                    }
+                    alt={movie.title}
+                    className="movie-poster h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                    onError={(e) => {
+                      e.target.onerror = null; // Prevent infinite loop
+                      // Try with http if https fails
+                      if (e.target.src.startsWith('https://')) {
+                        const httpUrl = e.target.src.replace('https://', 'http://');
+                        console.log('Trying HTTP URL instead:', httpUrl);
+                        e.target.src = httpUrl;
+                      } else {
+                        // Use a placeholder with the movie title
+                        e.target.src = 'https://placehold.co/300x450/222222/FFA500?text=' + encodeURIComponent(movie.title || 'Movie');
+                      }
                     }}
-                  ></div>
+                  />
                 </div>
                 <div className="movie-info">
                   <h3 className="text-xl font-bold mb-1">{movie.title}</h3>

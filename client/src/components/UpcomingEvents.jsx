@@ -159,13 +159,21 @@ const UpcomingEvents = () => {
                       event.images?.[0] ||
                       event.imageUrl ||
                       event.featuredImage ||
-                      `https://via.placeholder.com/800x600?text=${encodeURIComponent(event.title)}`
+                      `https://placehold.co/800x450/222222/FFA500?text=${encodeURIComponent(event.title || 'Event')}`
                     }
                     alt={event.title}
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                     onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = `https://via.placeholder.com/800x600?text=${encodeURIComponent(event.title)}`;
+                      e.target.onerror = null; // Prevent infinite loop
+                      // Try with http if https fails
+                      if (e.target.src.startsWith('https://')) {
+                        const httpUrl = e.target.src.replace('https://', 'http://');
+                        console.log('Trying HTTP URL instead:', httpUrl);
+                        e.target.src = httpUrl;
+                      } else {
+                        // Use a placeholder with the event title
+                        e.target.src = `https://placehold.co/800x450/222222/FFA500?text=${encodeURIComponent(event.title || 'Event')}`;
+                      }
                     }}
                   />
                 </div>
