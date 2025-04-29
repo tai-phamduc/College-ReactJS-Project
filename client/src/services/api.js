@@ -27,12 +27,16 @@ api.interceptors.request.use(
 // Add a response interceptor to handle errors
 api.interceptors.response.use(
   (response) => {
+    console.log('API Interceptor: Successful response from', response.config.url, response.status);
     return response;
   },
   (error) => {
+    console.log('API Interceptor: Error in request to', error.config?.url);
+
     // No response from server (network error)
     if (!error.response) {
-      console.error('Network Error:', error.message);
+      console.error('API Interceptor: Network Error:', error.message);
+      console.error('API Interceptor: Error details:', error);
       // Show a user-friendly message
       const errorMessage = 'Unable to connect to the server. Please check your internet connection and try again.';
       // You can dispatch to a global error state or show a toast notification here
@@ -126,10 +130,13 @@ export const movieService = {
   // Get all movies
   getMovies: async (params = {}) => {
     try {
+      console.log('MovieService: Fetching movies with params:', params);
       const response = await api.get('/movies', { params });
+      console.log('MovieService: Raw API response:', response);
+      console.log('MovieService: Processed data:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Error fetching movies:', error);
+      console.error('MovieService: Error fetching movies:', error);
       return [];
     }
   },
@@ -229,12 +236,14 @@ export const eventService = {
   // Get all events
   getEvents: async () => {
     try {
-      console.log('Calling API: GET /events');
+      console.log('EventService: Calling API: GET /events');
       const response = await api.get('/events');
-      console.log('API response:', response);
+      console.log('EventService: Raw API response:', response);
+      console.log('EventService: Processed data:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Error fetching events:', error);
+      console.error('EventService: Error fetching events:', error);
+      console.error('EventService: Error details:', error.message, error.stack);
       return [];
     }
   },
@@ -321,12 +330,14 @@ export const newsService = {
   // Get all news articles
   getNews: async () => {
     try {
-      console.log('Calling API: GET /news');
+      console.log('NewsService: Calling API: GET /news');
       const response = await api.get('/news');
-      console.log('API response:', response);
+      console.log('NewsService: Raw API response:', response);
+      console.log('NewsService: Processed data:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Error fetching news:', error);
+      console.error('NewsService: Error fetching news:', error);
+      console.error('NewsService: Error details:', error.message, error.stack);
       return [];
     }
   },
@@ -548,27 +559,17 @@ export const authService = {
   // Login user
   login: async (credentials) => {
     try {
-      console.log('AuthService: Attempting login with credentials:', { email: credentials.email });
-
       const response = await api.post('/users/login', credentials);
-      console.log('AuthService: Login API response:', response.data);
-
       // Store the token in localStorage
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data));
-        console.log('AuthService: User data stored in localStorage');
 
         // Dispatch auth-change event
         window.dispatchEvent(new Event('auth-change'));
-        console.log('AuthService: Auth change event dispatched');
-      } else {
-        console.warn('AuthService: No token received in login response');
       }
-
       return response.data;
     } catch (error) {
-      console.error('AuthService: Login error:', error);
       throw error;
     }
   },

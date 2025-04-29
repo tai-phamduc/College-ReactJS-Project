@@ -12,27 +12,38 @@ const LatestNews = ({ limit = 3 }) => {
     const fetchNews = async () => {
       try {
         setLoading(true);
+        console.log('LatestNews: Fetching news...');
         const allNews = await newsService.getNews();
-        
+        console.log('LatestNews: API response:', allNews);
+
+        // Make sure allNews is an array
+        const newsArray = Array.isArray(allNews) ? allNews : [];
+        console.log('LatestNews: News array:', newsArray);
+
         // Find featured news
-        const featured = allNews.find(item => item.featured);
+        const featured = newsArray.find(item => item.featured);
+        console.log('LatestNews: Featured news item:', featured);
+
         if (featured) {
           setFeaturedNews(featured);
           // Filter out the featured news and get the rest
-          const otherNews = allNews
+          const otherNews = newsArray
             .filter(item => item._id !== featured._id)
             .slice(0, limit);
+          console.log('LatestNews: Other news items:', otherNews);
           setNews(otherNews);
         } else {
           // If no featured news, just take the first one as featured
-          if (allNews.length > 0) {
-            setFeaturedNews(allNews[0]);
-            setNews(allNews.slice(1, limit + 1));
+          if (newsArray.length > 0) {
+            console.log('LatestNews: No featured news, using first item as featured');
+            setFeaturedNews(newsArray[0]);
+            setNews(newsArray.slice(1, limit + 1));
           } else {
+            console.log('LatestNews: No news items found');
             setNews([]);
           }
         }
-        
+
         setLoading(false);
       } catch (err) {
         console.error('Error fetching news:', err);
@@ -57,7 +68,7 @@ const LatestNews = ({ limit = 3 }) => {
         <h2 className="section-title">
           <span className="text-primary">Latest</span> News
         </h2>
-        
+
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -73,7 +84,7 @@ const LatestNews = ({ limit = 3 }) => {
               <div className="bg-secondary rounded-lg overflow-hidden shadow-lg mb-12">
                 <div className="md:flex">
                   <div className="md:w-1/2">
-                    <div 
+                    <div
                       className="h-64 md:h-full bg-cover bg-center"
                       style={{ backgroundImage: `url(${featuredNews.featuredImage || `https://via.placeholder.com/800x600?text=${encodeURIComponent(featuredNews.title)}`})` }}
                     ></div>
@@ -93,13 +104,13 @@ const LatestNews = ({ limit = 3 }) => {
                 </div>
               </div>
             )}
-            
+
             {/* News Grid */}
             {news.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 {news.map((item) => (
                   <div key={item._id} className="bg-secondary rounded-lg overflow-hidden shadow-lg">
-                    <div 
+                    <div
                       className="h-48 bg-cover bg-center"
                       style={{ backgroundImage: `url(${item.featuredImage || `https://via.placeholder.com/800x600?text=${encodeURIComponent(item.title)}`})` }}
                     ></div>
@@ -123,7 +134,7 @@ const LatestNews = ({ limit = 3 }) => {
             )}
           </>
         )}
-        
+
         <div className="text-center">
           <Link to="/news" className="btn btn-outline">View All News</Link>
         </div>

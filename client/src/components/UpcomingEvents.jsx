@@ -12,14 +12,25 @@ const UpcomingEvents = () => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
+        console.log('UpcomingEvents: Fetching events...');
         const allEvents = await eventService.getEvents();
+        console.log('UpcomingEvents: API response:', allEvents);
+
+        // Make sure allEvents is an array
+        const eventsArray = Array.isArray(allEvents) ? allEvents : [];
+        console.log('UpcomingEvents: Events array:', eventsArray);
 
         // Sort events by date
-        allEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+        eventsArray.sort((a, b) => new Date(a.date) - new Date(b.date));
+        console.log('UpcomingEvents: Sorted events:', eventsArray);
 
         // Get only upcoming events
         const now = new Date();
-        const upcoming = allEvents.filter(event => new Date(event.date) >= now);
+        console.log('UpcomingEvents: Current date for filtering:', now);
+
+        // Include all events for now to debug
+        const upcoming = eventsArray;
+        console.log('UpcomingEvents: All events for display:', upcoming);
 
         // Limit to 3 events for the home page
         setEvents(upcoming.slice(0, 3));
