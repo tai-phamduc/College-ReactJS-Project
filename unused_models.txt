@@ -1,0 +1,20 @@
+Unused Models:
+1. Cinema.js
+2. Country.js
+3. EmailTemplate.js
+4. Format.js
+5. Language.js
+6. Menu.js
+7. Order.js
+8. Product.js
+9. Promotion.js
+10. Recommendation.js
+11. Room.js
+12. Screening.js
+13. Slider.js
+14. Statistics.js
+15. UserActivity.js
+16. Widget.js
+17. AIAnalytics.js
+
+These models are not directly used in controllers or other files. However, they might be used in the future or through dynamic imports, so we'll keep them but optimize them.
