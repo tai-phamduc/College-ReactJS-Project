@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie API Postman Collection Import Instructions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .step {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .note {
+            background-color: #fffde7;
+            padding: 10px;
+            border-left: 4px solid #ffd600;
+            margin: 15px 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Movie API Postman Collection Import Instructions</h1>
+    
+    <div class="step">
+        <h2>Step 1: Download Postman</h2>
+        <p>If you don't have Postman installed, download and install it from <a href="https://www.postman.com/downloads/" target="_blank">https://www.postman.com/downloads/</a></p>
+    </div>
+    
+    <div class="step">
+        <h2>Step 2: Import the Collection</h2>
+        <ol>
+            <li>Open Postman</li>
+            <li>Click the "Import" button in the top left corner</li>
+            <li>Select the "Files" tab</li>
+            <li>Click "Upload Files" and select the <code>Movie_API_Collection.json</code> file</li>
+            <li>Click "Import"</li>
+        </ol>
+    </div>
+    
+    <div class="step">
+        <h2>Step 3: Import the Environment</h2>
+        <ol>
+            <li>In Postman, click the "Import" button again</li>
+            <li>Select the "Files" tab</li>
+            <li>Click "Upload Files" and select the <code>Movie_API_Environment.json</code> file</li>
+            <li>Click "Import"</li>
+        </ol>
+    </div>
+    
+    <div class="step">
+        <h2>Step 4: Select the Environment</h2>
+        <ol>
+            <li>In the top right corner of Postman, click the environment dropdown</li>
+            <li>Select "Movie API Environment" from the list</li>
+        </ol>
+    </div>
+    
+    <div class="step">
+        <h2>Step 5: Authenticate</h2>
+        <ol>
+            <li>In the collection, expand the "Authentication" folder</li>
+            <li>Click on the "Login" request</li>
+            <li>Click "Send" to execute the request</li>
+            <li>From the response, copy the token value</li>
+            <li>Click the "Environment" quick look button (eye icon) in the top right</li>
+            <li>Set the "userToken" variable to the copied token</li>
+            <li>If you have admin credentials, repeat the process for the "adminToken" variable</li>
+        </ol>
+    </div>
+    
+    <div class="step">
+        <h2>Step 6: Start Testing</h2>
+        <p>You can now use the collection to test various movie-related API endpoints:</p>
+        <ol>
+            <li>Expand the "Movies" folder to see available requests</li>
+            <li>Click on "Get All Movies" and click "Send" to execute the request</li>
+            <li>From the response, copy a movie ID and set it as the "movieId" environment variable</li>
+            <li>Continue testing other endpoints as needed</li>
+        </ol>
+    </div>
+    
+    <div class="note">
+        <h3>Note:</h3>
+        <p>Some endpoints require authentication with a valid JWT token. Make sure you've completed Step 5 before testing these endpoints.</p>
+        <p>Admin endpoints require an admin token. You'll need admin credentials to access these endpoints.</p>
+    </div>
+    
+    <h2>Additional Resources</h2>
+    <p>For more information on how to use this collection, refer to the <code>README.md</code> file included in the same directory.</p>
+    
+    <script>
+        // You could add JavaScript here to enhance the page functionality if needed
+    </script>
+</body>
+</html>

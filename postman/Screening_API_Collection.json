@@ -1,0 +1,452 @@
+{
+  "info": {
+    "name": "Screening API Collection",
+    "description": "A collection of API requests for testing screening-related endpoints in the Movie Ticket Booking API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "Endpoints for user authentication (required for admin operations)",
+      "item": [
+        {
+          "name": "Login Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "login"]
+            },
+            "description": "Login as admin to get authentication token for protected screening operations"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Movies",
+      "description": "Endpoints to get movie data for finding screenings",
+      "item": [
+        {
+          "name": "Get Now Playing Movies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/movies/status/Now Playing",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "movies", "status", "Now Playing"]
+            },
+            "description": "Get movies that are currently playing to find a movie ID for testing"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Movie by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/movies/{{movieId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "movies", "{{movieId}}"]
+            },
+            "description": "Get details of a specific movie by ID"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cinemas",
+      "description": "Endpoints to get cinema data for finding screenings",
+      "item": [
+        {
+          "name": "Get All Cinemas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cinemas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cinemas"]
+            },
+            "description": "Get a list of all cinemas"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Cinemas by City",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cinemas/city/{{city}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cinemas", "city", "{{city}}"]
+            },
+            "description": "Get cinemas in a specific city"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Cinemas by Movie and Date",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cinemas/movie/{{movieId}}/date/{{date}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cinemas", "movie", "{{movieId}}", "date", "{{date}}"]
+            },
+            "description": "Get cinemas showing a specific movie on a specific date"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Cinema by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cinemas/{{cinemaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cinemas", "{{cinemaId}}"]
+            },
+            "description": "Get details of a specific cinema by ID"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Screenings",
+      "description": "Endpoints for screening operations",
+      "item": [
+        {
+          "name": "Get All Screenings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/screenings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "screenings"]
+            },
+            "description": "Get a list of all screenings"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Screenings with Filters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/screenings?movie={{movieId}}&cinema={{cinemaId}}&date={{date}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "screenings"],
+              "query": [
+                {
+                  "key": "movie",
+                  "value": "{{movieId}}"
+                },
+                {
+                  "key": "cinema",
+                  "value": "{{cinemaId}}"
+                },
+                {
+                  "key": "date",
+                  "value": "{{date}}"
+                }
+              ]
+            },
+            "description": "Get screenings filtered by movie, cinema, and/or date"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Screening by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/screenings/{{screeningId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "screenings", "{{screeningId}}"]
+            },
+            "description": "Get details of a specific screening by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Screenings by Movie and Date",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/screenings/movie/{{movieId}}/date/{{date}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "screenings", "movie", "{{movieId}}", "date", "{{date}}"]
+            },
+            "description": "Get all screenings for a specific movie on a specific date across all cinemas"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Screenings by Movie, Cinema and Date",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/screenings/movie/{{movieId}}/cinema/{{cinemaId}}/date/{{date}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "screenings", "movie", "{{movieId}}", "cinema", "{{cinemaId}}", "date", "{{date}}"]
+            },
+            "description": "Get screenings for a specific movie at a specific cinema on a specific date"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Available Seats for Screening",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/screenings/{{screeningId}}/seats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "screenings", "{{screeningId}}", "seats"]
+            },
+            "description": "Get available seats for a specific screening"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Screening (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"movie_id\": \"{{movieId}}\",\n    \"cinema_id\": \"{{cinemaId}}\",\n    \"room_id\": \"{{roomId}}\",\n    \"date\": \"{{date}}T00:00:00.000Z\",\n    \"displayDate\": \"{{displayDate}}\",\n    \"startTime\": \"{{date}}T18:30:00.000Z\",\n    \"endTime\": \"{{date}}T20:45:00.000Z\",\n    \"displayTime\": \"6:30 PM\",\n    \"price\": 14.99,\n    \"format\": \"2D\",\n    \"language\": \"English\",\n    \"subtitles\": \"None\",\n    \"pricingTiers\": {\n        \"standard\": 14.99,\n        \"premium\": 19.99,\n        \"vip\": 24.99\n    },\n    \"totalSeats\": 120,\n    \"seatsAvailable\": 120,\n    \"isActive\": true,\n    \"status\": \"scheduled\",\n    \"bookingEnabled\": true,\n    \"dayOfWeek\": \"Monday\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/screenings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "screenings"]
+            },
+            "description": "Create a new screening (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Screening (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"startTime\": \"{{date}}T19:00:00.000Z\",\n    \"endTime\": \"{{date}}T21:15:00.000Z\",\n    \"displayTime\": \"7:00 PM\",\n    \"price\": 16.99,\n    \"status\": \"scheduled\",\n    \"bookingEnabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/screenings/{{screeningId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "screenings", "{{screeningId}}"]
+            },
+            "description": "Update an existing screening (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Screening (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/screenings/{{screeningId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "screenings", "{{screeningId}}"]
+            },
+            "description": "Delete a screening (admin only) - marks as inactive rather than deleting"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Legacy Showtimes",
+      "description": "Legacy endpoints for showtime operations",
+      "item": [
+        {
+          "name": "Get All Showtimes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/showtimes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "showtimes"]
+            },
+            "description": "Get a list of all showtimes (legacy endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Showtime by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/showtimes/{{showtimeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "showtimes", "{{showtimeId}}"]
+            },
+            "description": "Get details of a specific showtime by ID (legacy endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Showtimes by Movie and Date",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/showtimes/movie/{{movieId}}/date/{{date}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "showtimes", "movie", "{{movieId}}", "date", "{{date}}"]
+            },
+            "description": "Get all showtimes for a specific movie on a specific date across all theaters (legacy endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Showtimes by Movie, Theater and Date",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/showtimes/movie/{{movieId}}/theater/{{theaterId}}/date/{{date}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "showtimes", "movie", "{{movieId}}", "theater", "{{theaterId}}", "date", "{{date}}"]
+            },
+            "description": "Get showtimes for a specific movie at a specific theater on a specific date (legacy endpoint)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Booking Flow",
+      "description": "Endpoints for the booking flow that use screenings",
+      "item": [
+        {
+          "name": "Reserve Seats",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"seatIds\": [\"{{seatId1}}\", \"{{seatId2}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/screenings/{{screeningId}}/reserve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "screenings", "{{screeningId}}", "reserve"]
+            },
+            "description": "Reserve seats for a specific screening (temporary hold)"
+          },
+          "response": []
+        },
+        {
+          "name": "Release Seats",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"seatIds\": [\"{{seatId1}}\", \"{{seatId2}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/screenings/{{screeningId}}/release",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "screenings", "{{screeningId}}", "release"]
+            },
+            "description": "Release previously reserved seats"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"screening\": \"{{screeningId}}\",\n    \"movie\": \"{{movieId}}\",\n    \"cinema\": \"{{cinemaId}}\",\n    \"room\": \"{{roomId}}\",\n    \"seats\": [\"{{seatId1}}\", \"{{seatId2}}\"],\n    \"totalPrice\": 30.00,\n    \"paymentMethod\": \"credit_card\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings"]
+            },
+            "description": "Create a new booking with selected seats"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

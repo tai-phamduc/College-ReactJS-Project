@@ -1,0 +1,91 @@
+{
+  "id": "screening-api-environment",
+  "name": "Screening API Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "https://movie-ticket-booking-api.vercel.app",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "userToken",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "movieId",
+      "value": "680f66dbefdceecc9e34aac5",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "cinemaId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "theaterId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "roomId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "screeningId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "showtimeId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "seatId1",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "seatId2",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "date",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "displayDate",
+      "value": "December 25, 2023",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "city",
+      "value": "New York",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}

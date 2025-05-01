@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema By Movie and Date - Postman Collection Guide</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .step {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .note {
+            background-color: #fffde7;
+            padding: 10px;
+            border-left: 4px solid #ffd600;
+            margin: 15px 0;
+        }
+        .code-block {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-family: monospace;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cinema By Movie and Date - Postman Collection Guide</h1>
+    
+    <div class="step">
+        <h2>Step 1: Download Postman</h2>
+        <p>If you don't have Postman installed, download and install it from <a href="https://www.postman.com/downloads/" target="_blank">https://www.postman.com/downloads/</a></p>
+    </div>
+    
+    <div class="step">
+        <h2>Step 2: Import the Collection</h2>
+        <ol>
+            <li>Open Postman</li>
+            <li>Click the "Import" button in the top left corner</li>
+            <li>Select the "Files" tab</li>
+            <li>Click "Upload Files" and select the <code>Cinema_By_Movie_Date_Collection.json</code> file</li>
+            <li>Click "Import"</li>
+        </ol>
+    </div>
+    
+    <div class="step">
+        <h2>Step 3: Import the Environment</h2>
+        <ol>
+            <li>In Postman, click the "Import" button again</li>
+            <li>Select the "Files" tab</li>
+            <li>Click "Upload Files" and select the <code>Cinema_By_Movie_Date_Environment.json</code> file</li>
+            <li>Click "Import"</li>
+        </ol>
+    </div>
+    
+    <div class="step">
+        <h2>Step 4: Select the Environment</h2>
+        <ol>
+            <li>In the top right corner of Postman, click the environment dropdown</li>
+            <li>Select "Cinema By Movie Date Environment" from the list</li>
+        </ol>
+    </div>
+    
+    <div class="step">
+        <h2>Step 5: Set Up Date Variables</h2>
+        <p>You need to set up the date variables for today and tomorrow. You can do this in two ways:</p>
+        
+        <h3>Option 1: Manual Setup</h3>
+        <ol>
+            <li>Click the "Environment quick look" button (eye icon) in the top right</li>
+            <li>Set the <code>todayDate</code> variable to today's date in YYYY-MM-DD format (e.g., "2023-12-01")</li>
+            <li>Set the <code>tomorrowDate</code> variable to tomorrow's date in YYYY-MM-DD format (e.g., "2023-12-02")</li>
+            <li>Click outside the environment panel to close it</li>
+        </ol>
+        
+        <h3>Option 2: Using the Script</h3>
+        <ol>
+            <li>Click on the collection name "Cinema By Movie and Date Collection" in the sidebar</li>
+            <li>Click on the "Pre-request Scripts" tab</li>
+            <li>Copy and paste the following script:</li>
+        </ol>
+        <div class="code-block">
+            // Get today's date in YYYY-MM-DD format<br>
+            const today = new Date();<br>
+            const todayFormatted = today.toISOString().split('T')[0];<br>
+            <br>
+            // Get tomorrow's date in YYYY-MM-DD format<br>
+            const tomorrow = new Date();<br>
+            tomorrow.setDate(tomorrow.getDate() + 1);<br>
+            const tomorrowFormatted = tomorrow.toISOString().split('T')[0];<br>
+            <br>
+            // Set environment variables<br>
+            pm.environment.set('todayDate', todayFormatted);<br>
+            pm.environment.set('tomorrowDate', tomorrowFormatted);<br>
+            <br>
+            console.log('Date variables set:');<br>
+            console.log('todayDate:', todayFormatted);<br>
+            console.log('tomorrowDate:', tomorrowFormatted);
+        </div>
+        <li>Click "Save"</li>
+        <li>Run any request in the collection to trigger the script</li>
+    </div>
+    
+    <div class="step">
+        <h2>Step 6: Find a Movie ID</h2>
+        <ol>
+            <li>Expand the "Movies" folder in the collection</li>
+            <li>Click on "Get Now Playing Movies"</li>
+            <li>Click "Send" to execute the request</li>
+            <li>From the response, copy the ID of a movie you want to use for testing</li>
+            <li>Click the "Environment quick look" button (eye icon) in the top right</li>
+            <li>Set the <code>movieId</code> variable to the copied ID</li>
+        </ol>
+    </div>
+    
+    <div class="step">
+        <h2>Step 7: Find Cinemas Showing the Movie</h2>
+        <ol>
+            <li>Expand the "Cinemas by Movie and Date" folder</li>
+            <li>Click on "Get Cinemas by Movie and Today's Date"</li>
+            <li>Click "Send" to execute the request</li>
+            <li>The response will show all cinemas that are showing the selected movie today</li>
+            <li>If you get an empty array, try "Get Cinemas by Movie and Date" with a different date, or try a different movie</li>
+        </ol>
+    </div>
+    
+    <div class="step">
+        <h2>Step 8: Get Cinema Details and Screenings</h2>
+        <ol>
+            <li>From the response in Step 7, copy a cinema ID</li>
+            <li>Set the <code>cinemaId</code> variable to the copied ID</li>
+            <li>Expand the "Cinema Details" folder and run "Get Cinema by ID" to see detailed information about the cinema</li>
+            <li>Expand the "Screenings" folder and run "Get Screenings by Movie, Cinema and Date" to see all showtimes for the movie at the selected cinema</li>
+        </ol>
+    </div>
+    
+    <div class="note">
+        <h3>Note:</h3>
+        <p>If you're not getting any results, try the following:</p>
+        <ul>
+            <li>Use a different movie ID (some movies might not have any screenings)</li>
+            <li>Try a different date (the movie might not be showing on the selected date)</li>
+            <li>Check that the date format is correct (YYYY-MM-DD)</li>
+            <li>Verify that the API base URL is correct</li>
+        </ul>
+    </div>
+    
+    <h2>Additional Resources</h2>
+    <p>For more information on how to use this collection, refer to the <code>Cinema_By_Movie_Date_README.md</code> file included in the same directory.</p>
+    
+    <script>
+        // You could add JavaScript here to enhance the page functionality if needed
+    </script>
+</body>
+</html>
