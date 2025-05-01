@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an axios instance
 const api = axios.create({
-  baseURL: 'https://movie-ticket-booking-api.vercel.app/api',
+  baseURL: 'http://localhost:5010/api',
   headers: {
     'Content-Type': 'application/json',
   },
