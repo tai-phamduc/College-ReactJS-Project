@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FaPlay, FaCalendarAlt, FaClock, FaFilm, FaUser, FaStar, FaShare, FaFacebook, FaTwitter, FaPinterest, FaMapMarkerAlt, FaLanguage, FaTicketAlt, FaArrowLeft, FaRobot, FaChartLine } from 'react-icons/fa';
 import { movieService } from '../services/api';
+import MovieReviewsSection from '../components/reviews/MovieReviewsSection';
 
 const MovieDetailsPage = () => {
   const { id } = useParams();
@@ -434,97 +435,8 @@ const MovieDetailsPage = () => {
                 </div>
               )}
 
-              {/* Reviews Section with Better UI */}
-              <div className="bg-secondary p-6 rounded-lg shadow-lg">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-semibold flex items-center">
-                    <span className="inline-block w-1 h-6 bg-primary mr-3"></span>
-                    Reviews
-                  </h3>
-                  <Link to={`/movies/${movie._id}/reviews`} className="text-primary hover:text-red-400 transition-colors flex items-center">
-                    See all reviews
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </Link>
-                </div>
-
-                <div className="bg-gray-800/50 p-4 rounded-lg mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                      <div className="flex mr-2">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <FaStar
-                            key={star}
-                            className={`${
-                              star <= Math.round(movie.rating / 2) ? 'text-yellow-400' : 'text-gray-500'
-                            }`}
-                            size={20}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-lg font-medium">{movie.rating}/10</span>
-                    </div>
-                    <span className="text-gray-400">{movie.reviews?.length || 0} reviews</span>
-                  </div>
-
-                  <Link
-                    to={`/review/create/${movie._id}`}
-                    className="w-full bg-primary hover:bg-red-700 text-white py-2 rounded-md flex items-center justify-center transition-colors"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    Write a Review
-                  </Link>
-                </div>
-
-                {movie.reviews && movie.reviews.length > 0 ? (
-                  <div className="space-y-4">
-                    {movie.reviews.slice(0, 3).map((review, index) => (
-                      <div key={index} className="bg-gray-800/30 p-4 rounded-lg hover:bg-gray-800/50 transition-colors">
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="flex items-center">
-                            <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center mr-3">
-                              {review.user?.avatar ? (
-                                <img src={review.user.avatar} alt={review.user?.name} className="w-10 h-10 rounded-full" />
-                              ) : (
-                                <FaUser className="text-gray-500" />
-                              )}
-                            </div>
-                            <div>
-                              <span className="font-semibold block">{review.user?.name || 'Anonymous'}</span>
-                              <div className="flex">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                  <FaStar
-                                    key={star}
-                                    className={`${
-                                      star <= Math.round(review.rating / 2) ? 'text-yellow-400' : 'text-gray-500'
-                                    }`}
-                                    size={12}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                          <span className="text-sm text-gray-400">
-                            {new Date(review.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <h4 className="font-medium mb-2">{review.title || 'Review'}</h4>
-                        <p className="text-gray-300 text-sm">{review.comment}</p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="bg-gray-800/30 p-6 rounded-lg text-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                    </svg>
-                    <p className="text-gray-400">No reviews yet. Be the first to review this movie!</p>
-                  </div>
-                )}
-              </div>
+              {/* Reviews Section */}
+              <MovieReviewsSection movieId={movie._id} movieTitle={movie.title} />
             </div>
 
             {/* Right Column - Similar Movies */}

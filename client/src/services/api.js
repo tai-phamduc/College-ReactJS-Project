@@ -381,6 +381,50 @@ export const movieService = {
       throw error;
     }
   },
+
+  // Update a review
+  updateReview: async (movieId, reviewId, reviewData) => {
+    try {
+      const response = await api.put(`/movies/${movieId}/reviews/${reviewId}`, reviewData);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating review:', error);
+      throw error;
+    }
+  },
+
+  // Delete a review
+  deleteReview: async (movieId, reviewId) => {
+    try {
+      const response = await api.delete(`/movies/${movieId}/reviews/${reviewId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      throw error;
+    }
+  },
+
+  // Mark a review as helpful
+  markReviewHelpful: async (movieId, reviewId) => {
+    try {
+      const response = await api.post(`/movies/${movieId}/reviews/${reviewId}/helpful`);
+      return response.data;
+    } catch (error) {
+      console.error('Error marking review as helpful:', error);
+      throw error;
+    }
+  },
+
+  // Report a review
+  reportReview: async (movieId, reviewId, reportData) => {
+    try {
+      const response = await api.post(`/movies/${movieId}/reviews/${reviewId}/report`, reportData);
+      return response.data;
+    } catch (error) {
+      console.error('Error reporting review:', error);
+      throw error;
+    }
+  },
 };
 
 // Event API services
