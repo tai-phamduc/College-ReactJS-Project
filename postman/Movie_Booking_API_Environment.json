@@ -1,0 +1,241 @@
+{
+  "id": "movie-booking-api-environment",
+  "name": "Movie Booking API Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "https://movie-ticket-booking-api.vercel.app",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userToken",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "movieId",
+      "value": "680f66dbefdceecc9e34aac5",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "cinemaId",
+      "value": "68121d9d5e6e61cab67ae98f",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "theaterId",
+      "value": "680fa672205b620d90c2f65e",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "roomId",
+      "value": "68130d92c247fa7fe1e9f7e1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "screeningId",
+      "value": "68130ea74c4a54833380aeab",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "showtimeId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "seatId1",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "seatId2",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "genreId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "genreId2",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "actorId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "directorId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "reviewId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "bookingId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "paymentId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "paymentMethodId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "commentId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "productId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "productId2",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "productId3",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "categoryId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "comboId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "orderItemId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "eventId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "registrationId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "newsId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "awardId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "filmId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "seatTypeId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "reservationId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "date",
+      "value": "2026-05-01",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "displayDate",
+      "value": "May 1, 2026",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "dayOfWeek",
+      "value": "Friday",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "city",
+      "value": "New York",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}
