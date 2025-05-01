@@ -17,6 +17,7 @@ import ContactPage from './pages/ContactPage';
 import MovieDetailsPage from './pages/MovieDetailsPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import SearchResultsPage from './pages/SearchResultsPage';
 
 // User Pages
 import UserProfilePage from './pages/UserProfilePage';
@@ -68,6 +69,7 @@ function App() {
         <Route path="/news/:id" element={<NewsDetailPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/search" element={<SearchResultsPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
       </Route>

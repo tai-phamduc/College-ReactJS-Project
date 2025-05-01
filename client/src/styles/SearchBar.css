@@ -1,0 +1,164 @@
+.search-container {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.search-form {
+  width: 100%;
+}
+
+.search-input-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 40px 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  font-size: 16px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.search-input:focus {
+  border-color: #ff6b00;
+  box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.2);
+}
+
+.search-button {
+  position: absolute;
+  right: 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-button:hover {
+  color: #ff6b00;
+}
+
+.clear-button {
+  position: absolute;
+  right: 45px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #999;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clear-button:hover {
+  color: #ff6b00;
+}
+
+.suggestions-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-top: 8px;
+  z-index: 1000;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.suggestions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s;
+}
+
+.suggestion-item:hover {
+  background-color: #f9f9f9;
+}
+
+.suggestion-image {
+  width: 40px;
+  height: 60px;
+  margin-right: 15px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.suggestion-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.suggestion-content {
+  flex: 1;
+}
+
+.suggestion-title {
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.suggestion-type {
+  font-size: 12px;
+  color: #666;
+}
+
+.view-all-results {
+  padding: 12px 15px;
+  text-align: center;
+  font-weight: 500;
+  color: #ff6b00;
+  cursor: pointer;
+  background-color: #fff9f5;
+}
+
+.view-all-results:hover {
+  background-color: #fff0e6;
+}
+
+.loading-indicator {
+  padding: 15px;
+  text-align: center;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .search-container {
+    max-width: 100%;
+  }
+  
+  .suggestions-container {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    margin-top: 0;
+    border-radius: 0;
+    max-height: calc(100vh - 60px);
+  }
+}
