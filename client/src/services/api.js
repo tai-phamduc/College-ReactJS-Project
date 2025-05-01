@@ -121,51 +121,131 @@ const defaultMovieData = {
   ]
 };
 
+// Helper function to extract data from API response
+const extractDataFromResponse = (response, entityType) => {
+  console.log(`${entityType}Service: Raw API response:`, response);
+
+  if (!response.data) {
+    console.warn(`${entityType}Service: No data in response`);
+    return [];
+  }
+
+  console.log(`${entityType}Service: Response data type:`, typeof response.data);
+  console.log(`${entityType}Service: Response data is array?`, Array.isArray(response.data));
+
+  // If response.data is an array, return it
+  if (Array.isArray(response.data)) {
+    return response.data;
+  }
+
+  // If response.data is an object
+  if (typeof response.data === 'object') {
+    // Check if response.data has a property matching entityType (plural)
+    const pluralKey = `${entityType.toLowerCase()}s`;
+    if (response.data[pluralKey] && Array.isArray(response.data[pluralKey])) {
+      return response.data[pluralKey];
+    }
+
+    // Check if response.data has a property matching entityType (singular)
+    const singularKey = entityType.toLowerCase();
+    if (response.data[singularKey] && Array.isArray(response.data[singularKey])) {
+      return response.data[singularKey];
+    }
+
+    // Check if response.data has a data property
+    if (response.data.data && Array.isArray(response.data.data)) {
+      return response.data.data;
+    }
+
+    // Check if response.data has a results property
+    if (response.data.results && Array.isArray(response.data.results)) {
+      return response.data.results;
+    }
+
+    // Check if response.data has a items property
+    if (response.data.items && Array.isArray(response.data.items)) {
+      return response.data.items;
+    }
+
+    // Check if response.data has a success property and a data property
+    if (response.data.success && response.data.data) {
+      if (Array.isArray(response.data.data)) {
+        return response.data.data;
+      } else if (typeof response.data.data === 'object') {
+        // Check if data has a property matching entityType (plural)
+        if (response.data.data[pluralKey] && Array.isArray(response.data.data[pluralKey])) {
+          return response.data.data[pluralKey];
+        }
+
+        // If data is a single object with expected properties, return it as an array
+        if (isEntityObject(response.data.data, entityType)) {
+          return [response.data.data];
+        }
+      }
+    }
+
+    // Check all properties for arrays
+    for (const key in response.data) {
+      if (Array.isArray(response.data[key]) && response.data[key].length > 0) {
+        // Check if this array contains objects of the expected type
+        if (isEntityObject(response.data[key][0], entityType)) {
+          return response.data[key];
+        }
+      }
+    }
+
+    // If response.data itself is an entity object, return it as an array
+    if (isEntityObject(response.data, entityType)) {
+      return [response.data];
+    }
+  }
+
+  console.warn(`${entityType}Service: Could not find valid ${entityType} data in response`);
+  return [];
+};
+
+// Helper function to check if an object is of the expected entity type
+const isEntityObject = (obj, entityType) => {
+  if (!obj || typeof obj !== 'object') return false;
+
+  switch (entityType.toLowerCase()) {
+    case 'movie':
+      return obj.title !== undefined && (obj.director !== undefined || obj.genres !== undefined || obj.releaseDate !== undefined);
+    case 'event':
+      return obj.title !== undefined && (obj.date !== undefined || obj.startTime !== undefined || obj.location !== undefined);
+    case 'news':
+      return obj.title !== undefined && (obj.content !== undefined || obj.publishDate !== undefined);
+    case 'review':
+      return obj.rating !== undefined && (obj.comment !== undefined || obj.movieId !== undefined || obj.userId !== undefined);
+    case 'booking':
+      return obj.seats !== undefined || obj.showtime !== undefined || obj.totalAmount !== undefined;
+    default:
+      return false;
+  }
+};
+
 // Movie API services
 export const movieService = {
   // Get all movies
   getMovies: async (params = {}) => {
     try {
       console.log('MovieService: Fetching movies with params:', params);
-      const response = await api.get('/movies', { params });
-      console.log('MovieService: Raw API response:', response);
 
-      // Kiểm tra cấu trúc dữ liệu
-      if (response.data) {
-        console.log('MovieService: Response data type:', typeof response.data);
-        console.log('MovieService: Response data is array?', Array.isArray(response.data));
-
-        // Nếu response.data là một mảng, trả về nó
-        if (Array.isArray(response.data)) {
-          return response.data;
-        }
-
-        // Nếu response.data là một object, kiểm tra xem nó có thuộc tính movies không
-        if (typeof response.data === 'object') {
-          if (response.data.movies && Array.isArray(response.data.movies)) {
-            return response.data.movies;
-          }
-
-          // Kiểm tra các thuộc tính khác xem có mảng nào chứa movie objects không
-          for (const key in response.data) {
-            if (Array.isArray(response.data[key]) && response.data[key].length > 0) {
-              // Kiểm tra xem mảng này có phải là mảng movie objects không
-              if (response.data[key][0].title) {
-                return response.data[key];
-              }
-            }
-          }
-
-          // Nếu response.data có thuộc tính title, có thể nó là một movie object
-          if (response.data.title) {
-            return [response.data];
-          }
-        }
+      // Determine the appropriate endpoint based on params
+      let endpoint = '/movies';
+      if (params.status === 'Now Playing') {
+        endpoint = '/movies/now-playing';
+        delete params.status; // Remove status from params to avoid duplication
+      } else if (params.status === 'Coming Soon' || params.status === 'Upcoming') {
+        endpoint = '/movies/upcoming';
+        delete params.status;
+      } else if (params.featured) {
+        endpoint = '/movies/featured';
+        delete params.featured;
       }
 
-      // Trả về mảng rỗng nếu không tìm thấy dữ liệu hợp lệ
-      console.warn('MovieService: Could not find valid movie data in response');
-      return [];
+      const response = await api.get(endpoint, { params });
+      return extractDataFromResponse(response, 'Movie');
     } catch (error) {
       console.error('MovieService: Error fetching movies:', error);
       console.error('MovieService: Error details:', error.message, error.stack);
@@ -177,20 +257,34 @@ export const movieService = {
   getMovieById: async (id) => {
     try {
       const response = await api.get(`/movies/${id}`);
-      return response.data;
+      const data = extractDataFromResponse(response, 'Movie');
+      return data.length > 0 ? data[0] : { ...defaultMovieData, _id: id };
     } catch (error) {
       console.error(`Error fetching movie with ID ${id}:`, error);
       return { ...defaultMovieData, _id: id };
     }
   },
 
-  // Get movies by status (Now Playing, Coming Soon, Featured)
-  getMoviesByStatus: async (status) => {
+  // Get now playing movies
+  getNowPlayingMovies: async (limit) => {
     try {
-      const response = await api.get(`/movies/status/${status}`);
-      return response.data;
+      const params = limit ? { limit } : {};
+      const response = await api.get('/movies/now-playing', { params });
+      return extractDataFromResponse(response, 'Movie');
     } catch (error) {
-      console.error(`Error fetching movies with status ${status}:`, error);
+      console.error('Error fetching now playing movies:', error);
+      return [];
+    }
+  },
+
+  // Get upcoming movies
+  getUpcomingMovies: async (limit) => {
+    try {
+      const params = limit ? { limit } : {};
+      const response = await api.get('/movies/upcoming', { params });
+      return extractDataFromResponse(response, 'Movie');
+    } catch (error) {
+      console.error('Error fetching upcoming movies:', error);
       return [];
     }
   },
@@ -199,7 +293,7 @@ export const movieService = {
   getMoviesByGenre: async (genre) => {
     try {
       const response = await api.get(`/movies/genre/${genre}`);
-      return response.data;
+      return extractDataFromResponse(response, 'Movie');
     } catch (error) {
       console.error(`Error fetching movies with genre ${genre}:`, error);
       return [];
@@ -210,9 +304,33 @@ export const movieService = {
   getFeaturedMovies: async () => {
     try {
       const response = await api.get('/movies/featured');
-      return response.data;
+      return extractDataFromResponse(response, 'Movie');
     } catch (error) {
       console.error('Error fetching featured movies:', error);
+      return [];
+    }
+  },
+
+  // Get popular movies
+  getPopularMovies: async (limit) => {
+    try {
+      const params = limit ? { limit } : {};
+      const response = await api.get('/movies/popular', { params });
+      return extractDataFromResponse(response, 'Movie');
+    } catch (error) {
+      console.error('Error fetching popular movies:', error);
+      return [];
+    }
+  },
+
+  // Get top rated movies
+  getTopRatedMovies: async (limit) => {
+    try {
+      const params = limit ? { limit } : {};
+      const response = await api.get('/movies/top-rated', { params });
+      return extractDataFromResponse(response, 'Movie');
+    } catch (error) {
+      console.error('Error fetching top rated movies:', error);
       return [];
     }
   },
@@ -221,8 +339,10 @@ export const movieService = {
   searchMovies: async (query, options = {}) => {
     try {
       const { page = 1, limit = 10 } = options;
-      const response = await api.get(`/search/movies?q=${query}&page=${page}&limit=${limit}`);
-      return response.data;
+      const response = await api.get('/movies/search', {
+        params: { keyword: query, page, limit }
+      });
+      return extractDataFromResponse(response, 'Movie');
     } catch (error) {
       console.error(`Error searching movies with query ${query}:`, error);
       return [];
@@ -233,7 +353,7 @@ export const movieService = {
   getUserReviews: async (userId) => {
     try {
       const response = await api.get(`/reviews/user/${userId}`);
-      return response.data;
+      return extractDataFromResponse(response, 'Review');
     } catch (error) {
       console.error(`Error fetching reviews for user ${userId}:`, error);
       return [];
@@ -243,8 +363,8 @@ export const movieService = {
   // Get movie reviews
   getMovieReviews: async (movieId) => {
     try {
-      const response = await api.get(`/reviews/movie/${movieId}`);
-      return response.data;
+      const response = await api.get(`/movies/${movieId}/reviews`);
+      return extractDataFromResponse(response, 'Review');
     } catch (error) {
       console.error(`Error fetching reviews for movie ${movieId}:`, error);
       return [];
@@ -252,9 +372,9 @@ export const movieService = {
   },
 
   // Add a review
-  addReview: async (reviewData) => {
+  addReview: async (movieId, reviewData) => {
     try {
-      const response = await api.post('/reviews', reviewData);
+      const response = await api.post(`/movies/${movieId}/reviews`, reviewData);
       return response.data;
     } catch (error) {
       console.error('Error adding review:', error);
@@ -266,48 +386,28 @@ export const movieService = {
 // Event API services
 export const eventService = {
   // Get all events
-  getEvents: async () => {
+  getEvents: async (params = {}) => {
     try {
       console.log('EventService: Calling API: GET /events');
-      const response = await api.get('/events');
-      console.log('EventService: Raw API response:', response);
 
-      // Kiểm tra cấu trúc dữ liệu
-      if (response.data) {
-        console.log('EventService: Response data type:', typeof response.data);
-        console.log('EventService: Response data is array?', Array.isArray(response.data));
-
-        // Nếu response.data là một mảng, trả về nó
-        if (Array.isArray(response.data)) {
-          return response.data;
-        }
-
-        // Nếu response.data là một object, kiểm tra xem nó có thuộc tính events không
-        if (typeof response.data === 'object') {
-          if (response.data.events && Array.isArray(response.data.events)) {
-            return response.data.events;
-          }
-
-          // Kiểm tra các thuộc tính khác xem có mảng nào chứa event objects không
-          for (const key in response.data) {
-            if (Array.isArray(response.data[key]) && response.data[key].length > 0) {
-              // Kiểm tra xem mảng này có phải là mảng event objects không
-              if (response.data[key][0].title && response.data[key][0].date) {
-                return response.data[key];
-              }
-            }
-          }
-
-          // Nếu response.data có thuộc tính title và date, có thể nó là một event object
-          if (response.data.title && response.data.date) {
-            return [response.data];
-          }
-        }
+      // Determine the appropriate endpoint based on params
+      let endpoint = '/events';
+      if (params.featured) {
+        endpoint = '/events/featured';
+        delete params.featured;
+      } else if (params.upcoming) {
+        endpoint = '/events/upcoming';
+        delete params.upcoming;
+      } else if (params.past) {
+        endpoint = '/events/past';
+        delete params.past;
+      } else if (params.category) {
+        endpoint = `/events/category/${params.category}`;
+        delete params.category;
       }
 
-      // Trả về mảng rỗng nếu không tìm thấy dữ liệu hợp lệ
-      console.warn('EventService: Could not find valid event data in response');
-      return [];
+      const response = await api.get(endpoint, { params });
+      return extractDataFromResponse(response, 'Event');
     } catch (error) {
       console.error('EventService: Error fetching events:', error);
       console.error('EventService: Error details:', error.message, error.stack);
@@ -319,7 +419,8 @@ export const eventService = {
   getEventById: async (id) => {
     try {
       const response = await api.get(`/events/${id}`);
-      return response.data;
+      const data = extractDataFromResponse(response, 'Event');
+      return data.length > 0 ? data[0] : null;
     } catch (error) {
       console.error(`Error fetching event with ID ${id}:`, error);
       return null;
@@ -327,10 +428,11 @@ export const eventService = {
   },
 
   // Get featured events
-  getFeaturedEvents: async () => {
+  getFeaturedEvents: async (limit) => {
     try {
-      const response = await api.get('/events/featured');
-      return response.data;
+      const params = limit ? { limit } : {};
+      const response = await api.get('/events/featured', { params });
+      return extractDataFromResponse(response, 'Event');
     } catch (error) {
       console.error('Error fetching featured events:', error);
       return [];
@@ -338,10 +440,11 @@ export const eventService = {
   },
 
   // Get events by category
-  getEventsByCategory: async (category) => {
+  getEventsByCategory: async (category, limit) => {
     try {
-      const response = await api.get(`/events/category/${category}`);
-      return response.data;
+      const params = limit ? { limit } : {};
+      const response = await api.get(`/events/category/${category}`, { params });
+      return extractDataFromResponse(response, 'Event');
     } catch (error) {
       console.error(`Error fetching events with category ${category}:`, error);
       return [];
@@ -349,21 +452,37 @@ export const eventService = {
   },
 
   // Get upcoming events
-  getUpcomingEvents: async () => {
+  getUpcomingEvents: async (limit) => {
     try {
-      const response = await api.get('/events/upcoming');
-      return response.data;
+      const params = limit ? { limit } : {};
+      const response = await api.get('/events/upcoming', { params });
+      return extractDataFromResponse(response, 'Event');
     } catch (error) {
       console.error('Error fetching upcoming events:', error);
       return [];
     }
   },
 
-  // Search events
-  searchEvents: async (query) => {
+  // Get past events
+  getPastEvents: async (limit) => {
     try {
-      const response = await api.get(`/search/events?q=${query}`);
-      return response.data;
+      const params = limit ? { limit } : {};
+      const response = await api.get('/events/past', { params });
+      return extractDataFromResponse(response, 'Event');
+    } catch (error) {
+      console.error('Error fetching past events:', error);
+      return [];
+    }
+  },
+
+  // Search events
+  searchEvents: async (query, options = {}) => {
+    try {
+      const { page = 1, limit = 10 } = options;
+      const response = await api.get('/events/search', {
+        params: { keyword: query, page, limit }
+      });
+      return extractDataFromResponse(response, 'Event');
     } catch (error) {
       console.error(`Error searching events with query ${query}:`, error);
       return [];
@@ -395,48 +514,22 @@ export const eventService = {
 // News API services
 export const newsService = {
   // Get all news articles
-  getNews: async () => {
+  getNews: async (params = {}) => {
     try {
       console.log('NewsService: Calling API: GET /news');
-      const response = await api.get('/news');
-      console.log('NewsService: Raw API response:', response);
 
-      // Kiểm tra cấu trúc dữ liệu
-      if (response.data) {
-        console.log('NewsService: Response data type:', typeof response.data);
-        console.log('NewsService: Response data is array?', Array.isArray(response.data));
-
-        // Nếu response.data là một mảng, trả về nó
-        if (Array.isArray(response.data)) {
-          return response.data;
-        }
-
-        // Nếu response.data là một object, kiểm tra xem nó có thuộc tính news không
-        if (typeof response.data === 'object') {
-          if (response.data.news && Array.isArray(response.data.news)) {
-            return response.data.news;
-          }
-
-          // Kiểm tra các thuộc tính khác xem có mảng nào chứa news objects không
-          for (const key in response.data) {
-            if (Array.isArray(response.data[key]) && response.data[key].length > 0) {
-              // Kiểm tra xem mảng này có phải là mảng news objects không
-              if (response.data[key][0].title && response.data[key][0].content) {
-                return response.data[key];
-              }
-            }
-          }
-
-          // Nếu response.data có thuộc tính title và content, có thể nó là một news object
-          if (response.data.title && response.data.content) {
-            return [response.data];
-          }
-        }
+      // Determine the appropriate endpoint based on params
+      let endpoint = '/news';
+      if (params.featured) {
+        endpoint = '/news/featured';
+        delete params.featured;
+      } else if (params.category) {
+        endpoint = `/news/category/${params.category}`;
+        delete params.category;
       }
 
-      // Trả về mảng rỗng nếu không tìm thấy dữ liệu hợp lệ
-      console.warn('NewsService: Could not find valid news data in response');
-      return [];
+      const response = await api.get(endpoint, { params });
+      return extractDataFromResponse(response, 'News');
     } catch (error) {
       console.error('NewsService: Error fetching news:', error);
       console.error('NewsService: Error details:', error.message, error.stack);
@@ -448,29 +541,58 @@ export const newsService = {
   getNewsById: async (id) => {
     try {
       const response = await api.get(`/news/${id}`);
-      return response.data;
+      const data = extractDataFromResponse(response, 'News');
+      return data.length > 0 ? data[0] : null;
     } catch (error) {
       console.error(`Error fetching news with ID ${id}:`, error);
       return null;
     }
   },
 
-  // Get news articles by category
-  getNewsByCategory: async (category) => {
+  // Get featured news
+  getFeaturedNews: async (limit) => {
     try {
-      const response = await api.get(`/news/category/${category}`);
-      return response.data;
+      const params = limit ? { limit } : {};
+      const response = await api.get('/news/featured', { params });
+      return extractDataFromResponse(response, 'News');
+    } catch (error) {
+      console.error('Error fetching featured news:', error);
+      return [];
+    }
+  },
+
+  // Get news articles by category
+  getNewsByCategory: async (category, limit) => {
+    try {
+      const params = limit ? { limit } : {};
+      const response = await api.get(`/news/category/${category}`, { params });
+      return extractDataFromResponse(response, 'News');
     } catch (error) {
       console.error(`Error fetching news with category ${category}:`, error);
       return [];
     }
   },
 
-  // Search news
-  searchNews: async (query) => {
+  // Get latest news
+  getLatestNews: async (limit) => {
     try {
-      const response = await api.get(`/search/news?q=${query}`);
-      return response.data;
+      const params = limit ? { limit } : {};
+      const response = await api.get('/news/latest', { params });
+      return extractDataFromResponse(response, 'News');
+    } catch (error) {
+      console.error('Error fetching latest news:', error);
+      return [];
+    }
+  },
+
+  // Search news
+  searchNews: async (query, options = {}) => {
+    try {
+      const { page = 1, limit = 10 } = options;
+      const response = await api.get('/news/search', {
+        params: { keyword: query, page, limit }
+      });
+      return extractDataFromResponse(response, 'News');
     } catch (error) {
       console.error(`Error searching news with query ${query}:`, error);
       return [];
@@ -484,53 +606,64 @@ export const bookingService = {
   getTheatersByMovieAndDate: async (movieId, date) => {
     try {
       const response = await api.get(`/theaters/movie/${movieId}/date/${date}`);
-      return response.data;
+      return extractDataFromResponse(response, 'Theater');
     } catch (error) {
       console.error(`Error fetching theaters for movie ${movieId} on date ${date}:`, error);
       return [];
     }
   },
 
-  // Get showtimes by movie and date
+  // Get cinemas by movie and date
+  getCinemasByMovieAndDate: async (movieId, date) => {
+    try {
+      const response = await api.get(`/cinemas/movie/${movieId}/date/${date}`);
+      return extractDataFromResponse(response, 'Cinema');
+    } catch (error) {
+      console.error(`Error fetching cinemas for movie ${movieId} on date ${date}:`, error);
+      return [];
+    }
+  },
+
+  // Get screenings by movie and date
+  getScreeningsByMovieAndDate: async (movieId, date) => {
+    try {
+      const response = await api.get(`/screenings/movie/${movieId}/date/${date}`);
+      return extractDataFromResponse(response, 'Screening');
+    } catch (error) {
+      console.error(`Error fetching screenings for movie ${movieId} on date ${date}:`, error);
+      return [];
+    }
+  },
+
+  // Get screenings by movie, cinema, and date
+  getScreeningsByMovieCinemaDate: async (movieId, cinemaId, date) => {
+    try {
+      const response = await api.get(`/screenings/movie/${movieId}/cinema/${cinemaId}/date/${date}`);
+      return extractDataFromResponse(response, 'Screening');
+    } catch (error) {
+      console.error(`Error fetching screenings for movie ${movieId} at cinema ${cinemaId} on date ${date}:`, error);
+      return [];
+    }
+  },
+
+  // Get showtimes by movie and date (legacy method)
   getShowtimesByMovieAndDate: async (movieId, date) => {
     try {
       const response = await api.get(`/showtimes/movie/${movieId}/date/${date}`);
-      return response.data;
+      return extractDataFromResponse(response, 'Showtime');
     } catch (error) {
       console.error(`Error fetching showtimes for movie ${movieId} on date ${date}:`, error);
       return [];
     }
   },
 
-  // Get showtimes by movie, theater, and date
-  getShowtimesByMovieTheaterDate: async (movieId, theaterId, date) => {
+  // Get available seats for a screening
+  getAvailableSeats: async (screeningId) => {
     try {
-      const response = await api.get(`/showtimes/movie/${movieId}/theater/${theaterId}/date/${date}`);
-      return response.data;
+      const response = await api.get(`/seats/screening/${screeningId}`);
+      return extractDataFromResponse(response, 'Seat');
     } catch (error) {
-      console.error(`Error fetching showtimes for movie ${movieId} at theater ${theaterId} on date ${date}:`, error);
-      return [];
-    }
-  },
-
-  // Get showtimes for a movie (legacy method)
-  getShowtimesByMovie: async (movieId) => {
-    try {
-      const response = await api.get(`/showtimes/movie/${movieId}`);
-      return response.data;
-    } catch (error) {
-      console.error(`Error fetching showtimes for movie ${movieId}:`, error);
-      return [];
-    }
-  },
-
-  // Get available seats for a showtime
-  getAvailableSeats: async (showtimeId) => {
-    try {
-      const response = await api.get(`/showtimes/${showtimeId}/seats`);
-      return response.data;
-    } catch (error) {
-      console.error(`Error fetching seats for showtime ${showtimeId}:`, error);
+      console.error(`Error fetching seats for screening ${screeningId}:`, error);
       return [];
     }
   },
@@ -549,8 +682,8 @@ export const bookingService = {
   // Get user bookings
   getUserBookings: async () => {
     try {
-      const response = await api.get('/bookings');
-      return response.data;
+      const response = await api.get('/bookings/user');
+      return extractDataFromResponse(response, 'Booking');
     } catch (error) {
       console.error('Error fetching user bookings:', error);
       return [];
@@ -560,8 +693,8 @@ export const bookingService = {
   // Get user booking history
   getUserBookingHistory: async () => {
     try {
-      const response = await api.get('/booking-history');
-      return response.data;
+      const response = await api.get('/users/booking-history');
+      return extractDataFromResponse(response, 'Booking');
     } catch (error) {
       console.error('Error fetching user booking history:', error);
       return [];
@@ -571,8 +704,8 @@ export const bookingService = {
   // Get detailed booking history
   getDetailedBookingHistory: async () => {
     try {
-      const response = await api.get('/booking-history/detailed');
-      return response.data;
+      const response = await api.get('/users/booking-history/detailed');
+      return extractDataFromResponse(response, 'Booking');
     } catch (error) {
       console.error('Error fetching detailed booking history:', error);
       return [];
@@ -582,8 +715,17 @@ export const bookingService = {
   // Get booking history statistics
   getBookingHistoryStats: async () => {
     try {
-      const response = await api.get('/booking-history/stats');
-      return response.data;
+      const response = await api.get('/users/booking-history/stats');
+      if (response.data && typeof response.data === 'object') {
+        return response.data;
+      }
+      return {
+        totalBookings: 0,
+        totalSpent: 0,
+        favoriteGenres: [],
+        favoriteTheaters: [],
+        mostWatchedMovies: []
+      };
     } catch (error) {
       console.error('Error fetching booking history stats:', error);
       return {
@@ -596,22 +738,12 @@ export const bookingService = {
     }
   },
 
-  // Save booking to history
-  saveBookingToHistory: async (bookingId) => {
-    try {
-      const response = await api.post('/booking-history', { bookingId });
-      return response.data;
-    } catch (error) {
-      console.error('Error saving booking to history:', error);
-      throw error;
-    }
-  },
-
   // Get booking by ID
   getBookingById: async (bookingId) => {
     try {
       const response = await api.get(`/bookings/${bookingId}`);
-      return response.data;
+      const data = extractDataFromResponse(response, 'Booking');
+      return data.length > 0 ? data[0] : null;
     } catch (error) {
       console.error(`Error fetching booking ${bookingId}:`, error);
       throw error;
@@ -677,6 +809,17 @@ export const bookingService = {
       }
     }
   },
+
+  // Request refund for a booking
+  requestRefund: async (bookingId, refundData) => {
+    try {
+      const response = await api.post(`/bookings/${bookingId}/refund`, refundData);
+      return response.data;
+    } catch (error) {
+      console.error(`Error requesting refund for booking ${bookingId}:`, error);
+      throw error;
+    }
+  },
 };
 
 // Auth API services
@@ -698,7 +841,10 @@ export const authService = {
       // Store the token in localStorage
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data));
+
+        // Store user data
+        const userData = response.data.user || response.data;
+        localStorage.setItem('user', JSON.stringify(userData));
 
         // Dispatch auth-change event
         window.dispatchEvent(new Event('auth-change'));
@@ -728,6 +874,69 @@ export const authService = {
   isLoggedIn: () => {
     return !!localStorage.getItem('token');
   },
+
+  // Get user profile
+  getUserProfile: async () => {
+    try {
+      const response = await api.get('/users/profile');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      throw error;
+    }
+  },
+
+  // Update user profile
+  updateUserProfile: async (profileData) => {
+    try {
+      const response = await api.put('/users/profile', profileData);
+
+      // Update stored user data if successful
+      if (response.data && response.data.user) {
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        // Dispatch auth-change event
+        window.dispatchEvent(new Event('auth-change'));
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      throw error;
+    }
+  },
+
+  // Change password
+  changePassword: async (passwordData) => {
+    try {
+      const response = await api.put('/users/change-password', passwordData);
+      return response.data;
+    } catch (error) {
+      console.error('Error changing password:', error);
+      throw error;
+    }
+  },
+
+  // Request password reset
+  requestPasswordReset: async (email) => {
+    try {
+      const response = await api.post('/users/forgot-password', { email });
+      return response.data;
+    } catch (error) {
+      console.error('Error requesting password reset:', error);
+      throw error;
+    }
+  },
+
+  // Reset password
+  resetPassword: async (resetData) => {
+    try {
+      const response = await api.post('/users/reset-password', resetData);
+      return response.data;
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      throw error;
+    }
+  },
 };
 
 // Search API services
@@ -736,20 +945,99 @@ export const searchService = {
   globalSearch: async (query, options = {}) => {
     try {
       const { limit = 5 } = options;
-      const response = await api.get(`/search?q=${query}&limit=${limit}`);
-      return response.data;
+      const response = await api.get('/search', {
+        params: { q: query, limit }
+      });
+
+      if (response.data && typeof response.data === 'object') {
+        // Process and return the search results
+        const results = {};
+
+        // Process movies
+        if (response.data.movies) {
+          results.movies = Array.isArray(response.data.movies) ? response.data.movies : [];
+        }
+
+        // Process events
+        if (response.data.events) {
+          results.events = Array.isArray(response.data.events) ? response.data.events : [];
+        }
+
+        // Process news
+        if (response.data.news) {
+          results.news = Array.isArray(response.data.news) ? response.data.news : [];
+        }
+
+        // Process cinemas
+        if (response.data.cinemas) {
+          results.cinemas = Array.isArray(response.data.cinemas) ? response.data.cinemas : [];
+        }
+
+        return results;
+      }
+
+      return {
+        movies: [],
+        events: [],
+        news: [],
+        cinemas: []
+      };
     } catch (error) {
-      throw error;
+      console.error('Error performing global search:', error);
+      return {
+        movies: [],
+        events: [],
+        news: [],
+        cinemas: []
+      };
+    }
+  },
+
+  // Search movies
+  searchMovies: async (query, options = {}) => {
+    try {
+      return await movieService.searchMovies(query, options);
+    } catch (error) {
+      console.error(`Error searching movies with query ${query}:`, error);
+      return [];
+    }
+  },
+
+  // Search events
+  searchEvents: async (query, options = {}) => {
+    try {
+      return await eventService.searchEvents(query, options);
+    } catch (error) {
+      console.error(`Error searching events with query ${query}:`, error);
+      return [];
+    }
+  },
+
+  // Search news
+  searchNews: async (query, options = {}) => {
+    try {
+      return await newsService.searchNews(query, options);
+    } catch (error) {
+      console.error(`Error searching news with query ${query}:`, error);
+      return [];
     }
   },
 
   // Autocomplete search
   autocomplete: async (query) => {
     try {
-      const response = await api.get(`/search/autocomplete?q=${query}`);
-      return response.data;
+      const response = await api.get('/search/autocomplete', {
+        params: { q: query }
+      });
+
+      if (response.data && Array.isArray(response.data.suggestions)) {
+        return response.data.suggestions;
+      }
+
+      return [];
     } catch (error) {
-      throw error;
+      console.error('Error performing autocomplete search:', error);
+      return [];
     }
   },
 };

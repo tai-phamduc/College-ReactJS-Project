@@ -12,64 +12,13 @@ const UpcomingEvents = () => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        console.log('UpcomingEvents: Fetching events...');
-        const allEvents = await eventService.getEvents();
-        console.log('UpcomingEvents: API response type:', typeof allEvents);
-        console.log('UpcomingEvents: API response keys:', allEvents ? Object.keys(allEvents) : 'null');
-        console.log('UpcomingEvents: API response:', allEvents);
+        console.log('UpcomingEvents: Fetching upcoming events...');
 
-        // Kiểm tra chi tiết cấu trúc dữ liệu
-        let eventsArray = [];
+        // Use the dedicated method for upcoming events
+        const upcomingEvents = await eventService.getUpcomingEvents(3);
+        console.log('UpcomingEvents: Events data:', upcomingEvents);
 
-        if (Array.isArray(allEvents)) {
-          console.log('UpcomingEvents: Response is an array with length:', allEvents.length);
-          eventsArray = allEvents;
-        } else if (allEvents && typeof allEvents === 'object') {
-          console.log('UpcomingEvents: Response is an object');
-
-          // Kiểm tra nếu response có thuộc tính events
-          if (allEvents.events && Array.isArray(allEvents.events)) {
-            console.log('UpcomingEvents: Found events array in response with length:', allEvents.events.length);
-            eventsArray = allEvents.events;
-          } else {
-            // Kiểm tra tất cả các thuộc tính của response để tìm mảng
-            for (const key in allEvents) {
-              if (Array.isArray(allEvents[key])) {
-                console.log(`UpcomingEvents: Found array in response.${key} with length:`, allEvents[key].length);
-                if (allEvents[key].length > 0 && allEvents[key][0].title && allEvents[key][0].date) {
-                  console.log(`UpcomingEvents: Array in response.${key} contains event objects`);
-                  eventsArray = allEvents[key];
-                  break;
-                }
-              }
-            }
-
-            // Nếu không tìm thấy mảng nào, kiểm tra xem response có phải là một event object không
-            if (eventsArray.length === 0 && allEvents.title && allEvents.date) {
-              console.log('UpcomingEvents: Response is a single event object');
-              eventsArray = [allEvents];
-            }
-          }
-        }
-
-        console.log('UpcomingEvents: Events array after processing:', eventsArray);
-
-        // Sort events by date
-        if (eventsArray.length > 0) {
-          eventsArray.sort((a, b) => new Date(a.date) - new Date(b.date));
-          console.log('UpcomingEvents: Sorted events:', eventsArray);
-        }
-
-        // Get only upcoming events
-        const now = new Date();
-        console.log('UpcomingEvents: Current date for filtering:', now);
-
-        // Include all events for now to debug
-        const upcoming = eventsArray;
-        console.log('UpcomingEvents: All events for display:', upcoming);
-
-        // Sử dụng dữ liệu mẫu nếu không có dữ liệu từ API
-        if (upcoming.length === 0) {
+        if (upcomingEvents.length === 0) {
           console.log('UpcomingEvents: No events data found, using sample data');
           const sampleEvents = [
             {
@@ -105,8 +54,9 @@ const UpcomingEvents = () => {
           ];
           setEvents(sampleEvents);
         } else {
-          // Limit to 3 events for the home page
-          setEvents(upcoming.slice(0, 3));
+          // Sort events by date if needed
+          const sortedEvents = [...upcomingEvents].sort((a, b) => new Date(a.date) - new Date(b.date));
+          setEvents(sortedEvents.slice(0, 3)); // Limit to 3 events for the home page
         }
 
         setLoading(false);

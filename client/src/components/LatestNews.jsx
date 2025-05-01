@@ -12,50 +12,19 @@ const LatestNews = ({ limit = 3 }) => {
     const fetchNews = async () => {
       try {
         setLoading(true);
-        console.log('LatestNews: Fetching news...');
-        const allNews = await newsService.getNews();
-        console.log('LatestNews: API response type:', typeof allNews);
-        console.log('LatestNews: API response keys:', allNews ? Object.keys(allNews) : 'null');
-        console.log('LatestNews: API response:', allNews);
+        console.log('LatestNews: Fetching latest news...');
 
-        // Kiểm tra chi tiết cấu trúc dữ liệu
+        // Use the dedicated method for latest news
+        const latestNews = await newsService.getLatestNews(limit + 1); // Get one extra for featured
+        console.log('LatestNews: News data:', latestNews);
+
+        // Process the news data
         let newsArray = [];
 
-        if (Array.isArray(allNews)) {
-          console.log('LatestNews: Response is an array with length:', allNews.length);
-          newsArray = allNews;
-        } else if (allNews && typeof allNews === 'object') {
-          console.log('LatestNews: Response is an object');
-
-          // Kiểm tra nếu response có thuộc tính news
-          if (allNews.news && Array.isArray(allNews.news)) {
-            console.log('LatestNews: Found news array in response with length:', allNews.news.length);
-            newsArray = allNews.news;
-          } else {
-            // Kiểm tra tất cả các thuộc tính của response để tìm mảng
-            for (const key in allNews) {
-              if (Array.isArray(allNews[key])) {
-                console.log(`LatestNews: Found array in response.${key} with length:`, allNews[key].length);
-                if (allNews[key].length > 0 && allNews[key][0].title && allNews[key][0].content) {
-                  console.log(`LatestNews: Array in response.${key} contains news objects`);
-                  newsArray = allNews[key];
-                  break;
-                }
-              }
-            }
-
-            // Nếu không tìm thấy mảng nào, kiểm tra xem response có phải là một news object không
-            if (newsArray.length === 0 && allNews.title && allNews.content) {
-              console.log('LatestNews: Response is a single news object');
-              newsArray = [allNews];
-            }
-          }
-        }
-
-        console.log('LatestNews: News array after processing:', newsArray);
-
-        // Sử dụng dữ liệu mẫu nếu không có dữ liệu từ API
-        if (newsArray.length === 0) {
+        if (latestNews && latestNews.length > 0) {
+          console.log('LatestNews: Found news data with length:', latestNews.length);
+          newsArray = latestNews;
+        } else {
           console.log('LatestNews: No news data found, using sample data');
           newsArray = [
             {

@@ -12,52 +12,15 @@ const NowShowingMovies = () => {
     const fetchMovies = async () => {
       try {
         setLoading(true);
-        console.log('NowShowingMovies: Fetching movies...');
-        const response = await movieService.getMovies({ status: 'Now Playing', limit: 3 });
-        console.log('NowShowingMovies: API response type:', typeof response);
-        console.log('NowShowingMovies: API response keys:', response ? Object.keys(response) : 'null');
-        console.log('NowShowingMovies: API response:', response);
+        console.log('NowShowingMovies: Fetching now playing movies...');
 
-        // Kiểm tra chi tiết cấu trúc dữ liệu
-        let moviesData = [];
+        // Use the dedicated method for now playing movies
+        const moviesData = await movieService.getNowPlayingMovies(3);
+        console.log('NowShowingMovies: Movies data:', moviesData);
 
-        if (Array.isArray(response)) {
-          console.log('NowShowingMovies: Response is an array with length:', response.length);
-          moviesData = response;
-        } else if (response && typeof response === 'object') {
-          console.log('NowShowingMovies: Response is an object');
-
-          // Kiểm tra nếu response có thuộc tính movies
-          if (response.movies && Array.isArray(response.movies)) {
-            console.log('NowShowingMovies: Found movies array in response with length:', response.movies.length);
-            moviesData = response.movies;
-          } else {
-            // Kiểm tra tất cả các thuộc tính của response để tìm mảng
-            for (const key in response) {
-              if (Array.isArray(response[key])) {
-                console.log(`NowShowingMovies: Found array in response.${key} with length:`, response[key].length);
-                if (response[key].length > 0 && response[key][0].title) {
-                  console.log(`NowShowingMovies: Array in response.${key} contains movie objects`);
-                  moviesData = response[key];
-                  break;
-                }
-              }
-            }
-
-            // Nếu không tìm thấy mảng nào, kiểm tra xem response có phải là một movie object không
-            if (moviesData.length === 0 && response.title) {
-              console.log('NowShowingMovies: Response is a single movie object');
-              moviesData = [response];
-            }
-          }
-        }
-
-        console.log('NowShowingMovies: Final processed movies data:', moviesData);
-
-        // Sử dụng dữ liệu mẫu nếu không có dữ liệu từ API
         if (moviesData.length === 0) {
           console.log('NowShowingMovies: No movies data found, using sample data');
-          moviesData = [
+          const sampleMovies = [
             {
               _id: '1',
               title: 'Sample Movie 1',
@@ -80,9 +43,11 @@ const NowShowingMovies = () => {
               genre: ['Comedy', 'Romance']
             }
           ];
+          setMovies(sampleMovies);
+        } else {
+          setMovies(moviesData);
         }
 
-        setMovies(moviesData);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching movies:', err);
