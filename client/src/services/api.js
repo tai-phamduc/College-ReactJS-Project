@@ -690,16 +690,7 @@ export const bookingService = {
     }
   },
 
-  // Get showtimes by movie and date (legacy method)
-  getShowtimesByMovieAndDate: async (movieId, date) => {
-    try {
-      const response = await api.get(`/showtimes/movie/${movieId}/date/${date}`);
-      return extractDataFromResponse(response, 'Showtime');
-    } catch (error) {
-      console.error(`Error fetching showtimes for movie ${movieId} on date ${date}:`, error);
-      return [];
-    }
-  },
+  // Removed getShowtimesByMovieAndDate - using getScreeningsByMovieAndDate instead
 
   // Get available seats for a screening
   getAvailableSeats: async (screeningId) => {

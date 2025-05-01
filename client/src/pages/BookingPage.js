@@ -267,8 +267,8 @@ const BookingPage = () => {
         // Format the date for API request
         const formattedDate = selectedDate.date.toISOString().split('T')[0];
 
-        // Use the bookingService to get showtimes for the movie, theater, and date
-        const data = await bookingService.getShowtimesByMovieTheaterDate(
+        // Use the bookingService to get screenings for the movie, cinema, and date
+        const data = await bookingService.getScreeningsByMovieCinemaDate(
           id,
           selectedTheater._id,
           formattedDate
