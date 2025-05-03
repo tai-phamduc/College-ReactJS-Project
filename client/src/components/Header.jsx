@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { FaBars, FaTimes, FaUser, FaSignOutAlt, FaTicketAlt, FaCog, FaUserCircle } from 'react-icons/fa';
 import { authService } from '../services/api';
-import SearchBar from './SearchBar';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -135,7 +134,6 @@ const Header = () => {
               Admin
             </NavLink>
           )}
-          <SearchBar />
         </nav>
 
         {/* User Actions - Desktop */}

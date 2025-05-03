@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import ChatbotFixed from '../components/ChatbotFixed';
+import MovieChatbot from '../components/MovieChatbot';
 
 const SimplePage = () => {
 
@@ -289,7 +289,7 @@ const SimplePage = () => {
       </section>
 
       {/* Chatbot */}
-      <ChatbotFixed />
+      <MovieChatbot />
     </div>
   );
 };
