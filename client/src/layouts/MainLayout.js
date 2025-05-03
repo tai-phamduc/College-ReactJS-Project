@@ -2,7 +2,7 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import MovieChatbot from '../components/MovieChatbot';
+import ChatbotFixed from '../components/ChatbotFixed';
 import { authService } from '../services/api';
 
 const MainLayout = () => {
@@ -15,7 +15,7 @@ const MainLayout = () => {
         <Outlet />
       </main>
       <Footer />
-      <MovieChatbot />
+      <ChatbotFixed />
     </div>
   );
 };

@@ -132,12 +132,13 @@ const MovieChatbot = () => {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-4 right-4 z-[9999]">
       {/* Chat button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="bg-orange-500 text-white p-4 rounded-full shadow-lg hover:bg-orange-700 transition-colors"
         aria-label="Open movie chatbot"
+        style={{ zIndex: 9999 }}
       >
         {isOpen ? (
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
