@@ -1,0 +1,2 @@
+# Mark .env files as binary to avoid git tracking their content
+*.env binary
