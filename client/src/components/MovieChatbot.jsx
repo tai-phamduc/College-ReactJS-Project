@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { HfInference } from '@huggingface/inference';
 
 const MovieChatbot = () => {
+  // Initialize Hugging Face client with API key from environment variables
+  const hf = new HfInference(process.env.REACT_APP_HUGGINGFACE_API_KEY);
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hello! I\'m your movie assistant. I can help you with movie recommendations, information about actors, directors, and more. How can I help you today?'
+      content: 'Xin chào! Tôi là trợ lý phim ảnh. Tôi có thể giúp bạn tìm kiếm thông tin về phim, diễn viên, đạo diễn và đưa ra các đề xuất. Tôi có thể giúp gì cho bạn hôm nay?'
     }
   ]);
   const [input, setInput] = useState('');
@@ -105,9 +108,40 @@ const MovieChatbot = () => {
     setInput('');
     setIsLoading(true);
 
-    // Simulate API delay
-    setTimeout(() => {
-      const responseText = getResponse(input);
+    try {
+      // Create a context for the model with previous messages
+      const context = messages
+        .slice(-4) // Take last 4 messages for context
+        .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
+        .join('\n');
+
+      // Create a prompt that focuses on movie-related information
+      const prompt = `
+You are a helpful movie assistant that provides information about movies, actors, directors, and gives recommendations.
+Previous conversation:
+${context}
+
+User: ${input}
+
+Provide a helpful, concise response about movies:`;
+
+      // Call Hugging Face model
+      const response = await hf.textGeneration({
+        model: "mistralai/Mistral-7B-Instruct-v0.2", // Using Mistral model for better responses
+        inputs: prompt,
+        parameters: {
+          max_new_tokens: 250,
+          temperature: 0.7,
+          top_p: 0.95,
+          repetition_penalty: 1.15
+        }
+      });
+
+      // Clean up the response
+      let responseText = response.generated_text || "I'm sorry, I couldn't generate a response.";
+
+      // Remove any "Assistant:" prefix that might be in the response
+      responseText = responseText.replace(/^Assistant:\s*/i, '');
 
       // Add assistant message
       const assistantMessage = {
@@ -115,16 +149,26 @@ const MovieChatbot = () => {
         content: responseText
       };
       setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error calling Hugging Face API:', error);
+      // Fallback to local response if API fails
+      const responseText = getResponse(input);
+      const assistantMessage = {
+        role: 'assistant',
+        content: responseText
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   // Suggested questions for users
   const suggestedQuestions = [
-    "What are some good action movies?",
-    "Who directed The Godfather?",
-    "Can you recommend a comedy film?",
-    "What are the top movies of 2023?"
+    "Phim hành động hay nhất?",
+    "Ai đạo diễn phim The Godfather?",
+    "Gợi ý phim hài hay?",
+    "Top phim hay nhất 2023?"
   ];
 
   const handleSuggestedQuestion = (question) => {
@@ -160,7 +204,7 @@ const MovieChatbot = () => {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
               </svg>
-              Movie Assistant
+              Trợ lý Phim ảnh
             </h3>
             <button
               onClick={() => setIsOpen(false)}
@@ -208,7 +252,7 @@ const MovieChatbot = () => {
           {/* Suggested questions */}
           {messages.length < 3 && (
             <div className="p-3 bg-gray-800 border-t border-gray-700">
-              <p className="text-sm text-gray-400 mb-2">Try asking:</p>
+              <p className="text-sm text-gray-400 mb-2">Thử hỏi:</p>
               <div className="flex flex-wrap gap-2">
                 {suggestedQuestions.map((question, index) => (
                   <button
@@ -229,7 +273,7 @@ const MovieChatbot = () => {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about movies..."
+              placeholder="Hỏi về phim ảnh..."
               className="flex-1 bg-gray-600 text-white p-2 rounded-l-lg focus:outline-none"
               disabled={isLoading}
             />
