@@ -174,16 +174,19 @@ const ChatbotFixed = () => {
   };
 
   const sendButtonStyle = {
-    padding: '0 20px',
+    padding: '0 15px',
     backgroundColor: '#f97316',
     color: 'white',
     border: 'none',
     borderRadius: '0 20px 20px 0',
     cursor: 'pointer',
     fontWeight: 'bold',
-    fontSize: '16px',
+    fontSize: '24px',
     height: '44px',
-    minWidth: '70px'
+    width: '50px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   };
 
   const userMessageStyle = {
@@ -353,12 +356,13 @@ const ChatbotFixed = () => {
               style={inputStyle}
               disabled={isTyping}
             />
-            <input
+            <button
               type="submit"
-              value="Gửi"
               style={sendButtonStyle}
               disabled={isTyping || !input.trim()}
-            />
+            >
+              →
+            </button>
           </form>
 
           <style>
