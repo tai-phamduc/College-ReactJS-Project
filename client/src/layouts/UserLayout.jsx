@@ -3,7 +3,6 @@ import { Outlet, Navigate } from 'react-router-dom';
 import { authService } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import ChatAssistant from '../components/ai/ChatAssistant';
 
 const UserLayout = () => {
   const [user, setUser] = useState(null);
@@ -60,7 +59,6 @@ const UserLayout = () => {
         <Outlet />
       </main>
       <Footer />
-      <ChatAssistant />
     </div>
   );
 };

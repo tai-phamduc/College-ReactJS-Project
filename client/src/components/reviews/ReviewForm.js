@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaStar } from 'react-icons/fa';
 
 const ReviewForm = ({ movieId, onSubmit, initialData = null }) => {
   const [formData, setFormData] = useState({
     rating: initialData?.rating || 0,
     title: initialData?.title || '',
-    comment: initialData?.comment || '',
+    comment: initialData?.comment || ''
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -21,7 +21,7 @@ const ReviewForm = ({ movieId, onSubmit, initialData = null }) => {
     } else if (formData.comment.length < 10) {
       newErrors.comment = 'Comment must be at least 10 characters';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -43,19 +43,19 @@ const ReviewForm = ({ movieId, onSubmit, initialData = null }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validate()) {
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       await onSubmit({
         movieId,
         ...formData,
       });
-      
+
       // Reset form if not editing
       if (!initialData) {
         setFormData({
@@ -79,7 +79,7 @@ const ReviewForm = ({ movieId, onSubmit, initialData = null }) => {
       <h3 className="text-xl font-semibold mb-4">
         {initialData ? 'Edit Your Review' : 'Write a Review'}
       </h3>
-      
+
       {/* Rating Stars */}
       <div className="mb-4">
         <label className="block text-gray-300 mb-2">Rating</label>
@@ -108,7 +108,7 @@ const ReviewForm = ({ movieId, onSubmit, initialData = null }) => {
         </div>
         {errors.rating && <p className="text-red-500 text-sm mt-1">{errors.rating}</p>}
       </div>
-      
+
       {/* Review Title */}
       <div className="mb-4">
         <label htmlFor="title" className="block text-gray-300 mb-2">
@@ -124,7 +124,7 @@ const ReviewForm = ({ movieId, onSubmit, initialData = null }) => {
           className="w-full bg-gray-800 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
-      
+
       {/* Review Comment */}
       <div className="mb-4">
         <label htmlFor="comment" className="block text-gray-300 mb-2">
@@ -141,14 +141,14 @@ const ReviewForm = ({ movieId, onSubmit, initialData = null }) => {
         ></textarea>
         {errors.comment && <p className="text-red-500 text-sm mt-1">{errors.comment}</p>}
       </div>
-      
+
       {/* Submit Error */}
       {errors.submit && (
         <div className="mb-4 p-3 bg-red-900 text-white rounded-md">
           {errors.submit}
         </div>
       )}
-      
+
       {/* Submit Button */}
       <button
         type="submit"

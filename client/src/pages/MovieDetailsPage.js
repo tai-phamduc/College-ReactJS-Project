@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FaPlay, FaCalendarAlt, FaClock, FaFilm, FaUser, FaStar, FaShare, FaFacebook, FaTwitter, FaPinterest, FaMapMarkerAlt, FaLanguage, FaTicketAlt, FaArrowLeft, FaRobot, FaChartLine } from 'react-icons/fa';
+import { FaPlay, FaCalendarAlt, FaClock, FaFilm, FaUser, FaStar, FaShare, FaFacebook, FaTwitter, FaPinterest, FaMapMarkerAlt, FaLanguage, FaTicketAlt, FaArrowLeft, FaChartLine } from 'react-icons/fa';
 import { movieService } from '../services/api';
 import MovieReviewsSection from '../components/reviews/MovieReviewsSection';
 
@@ -470,6 +470,8 @@ const MovieDetailsPage = () => {
                   </div>
                 </div>
               )}
+
+
 
               {/* Box Office Info */}
               <div className="bg-secondary p-6 rounded-lg mb-8 shadow-lg hover:shadow-xl transition-shadow duration-300">

@@ -2,7 +2,6 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import ChatAssistant from '../components/ai/ChatAssistant';
 
 const PublicLayout = () => {
   return (
@@ -12,7 +11,6 @@ const PublicLayout = () => {
         <Outlet />
       </main>
       <Footer />
-      <ChatAssistant />
     </div>
   );
 };

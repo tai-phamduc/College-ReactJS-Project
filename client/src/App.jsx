@@ -18,6 +18,7 @@ import MovieDetailsPage from './pages/MovieDetailsPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import SearchResultsPage from './pages/SearchResultsPage';
+import SimplePage from './pages/SimplePage';
 
 // User Pages
 import UserProfilePage from './pages/UserProfilePage';
@@ -28,39 +29,12 @@ import DashboardPage from './pages/admin/DashboardPage';
 import AdminMoviesPage from './pages/admin/MoviesPage';
 import AdminUsersPage from './pages/admin/UsersPage';
 
-// Home Page Components
-import HeroSlider from './components/HeroSlider';
-import UpcomingEvents from './components/UpcomingEvents';
-import NowShowingMovies from './components/NowShowingMovies';
-import ComingSoonMovies from './components/ComingSoonMovies';
-import LatestNews from './components/LatestNews';
-
-// HomePage component
-const HomePage = () => (
-  <div className="min-h-screen bg-dark text-white">
-    {/* Hero Slider */}
-    <HeroSlider />
-
-    {/* Now Showing Movies Section */}
-    <NowShowingMovies />
-
-    {/* Coming Soon Movies Section */}
-    <ComingSoonMovies />
-
-    {/* Upcoming Events Section */}
-    <UpcomingEvents />
-
-    {/* Latest News Section */}
-    <LatestNews />
-  </div>
-);
-
 function App() {
   return (
     <Routes>
       {/* Public Routes */}
       <Route element={<PublicLayout />}>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<SimplePage />} />
         <Route path="/movies" element={<MoviesPage />} />
         <Route path="/movies/:id" element={<MovieDetailsPage />} />
         <Route path="/events" element={<EventsPage />} />
