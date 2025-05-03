@@ -18,35 +18,7 @@ const NowShowingMovies = () => {
         const moviesData = await movieService.getNowPlayingMovies(3);
         console.log('NowShowingMovies: Movies data:', moviesData);
 
-        if (moviesData.length === 0) {
-          console.log('NowShowingMovies: No movies data found, using sample data');
-          const sampleMovies = [
-            {
-              _id: '1',
-              title: 'Sample Movie 1',
-              poster: 'https://via.placeholder.com/300x450?text=Sample+Movie+1',
-              rating: 4.5,
-              genre: ['Action', 'Adventure']
-            },
-            {
-              _id: '2',
-              title: 'Sample Movie 2',
-              poster: 'https://via.placeholder.com/300x450?text=Sample+Movie+2',
-              rating: 4.0,
-              genre: ['Drama', 'Thriller']
-            },
-            {
-              _id: '3',
-              title: 'Sample Movie 3',
-              poster: 'https://via.placeholder.com/300x450?text=Sample+Movie+3',
-              rating: 4.8,
-              genre: ['Comedy', 'Romance']
-            }
-          ];
-          setMovies(sampleMovies);
-        } else {
-          setMovies(moviesData);
-        }
+        setMovies(moviesData);
 
         setLoading(false);
       } catch (err) {

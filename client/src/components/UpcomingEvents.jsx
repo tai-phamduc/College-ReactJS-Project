@@ -18,46 +18,9 @@ const UpcomingEvents = () => {
         const upcomingEvents = await eventService.getUpcomingEvents(3);
         console.log('UpcomingEvents: Events data:', upcomingEvents);
 
-        if (upcomingEvents.length === 0) {
-          console.log('UpcomingEvents: No events data found, using sample data');
-          const sampleEvents = [
-            {
-              _id: '1',
-              title: 'Sample Event 1',
-              date: new Date(Date.now() + 86400000).toISOString(), // Tomorrow
-              startTime: '10:00 AM',
-              location: 'Sample Location 1',
-              category: 'Sample Category',
-              image: 'https://via.placeholder.com/800x600?text=Sample+Event+1',
-              shortDescription: 'This is a sample event description.'
-            },
-            {
-              _id: '2',
-              title: 'Sample Event 2',
-              date: new Date(Date.now() + 172800000).toISOString(), // Day after tomorrow
-              startTime: '2:00 PM',
-              location: 'Sample Location 2',
-              category: 'Sample Category',
-              image: 'https://via.placeholder.com/800x600?text=Sample+Event+2',
-              shortDescription: 'This is another sample event description.'
-            },
-            {
-              _id: '3',
-              title: 'Sample Event 3',
-              date: new Date(Date.now() + 259200000).toISOString(), // 3 days from now
-              startTime: '7:00 PM',
-              location: 'Sample Location 3',
-              category: 'Sample Category',
-              image: 'https://via.placeholder.com/800x600?text=Sample+Event+3',
-              shortDescription: 'This is yet another sample event description.'
-            }
-          ];
-          setEvents(sampleEvents);
-        } else {
-          // Sort events by date if needed
-          const sortedEvents = [...upcomingEvents].sort((a, b) => new Date(a.date) - new Date(b.date));
-          setEvents(sortedEvents.slice(0, 3)); // Limit to 3 events for the home page
-        }
+        // Sort events by date if needed
+        const sortedEvents = [...upcomingEvents].sort((a, b) => new Date(a.date) - new Date(b.date));
+        setEvents(sortedEvents.slice(0, 3)); // Limit to 3 events for the home page
 
         setLoading(false);
       } catch (err) {

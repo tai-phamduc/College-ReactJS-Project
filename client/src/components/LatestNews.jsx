@@ -24,50 +24,6 @@ const LatestNews = ({ limit = 3 }) => {
         if (latestNews && latestNews.length > 0) {
           console.log('LatestNews: Found news data with length:', latestNews.length);
           newsArray = latestNews;
-        } else {
-          console.log('LatestNews: No news data found, using sample data');
-          newsArray = [
-            {
-              _id: '1',
-              title: 'Sample News 1',
-              content: 'This is sample news content 1.',
-              excerpt: 'This is a sample news excerpt 1.',
-              featuredImage: 'https://via.placeholder.com/800x600?text=Sample+News+1',
-              publishDate: new Date().toISOString(),
-              featured: true,
-              category: 'Sample Category'
-            },
-            {
-              _id: '2',
-              title: 'Sample News 2',
-              content: 'This is sample news content 2.',
-              excerpt: 'This is a sample news excerpt 2.',
-              featuredImage: 'https://via.placeholder.com/800x600?text=Sample+News+2',
-              publishDate: new Date().toISOString(),
-              featured: false,
-              category: 'Sample Category'
-            },
-            {
-              _id: '3',
-              title: 'Sample News 3',
-              content: 'This is sample news content 3.',
-              excerpt: 'This is a sample news excerpt 3.',
-              featuredImage: 'https://via.placeholder.com/800x600?text=Sample+News+3',
-              publishDate: new Date().toISOString(),
-              featured: false,
-              category: 'Sample Category'
-            },
-            {
-              _id: '4',
-              title: 'Sample News 4',
-              content: 'This is sample news content 4.',
-              excerpt: 'This is a sample news excerpt 4.',
-              featuredImage: 'https://via.placeholder.com/800x600?text=Sample+News+4',
-              publishDate: new Date().toISOString(),
-              featured: false,
-              category: 'Sample Category'
-            }
-          ];
         }
 
         // Find featured news
