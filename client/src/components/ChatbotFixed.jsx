@@ -158,11 +158,13 @@ const ChatbotFixed = () => {
     display: 'flex',
     padding: '12px 15px',
     borderTop: '1px solid #333333',
-    backgroundColor: '#222222'
+    backgroundColor: '#222222',
+    width: '100%',
+    boxSizing: 'border-box'
   };
 
   const inputStyle = {
-    flex: 1,
+    flex: '1 1 auto', // flex-grow: 1, flex-shrink: 1, flex-basis: auto
     padding: '12px 15px',
     borderRadius: '20px 0 0 20px',
     border: 'none',
@@ -170,11 +172,12 @@ const ChatbotFixed = () => {
     color: 'white',
     fontSize: '14px',
     outline: 'none',
-    transition: 'background-color 0.3s ease'
+    transition: 'background-color 0.3s ease',
+    minWidth: '0' // allows flex item to shrink below content size
   };
 
   const sendButtonStyle = {
-    padding: '0 15px',
+    flex: '0 0 60px', // fixed width of 60px
     backgroundColor: '#f97316',
     color: 'white',
     border: 'none',
@@ -183,10 +186,10 @@ const ChatbotFixed = () => {
     fontWeight: 'bold',
     fontSize: '24px',
     height: '44px',
-    width: '50px',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    minWidth: '60px' // ensure minimum width
   };
 
   const userMessageStyle = {
