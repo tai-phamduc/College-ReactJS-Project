@@ -646,7 +646,7 @@ const BookingPage = () => {
         // For testing, let's try to use a valid MongoDB ObjectId
         // This is a temporary fix to see if the issue is with the ID format
         const screeningId = selectedShowtime.id.includes('-')
-          ? '64f5b9d35d15b0a2d8c3e222' // Use a fallback ID if the current ID has dashes (not a valid MongoDB ID)
+          ? '6819834def526299a337ad0f' // Use our newly created test screening ID
           : selectedShowtime.id;
 
         console.log('Using screening ID:', screeningId);
