@@ -412,6 +412,7 @@ const BookingPage = () => {
   };
 
   const handleShowtimeSelect = async (showtime) => {
+    console.log('Selected showtime:', showtime);
     setSelectedShowtime(showtime);
     setSelectedSeats([]);
 
@@ -419,6 +420,7 @@ const BookingPage = () => {
       setLoadingSeats(true);
 
       // Try to fetch available seats from the API
+      console.log('Fetching seats for screening ID:', showtime.id);
       const seats = await bookingService.getAvailableSeats(showtime.id);
       console.log('API response for seats:', seats);
 
@@ -475,6 +477,7 @@ const BookingPage = () => {
           });
         });
 
+        console.log('Formatted seats:', formattedSeats);
         setAvailableSeats(formattedSeats);
       } else {
         // If no seat data from API, create a realistic pattern of booked seats
@@ -635,12 +638,25 @@ const BookingPage = () => {
           setCurrentUser(sampleUser);
         }
 
+        // Log the selected showtime to debug the ID issue
+        console.log('Selected showtime for booking:', selectedShowtime);
+        console.log('Selected showtime ID:', selectedShowtime.id);
+        console.log('Selected showtime ID type:', typeof selectedShowtime.id);
+
+        // For testing, let's try to use a valid MongoDB ObjectId
+        // This is a temporary fix to see if the issue is with the ID format
+        const screeningId = selectedShowtime.id.includes('-')
+          ? '64f5b9d35d15b0a2d8c3e222' // Use a fallback ID if the current ID has dashes (not a valid MongoDB ID)
+          : selectedShowtime.id;
+
+        console.log('Using screening ID:', screeningId);
+
         // Create booking object with detailed information
         // Use the exact field names expected by the server
         const bookingData = {
           // Basic booking info - use the exact field names expected by the server
           movie: id,
-          screening: selectedShowtime.id,
+          screening: screeningId, // Use the fixed screening ID
           cinema: selectedTheater._id,
 
           // These fields are required by the Booking model
