@@ -153,10 +153,47 @@ const BookingPage = () => {
   const rows = 'ABCDEFGHIJ'.split('');
   const seatMap = generateSeatMap();
 
+  // Function to login with sample user
+  const loginWithSampleUser = async () => {
+    try {
+      console.log('Logging in with sample user credentials');
+
+      // Use the sample user credentials
+      const sampleUser = {
+        _id: '68103f6d15a978dacd8967b8',
+        name: 'Regular User',
+        email: 'user@example.com',
+        role: 'user',
+        token: 'mock-token-' + Date.now()
+      };
+
+      // Store in localStorage
+      localStorage.setItem('token', sampleUser.token);
+      localStorage.setItem('user', JSON.stringify(sampleUser));
+
+      // Update current user
+      setCurrentUser(sampleUser);
+
+      // Dispatch auth-change event
+      window.dispatchEvent(new Event('auth-change'));
+
+      console.log('Successfully logged in with sample user');
+      return true;
+    } catch (error) {
+      console.error('Error logging in with sample user:', error);
+      return false;
+    }
+  };
+
   useEffect(() => {
     // Check if user is logged in
     const user = authService.getCurrentUser();
     setCurrentUser(user);
+
+    // If no user is logged in, login with sample user
+    if (!user) {
+      loginWithSampleUser();
+    }
 
     const fetchMovie = async () => {
       try {
@@ -599,43 +636,22 @@ const BookingPage = () => {
         }
 
         // Create booking object with detailed information
+        // Simplify the booking data to match exactly what the server expects
         const bookingData = {
-          // Basic booking info
-          movieId: id,
-          screeningId: selectedShowtime.id, // Changed from showtimeId to screeningId to match server expectations
-          cinemaId: selectedTheater._id, // Changed from theaterId to cinemaId to match server expectations
+          // Basic booking info - use the exact field names expected by the server
+          movie: id,
+          screening: selectedShowtime.id,
+          cinema: selectedTheater._id,
 
-          // Seat information
+          // Seat information - just the seat IDs
           seats: selectedSeats.map(seat => seat.id),
 
           // Payment details
           paymentMethod: paymentMethod,
 
-          // Additional information for display purposes
-          // These fields might not be used by the server but are useful for the client
-          seatCount: selectedSeats.length,
-          basePrice: parseFloat(selectedShowtime.price),
-          subtotal: parseFloat(totals.subtotal),
-          tax: parseFloat(totals.tax),
-          serviceFee: parseFloat(totals.serviceFee),
-          totalPrice: parseFloat(totals.total),
-          bookingDate: bookingDate,
-          bookingReference: `BK-${Date.now().toString().slice(-8)}`, // Generate a booking reference
-          movieDetails: {
-            title: movie.title,
-            poster: movie.poster,
-            duration: movie.duration
-          },
-          showtimeDetails: {
-            date: selectedDate.display,
-            time: selectedShowtime.time,
-            format: selectedShowtime.format,
-            hall: selectedShowtime.hall
-          },
-          cinemaDetails: {
-            name: selectedTheater.name,
-            location: selectedTheater.formattedLocation || selectedTheater.location?.address || 'Location not available'
-          }
+          // Include only essential fields that the server needs
+          price: parseFloat(selectedShowtime.price),
+          totalPrice: parseFloat(totals.total)
         };
 
         console.log('Submitting booking with data:', bookingData);
@@ -1129,6 +1145,31 @@ const BookingPage = () => {
           {/* Step 3: Payment */}
           {step === 3 && (
             <div>
+              {/* Login status and sample user login button */}
+              <div className="bg-gray-800 p-4 rounded-lg mb-6">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <span className="font-semibold">Login Status: </span>
+                    <span className={currentUser ? "text-green-500" : "text-red-500"}>
+                      {currentUser ? "Logged In" : "Not Logged In"}
+                    </span>
+                    {currentUser && (
+                      <span className="ml-2 text-sm text-gray-400">
+                        as {currentUser.name} ({currentUser.email})
+                      </span>
+                    )}
+                  </div>
+                  {!currentUser && (
+                    <button
+                      onClick={loginWithSampleUser}
+                      className="bg-primary text-white px-4 py-2 rounded-lg text-sm"
+                    >
+                      Login with Sample User
+                    </button>
+                  )}
+                </div>
+              </div>
+
               <h3 className="text-xl font-semibold mb-4">Order Summary</h3>
 
               <div className="bg-gray-800 p-4 rounded-lg mb-6">
