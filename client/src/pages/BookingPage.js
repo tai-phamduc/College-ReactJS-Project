@@ -639,8 +639,13 @@ const BookingPage = () => {
         // Use the exact field names expected by the server
         const bookingData = {
           // Basic booking info - use the exact field names expected by the server
-          movieId: id,
-          screeningId: selectedShowtime.id,
+          movie: id,
+          screening: selectedShowtime.id,
+          cinema: selectedTheater._id,
+
+          // These fields are required by the Booking model
+          room: selectedShowtime.room || "64f5b9d35d15b0a2d8c3e111", // Default room ID if not available
+          roomName: selectedShowtime.hall || "Standard Room", // Default room name if not available
 
           // Seat information - just the seat IDs
           seats: selectedSeats.map(seat => seat.id),
@@ -654,10 +659,8 @@ const BookingPage = () => {
           ticketPrice: parseFloat(selectedShowtime.price),
           totalPrice: parseFloat(calculateTotal().total),
 
-          // These fields will be populated by the server, but we'll provide them anyway
-          bookingDate: new Date().toISOString(),
-          bookingStatus: 'pending',
-          paymentStatus: 'pending'
+          // Generate a unique booking number
+          bookingNumber: `BK-${Date.now()}-${Math.floor(10000 + Math.random() * 90000)}`
         };
 
         console.log('Submitting booking with data:', bookingData);
