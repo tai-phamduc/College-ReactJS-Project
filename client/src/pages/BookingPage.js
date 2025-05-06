@@ -646,7 +646,18 @@ const BookingPage = () => {
           seats: selectedSeats.map(seat => seat.id),
 
           // Payment details
-          paymentMethod: paymentMethod
+          paymentMethod: paymentMethod,
+
+          // Required fields from the Booking model
+          screeningDate: new Date(selectedDate.date).toISOString(),
+          screeningTime: selectedShowtime.time,
+          ticketPrice: parseFloat(selectedShowtime.price),
+          totalPrice: parseFloat(calculateTotal().total),
+
+          // These fields will be populated by the server, but we'll provide them anyway
+          bookingDate: new Date().toISOString(),
+          bookingStatus: 'pending',
+          paymentStatus: 'pending'
         };
 
         console.log('Submitting booking with data:', bookingData);
