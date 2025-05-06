@@ -607,14 +607,8 @@ const BookingPage = () => {
         setPaymentProcessing(true);
         setBookingError(null);
 
-        // Calculate total price
-        const totals = calculateTotal();
-
         // Get payment method (credit_card or paypal)
         const paymentMethod = document.getElementById('credit-card').checked ? 'credit_card' : 'paypal';
-
-        // Get current date and time
-        const bookingDate = new Date().toISOString();
 
         // For development/testing purposes, use sample user credentials
         // This is a workaround for the authentication issue
@@ -651,6 +645,10 @@ const BookingPage = () => {
 
         console.log('Using screening ID:', screeningId);
 
+        // Calculate total price
+        const totalsObj = calculateTotal();
+        console.log('Calculated totals:', totalsObj);
+
         // Create booking object with detailed information
         // Use the exact field names expected by the server
         const bookingData = {
@@ -673,7 +671,7 @@ const BookingPage = () => {
           screeningDate: new Date(selectedDate.date).toISOString(),
           screeningTime: selectedShowtime.time,
           ticketPrice: parseFloat(selectedShowtime.price),
-          totalPrice: parseFloat(calculateTotal().total),
+          totalPrice: parseFloat(totalsObj.total),
 
           // Generate a unique booking number
           bookingNumber: `BK-${Date.now()}-${Math.floor(10000 + Math.random() * 90000)}`
