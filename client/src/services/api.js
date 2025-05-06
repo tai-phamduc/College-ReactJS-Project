@@ -649,8 +649,8 @@ export const bookingService = {
   // Get theaters by movie and date
   getTheatersByMovieAndDate: async (movieId, date) => {
     try {
-      const response = await api.get(`/theaters/movie/${movieId}/date/${date}`);
-      return extractDataFromResponse(response, 'Theater');
+      const response = await api.get(`/cinemas/movie/${movieId}/date/${date}`);
+      return extractDataFromResponse(response, 'Cinema');
     } catch (error) {
       console.error(`Error fetching theaters for movie ${movieId} on date ${date}:`, error);
       return [];
@@ -695,7 +695,7 @@ export const bookingService = {
   // Get available seats for a screening
   getAvailableSeats: async (screeningId) => {
     try {
-      const response = await api.get(`/seats/screening/${screeningId}`);
+      const response = await api.get(`/screenings/${screeningId}/seats`);
       return extractDataFromResponse(response, 'Seat');
     } catch (error) {
       console.error(`Error fetching seats for screening ${screeningId}:`, error);
@@ -706,10 +706,23 @@ export const bookingService = {
   // Create a new booking
   createBooking: async (bookingData) => {
     try {
+      console.log('Creating booking with data:', bookingData);
       const response = await api.post('/bookings', bookingData);
+      console.log('Booking created successfully:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error creating booking:', error);
+      throw error;
+    }
+  },
+
+  // Save booking to user history
+  saveBookingToHistory: async (bookingId) => {
+    try {
+      const response = await api.post(`/users/booking-history/${bookingId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error saving booking to history:', error);
       throw error;
     }
   },

@@ -383,28 +383,62 @@ const BookingPage = () => {
 
       // Try to fetch available seats from the API
       const seats = await bookingService.getAvailableSeats(showtime.id);
+      console.log('API response for seats:', seats);
 
       // If we have seat data from the API, use it
       if (seats && seats.length > 0) {
-        // Create a map of booked seats
-        const bookedSeatsMap = {};
+        // Transform the API seat data to match our UI format
+        const formattedSeats = [];
 
-        // If the showtime has booked seats, mark them as booked
-        if (showtime.bookedSeats && showtime.bookedSeats.length > 0) {
-          showtime.bookedSeats.forEach(seatId => {
-            bookedSeatsMap[seatId] = true;
+        // Add row labels and process seats
+        const uniqueRows = [...new Set(seats.map(seat => seat.row))].sort();
+
+        uniqueRows.forEach(row => {
+          // Add row label at the beginning
+          formattedSeats.push({
+            id: `${row}-label`,
+            isLabel: true,
+            label: row
           });
-        }
 
-        // Update the seat map with the booked seats
-        const updatedSeatMap = seatMap.map(seat => {
-          if (seat.id && bookedSeatsMap[seat.id]) {
-            return { ...seat, status: 'booked' };
-          }
-          return seat;
+          // Get seats for this row and sort by column
+          const rowSeats = seats
+            .filter(seat => seat.row === row)
+            .sort((a, b) => a.column - b.column);
+
+          // Add seats with aisles
+          let lastColumn = 0;
+          rowSeats.forEach(seat => {
+            // Add aisle if needed (this is a simplified approach)
+            if (seat.column - lastColumn > 1) {
+              formattedSeats.push({
+                id: `${row}-aisle-${seat.column}`,
+                isAisle: true
+              });
+            }
+
+            // Add the seat
+            formattedSeats.push({
+              id: seat.seatNumber || `${row}${seat.column}`,
+              row: seat.row,
+              number: seat.column,
+              status: seat.status || 'available',
+              type: seat.type || 'standard',
+              price: seat.price || 10
+            });
+
+            lastColumn = seat.column;
+          });
+
+          // Add row label at the end
+          formattedSeats.push({
+            id: `${row}-label-end`,
+            isLabel: true,
+            label: row
+          });
         });
 
-        setAvailableSeats(updatedSeatMap);
+        setAvailableSeats(formattedSeats);
       } else {
         // If no seat data from API, create a realistic pattern of booked seats
         const createRealisticBookedSeats = () => {
