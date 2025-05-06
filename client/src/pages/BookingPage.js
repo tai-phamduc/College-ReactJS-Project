@@ -636,22 +636,17 @@ const BookingPage = () => {
         }
 
         // Create booking object with detailed information
-        // Simplify the booking data to match exactly what the server expects
+        // Use the exact field names expected by the server
         const bookingData = {
           // Basic booking info - use the exact field names expected by the server
-          movie: id,
-          screening: selectedShowtime.id,
-          cinema: selectedTheater._id,
+          movieId: id,
+          screeningId: selectedShowtime.id,
 
           // Seat information - just the seat IDs
           seats: selectedSeats.map(seat => seat.id),
 
           // Payment details
-          paymentMethod: paymentMethod,
-
-          // Include only essential fields that the server needs
-          price: parseFloat(selectedShowtime.price),
-          totalPrice: parseFloat(totals.total)
+          paymentMethod: paymentMethod
         };
 
         console.log('Submitting booking with data:', bookingData);
