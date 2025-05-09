@@ -1,0 +1,7 @@
+.hoverable {
+  transition: background-color 0.2s, color 0.2s;
+}
+.hoverable:hover {
+  background-color: var(--bs-primary);
+  color: white;
+}

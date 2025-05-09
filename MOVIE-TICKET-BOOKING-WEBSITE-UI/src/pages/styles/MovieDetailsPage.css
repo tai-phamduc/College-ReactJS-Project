@@ -1,0 +1,271 @@
+.movie-details-page .container {
+  max-width: 1170px !important;
+  margin: 0 auto;
+}
+
+.movie-details-page .header {
+  position: relative;
+}
+
+.movie-details-page .overlay {
+  position: absolute;
+  background-image: url(https://demo.ovatheme.com/aovis/wp-content/uploads/2023/02/background-header-2.jpg);
+  background-position: center center;
+  background-repeat: no-repeat; 
+  background-size: cover;
+  opacity: 1;
+  transition: background 0.3s, border-radius 0.3s, opacity 0.3s;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.movie-details-page .cover-color {
+  background-color: #00000080;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.movie-details-page .container {
+  position: relative;
+  z-index: 1;
+}
+
+.movie-details-page .icon {
+  margin: 10px;
+  font-size: 10px;
+  color: #737373;
+  
+}
+
+.movie-details-page .navigation {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.movie-details-page .navigation-link {
+  color: white;
+  text-decoration: none;
+}
+
+.movie-details-page .navigation-link:hover {
+  color: var(--bs-primary);
+}
+
+.movie-details-page .btn-primary {
+  transition: all 0.5s ease !important;
+}
+
+.movie-details-page .btn-primary:hover {
+  background-color: white !important;
+  border: 1px solid var(--bs-primary) !important;
+  color: var(--bs-primary) !important;
+}
+
+.movie-details-page .gallery-box {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.movie-details-page .gallery-box::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(0, 0, 0);
+  opacity: 0.25;
+  top: 0;
+  left: 0;
+}
+
+.movie-details-page .ova_movie_single .movie-media {
+  position: relative;
+  display: inline-block;
+}
+
+.movie-details-page .movie-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Video Play Button */
+.video-play-button {
+  position: absolute;
+  z-index: 10;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: 32px;
+  height: 44px;
+  border-radius: 50%;
+  display: block;
+  box-sizing: content-box;
+  padding: 1.125rem 1.25rem 1.125rem 1.75rem;
+  cursor: pointer;
+}
+
+.video-play-button:before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: block;
+  background: var(--bs-primary);
+  cursor: pointer;
+  animation: pulse-border 1500ms ease-in-out infinite;
+}
+
+.video-play-button:after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: block;
+  background: var(--bs-primary);
+  cursor: pointer;
+  transition: all 200ms;
+}
+
+.video-play-button span {
+  position: relative;
+  display: block;
+  z-index: 3;
+  top: 6px;
+  left: 4px;
+  width: 0;
+  height: 0;
+  /* Draw button */
+  border-left: 26px solid #fff;
+  border-top: 16px solid transparent;
+  border-bottom: 16px solid transparent;
+}
+
+@keyframes pulse-border {
+  0% {
+    transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.video-modal .modal-dialog {
+  max-width: 1150px;
+  margin-top: 20px;
+}
+
+.project-modals .modal-dialog {
+  max-width: 1150px;
+  margin-top: 130px;
+}
+
+.text-trailer {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 20px;
+  position: absolute;
+  bottom: 33%;
+  right: 55%;
+  font-size: 24px;
+  line-height: 1.4;
+  color: #fff;
+}
+
+.fa-arrow-right {
+  margin: 0 0 32px 18px;
+  display: inline-flex;
+  font-size: 18px;
+  transform: rotate(-45deg);
+}
+
+.cast-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+}
+
+.movie-card {
+  height: 400px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s ease;
+}
+
+.movie-card:hover::before {
+  border-color: var(--bs-primary)
+}
+
+.movie-card:hover .movie-card__img {
+  transform: scale(1.1);
+}
+
+.movie-card:hover .btn {
+  background-color: var(--bs-primary) !important;
+  color: white !important;
+}
+
+.movie-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 5px solid transparent;
+  transition: border-color 0.5s ease;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.movie-card .movie-card__img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.5s ease;
+  z-index: 1;
+}
+
+.movie-card .btn {
+  transition: all 0.5s ease;
+  position: relative;
+  z-index: 3;
+}
+
+.get-ticket-btn {
+  background-color: white !important;
+  color: var(--bs-secondary) !important;
+}
+
+.swiper-pagination-bullet {
+  background-color: var(--bs-primary);
+}
+
+.trailerThumbnailImage {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}

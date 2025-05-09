@@ -1,0 +1,25 @@
+.date-picker-container {
+  background-color: #fdfcf4;
+  white-space: nowrap;
+}
+
+.selected-date {
+  border: 2px solid #000;
+}
+
+.fixed-size-modal .modal-dialog {
+  max-width: 1120px; /* Fixed width */
+  width: 100%;
+  height: 600px;     /* Fixed height */
+}
+
+.fixed-size-modal .modal-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.fixed-size-modal .modal-body {
+  overflow-y: auto;
+  flex: 1 1 auto;
+}

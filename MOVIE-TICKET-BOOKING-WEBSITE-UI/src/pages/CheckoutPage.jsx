@@ -1,0 +1,381 @@
+import { useState, useContext, useEffect } from 'react'
+
+import Navbar from '../components/Navbar'
+import Header from '../components/Header'
+import Footer from '../components/Footer'
+
+import ScreeningContext from "../contexts/ScreeningContext";
+import SeatContext from "../contexts/SeatContext";
+import { useAuth } from '../contexts/AuthContext';
+
+import cinemaApi from "../cinemaApi";
+import { useNavigate } from 'react-router-dom'
+
+function CheckoutPage() {
+  const navigate = useNavigate()
+  const { currentUser } = useAuth();
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    company: '',
+    phone: '',
+    email: '',
+    country: 'United States (US)',
+    streetAddress1: '',
+    streetAddress2: '',
+    city: '',
+    state: 'California',
+    zip: '',
+    orderNotes: '',
+    hasCoupon: false,
+  });
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  const { screeningsState: {screening}, dispatchScreenings } = useContext(ScreeningContext);
+  const { seatProduct: {seats}, dispatchSeatProduct } = useContext(SeatContext);
+
+  useEffect(() => {
+    console.log(seats)
+  }, [seats])
+  
+  const [order, setOrder] = useState({
+    product: screening.movieName,
+    quantity: 1,
+    date: screening.startTime,
+    room: screening.format,
+    seat: seats.map(seat => seat.seatNumber),
+    service: '',
+    address: screening.address,
+    subtotal: seats.reduce((sum, seat) => sum + seat.price, 0),
+    ticketFees: 0.0,
+  })
+
+  const [paymentMethod, setPaymentMethod] = useState('Direct bank transfer');
+
+  const total = order.subtotal + order.ticketFees;
+
+  async function handlePlaceOrderButtonClicked() {
+
+    // update seat
+    for (let seat of seats) {
+      await cinemaApi.put(
+        "/seats/status",
+        {
+          screeningId: screening.screeningId,
+          seatNumber: seat.seatNumber,
+          status: "booked"
+        }
+      );
+    }
+
+    console.log(
+      {
+        ...order,
+        screeningId: screening.screeningId,
+        userId: currentUser?._id,
+        paymentMethod,
+        total
+      }
+    )
+    // create order
+    const response = await cinemaApi.post(
+      "/bookings/create-simple",
+      {
+        ...order,
+        screeningId: screening.screeningId,
+        userId: currentUser?._id,
+        paymentMethod,
+        total
+      }
+    )
+
+    const newBooking = response.data
+
+    console.log(newBooking)
+    // reset all the contexts
+
+    console.log("Order created successfully");
+    
+    navigate("/thank-you", {
+      state: { newBooking }
+    })
+
+    // dispatchSeatProduct({ type: "RESET" })
+    // dispatchScreenings({ type: "RESET"})
+    
+  }
+
+  return (
+    <>
+      <Navbar />
+      <Header title="Checkout" />
+      <main>
+        <div className="container pt-5">
+          <h2>Checkout</h2>
+
+          <div className="alert alert-light border d-flex align-items-center" role="alert">
+            <input
+              type="checkbox"
+              className="me-2"
+              name="hasCoupon"
+              checked={formData.hasCoupon}
+              onChange={handleChange}
+            />
+            <span>
+              Have a coupon? <a href="#">Click here to enter your code</a>
+            </span>
+          </div>
+
+          <div className="row">
+            {/* Billing Details */}
+            <div className="col-md-7">
+              <h5 className="mb-3">Billing Details</h5>
+
+              <div className="row mb-3">
+                <div className="col">
+                  <label className="form-label">First name *</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="col">
+                  <label className="form-label">Last name *</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Company name (optional)</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="company"
+                  value={formData.company}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="row mb-3">
+                <div className="col">
+                  <label className="form-label">Phone *</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="col">
+                  <label className="form-label">Email address *</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Country / Region *</label>
+                <select
+                  className="form-select"
+                  name="country"
+                  value={formData.country}
+                  onChange={handleChange}
+                >
+                  <option>United States (US)</option>
+                  <option>Canada</option>
+                  <option>United Kingdom</option>
+                  {/* Add more countries as needed */}
+                </select>
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Street address *</label>
+                <input
+                  type="text"
+                  className="form-control mb-2"
+                  placeholder="House number and street name"
+                  name="streetAddress1"
+                  value={formData.streetAddress1}
+                  onChange={handleChange}
+                />
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Apartment, suite, unit, etc. (optional)"
+                  name="streetAddress2"
+                  value={formData.streetAddress2}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Town / City *</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="row mb-3">
+                <div className="col">
+                  <label className="form-label">State *</label>
+                  <select
+                    className="form-select"
+                    name="state"
+                    value={formData.state}
+                    onChange={handleChange}
+                  >
+                    <option>California</option>
+                    <option>Texas</option>
+                    <option>New York</option>
+                    {/* Add more states */}
+                  </select>
+                </div>
+                <div className="col">
+                  <label className="form-label">ZIP Code *</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="zip"
+                    value={formData.zip}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Additional Information */}
+            <div className="col-md-5">
+              <h5 className="mb-3">Additional Information</h5>
+              <div className="mb-3">
+                <label className="form-label">Order notes (optional)</label>
+                <textarea
+                  className="form-control"
+                  rows="7"
+                  name="orderNotes"
+                  value={formData.orderNotes}
+                  onChange={handleChange}
+                  placeholder="Notes about your order, e.g. special notes for delivery."
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="row">
+
+          </div>
+        </div>
+        <div className="container py-5">
+          <h5 className="mb-3">YOUR ORDER</h5>
+          <table className="table table-bordered">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th className="text-end">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <strong>{order.product}</strong> &times; {order.quantity}
+                  <div className="text-muted small mt-2">
+                    <div><strong>Date:</strong> {order.date}</div>
+                    <div><strong>Room:</strong> {order.room}</div>
+                    <div><strong>Seat:</strong> {order.seat.join(', ')}</div>
+                    <div><strong>Extra Service:</strong> {order.service}</div>
+                    <div><strong>Address:</strong> {order.address || '(not provided)'}</div>
+                  </div>
+                </td>
+                <td className="text-end">${order.subtotal.toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td><strong>Subtotal</strong></td>
+                <td className="text-end">${order.subtotal.toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td><strong>Ticket Fees</strong></td>
+                <td className="text-end">${order.ticketFees.toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td><strong>Total</strong></td>
+                <td className="text-end fw-bold">${total.toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* Payment Options */}
+          <div className="bg-light p-3 mt-4 border rounded">
+            <div className="form-check mb-2">
+              <input
+                type="radio"
+                className="form-check-input"
+                id="bankTransfer"
+                name="paymentMethod"
+                value="Direct bank transfer"
+                checked={paymentMethod === 'Direct bank transfer'}
+                onChange={() => setPaymentMethod('Direct bank transfer')}
+              />
+              <label className="form-check-label fw-bold" htmlFor="bankTransfer">
+                Direct bank transfer
+              </label>
+            </div>
+            {paymentMethod === 'Direct bank transfer' && (
+              <div className="bg-white p-3 border mb-3">
+                Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.
+              </div>
+            )}
+
+            <div className="form-check mb-3">
+              <input
+                type="radio"
+                className="form-check-input"
+                id="cashOnDelivery"
+                name="paymentMethod"
+                value="Cash on delivery"
+                checked={paymentMethod === 'Cash on delivery'}
+                onChange={() => setPaymentMethod('Cash on delivery')}
+              />
+              <label className="form-check-label fw-bold" htmlFor="cashOnDelivery">
+                Cash on delivery
+              </label>
+            </div>
+
+            <p className="small text-muted">
+              Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our <a href="#" className="text-decoration-underline text-danger">privacy policy</a>.
+            </p>
+
+            <button onClick={() => handlePlaceOrderButtonClicked()} className="btn btn-dark w-100 mt-3">Place order</button>
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </>
+  )
+}
+
+export default CheckoutPage

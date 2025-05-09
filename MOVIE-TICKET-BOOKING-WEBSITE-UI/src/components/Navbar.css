@@ -1,0 +1,36 @@
+.navbar-section {
+  border-bottom: 1px solid #FFFFFF26;
+  padding: 2rem 0 !important;
+}
+
+.navbar {
+  transition: all 0.5s ease-in-out;
+}
+
+.navbar-sticky {
+  opacity: 0.9;
+  box-shadow: 0 0 10px black;
+}
+
+.dropdown-submenu {
+  position: relative;
+}
+
+.dropdown-submenu > .dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  display: none;
+  border-radius: 8px;
+}
+
+.dropdown-submenu:hover > .dropdown-menu {
+  display: block;
+}
+
+.dropdown-submenu > a::after {
+  content: "›";
+  float: right;
+  margin-left: 8px;
+  font-weight: bold;
+}
