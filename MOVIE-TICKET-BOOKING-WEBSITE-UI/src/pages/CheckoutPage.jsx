@@ -44,7 +44,7 @@ function CheckoutPage() {
   useEffect(() => {
     console.log(seats)
   }, [seats])
-  
+
   const [order, setOrder] = useState({
     product: screening.movieName,
     quantity: 1,
@@ -62,54 +62,78 @@ function CheckoutPage() {
   const total = order.subtotal + order.ticketFees;
 
   async function handlePlaceOrderButtonClicked() {
-
-    // update seat
-    for (let seat of seats) {
-      await cinemaApi.put(
-        "/seats/status",
-        {
-          screeningId: screening.screeningId,
-          seatNumber: seat.seatNumber,
-          status: "booked"
-        }
-      );
+    // Check if user is logged in and has a token
+    if (!currentUser || !currentUser.token) {
+      console.error('User not authenticated or missing token');
+      alert('Please log in to complete your order');
+      navigate('/my-account');
+      return;
     }
 
-    console.log(
-      {
+    try {
+      console.log('Updating seat status with authentication...');
+
+      // update seat with authentication header
+      for (let seat of seats) {
+        await cinemaApi.put(
+          "/seats/status",
+          {
+            screeningId: screening.screeningId,
+            seatNumber: seat.seatNumber,
+            status: "booked"
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${currentUser.token}`
+            }
+          }
+        );
+      }
+
+      const orderData = {
         ...order,
         screeningId: screening.screeningId,
-        userId: currentUser?._id,
+        userId: currentUser._id,
         paymentMethod,
         total
+      };
+
+      console.log('Creating order with data:', orderData);
+      console.log('Using authentication token:', currentUser.token);
+
+      // create order with authentication header
+      const response = await cinemaApi.post(
+        "/bookings/create-simple",
+        orderData,
+        {
+          headers: {
+            Authorization: `Bearer ${currentUser.token}`
+          }
+        }
+      );
+
+      const newBooking = response.data;
+
+      console.log(newBooking);
+      // reset all the contexts
+
+      console.log("Order created successfully");
+
+      navigate("/thank-you", {
+        state: { newBooking, formData }
+      });
+    } catch (error) {
+      console.error('Error creating order:', error);
+      if (error.response) {
+        console.error('Response status:', error.response.status);
+        console.error('Response data:', error.response.data);
       }
-    )
-    // create order
-    const response = await cinemaApi.post(
-      "/bookings/create-simple",
-      {
-        ...order,
-        screeningId: screening.screeningId,
-        userId: currentUser?._id,
-        paymentMethod,
-        total
-      }
-    )
-
-    const newBooking = response.data
-
-    console.log(newBooking)
-    // reset all the contexts
-
-    console.log("Order created successfully");
-    
-    navigate("/thank-you", {
-      state: { newBooking }
-    })
+      alert('There was an error processing your order. Please try again.');
+    }
 
     // dispatchSeatProduct({ type: "RESET" })
     // dispatchScreenings({ type: "RESET"})
-    
+
   }
 
   return (
