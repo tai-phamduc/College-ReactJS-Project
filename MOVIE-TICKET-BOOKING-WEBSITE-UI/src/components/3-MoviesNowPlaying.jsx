@@ -3,8 +3,10 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
+import { useNavigate } from 'react-router-dom';
 
-export default function CurrentMovies({ movies }) {
+export default function CurrentMovies({ movies = [] }) {
+  const navigate = useNavigate();
 
   return (
     <section className="current-movies-section position-relative overflow-hidden py-7">
@@ -49,7 +51,10 @@ export default function CurrentMovies({ movies }) {
                   {movie.genre} / {movie.length} Mins
                 </p>
                 <h5 className="fw-bold">{movie.name}</h5>
-                <button className="get-ticket-btn btn fw-bold btn-sm mt-2">
+                <button
+                  className="get-ticket-btn btn fw-bold btn-sm mt-2"
+                  onClick={() => navigate(`/movie/${movie.id}`)}
+                >
                   Get Ticket
                 </button>
               </div>

@@ -1,12 +1,12 @@
-.movie-now-playing-page .movie-now-card {
-  box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.1)
-}
-
 .movie-now-playing-page .movie-info-box {
   padding-top: 2rem;
   padding-bottom: 4rem;
   position: relative;
   z-index: 2;
+}
+
+.movie-now-playing-page .movie-now-card {
+  /* overflow: hidden; */
 }
 
 .movie-now-playing-page .mask {

@@ -73,14 +73,14 @@ function MovieNowPlayingPage() {
                       </div>
                       <div className="col-md-6 position-relative">
                         <div className="mask"></div>
-                        <div className="movie-info-box ps-3">
-                          <div className="d-flex align-items-center gap-1">
+                        <div className="movie-info-box p-3">
+                          <div className="d-flex align-items-center gap-2">
                             <img src="/src/assets/ribbon.png" alt="" />
                             <span className="text-secondary">
-                              {movie.genre}
+                              {movie.genre.join(", ")}
                             </span>
                           </div>
-                          <div className="d-flex align-items-center gap-1">
+                          <div className="d-flex align-items-center gap-2">
                             <img src="/src/assets/time.png" alt="" />
                             <span className="text-secondary">
                               {movie.duration} Mins

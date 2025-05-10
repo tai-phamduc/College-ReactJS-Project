@@ -67,7 +67,7 @@ function MovieNowPlayingPage() {
             {
               movies.map((movie, index) => (
                 <div className="col-md-6">
-                  <div className="movie-now-card">
+                  <div className="movie-now-card shadow-lg">
                     <div className="row">
                       <div className="col-md-6">
                         <div className="movie-image-box">
@@ -76,14 +76,14 @@ function MovieNowPlayingPage() {
                       </div>
                       <div className="col-md-6 position-relative">
                         <div className="mask"></div>
-                        <div className="movie-info-box ps-3">
-                          <div className="d-flex align-items-center gap-1">
+                        <div className="movie-info-box py-4">
+                          <div className="d-flex align-items-center gap-2 mb-2">
                             <img src="/src/assets/ribbon.png" alt="" />
-                            <span className="text-secondary">
-                              {movie.genre}
+                            <span className="text-secondary align-self-start" style={{lineHeight: 1}}>
+                              {movie.genre.join(', ')}
                             </span>
                           </div>
-                          <div className="d-flex align-items-center gap-1">
+                          <div className="d-flex align-items-center gap-2">
                             <img src="/src/assets/time.png" alt="" />
                             <span className="text-secondary">
                               {movie.duration} Mins

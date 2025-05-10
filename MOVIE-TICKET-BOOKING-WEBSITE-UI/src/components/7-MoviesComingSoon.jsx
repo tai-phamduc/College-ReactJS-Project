@@ -3,40 +3,52 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
+import { useNavigate } from 'react-router-dom';
 
-function MoviesComingSoon() {
-  const movies = [
+function MoviesComingSoon({ movies = [] }) {
+  const navigate = useNavigate();
+
+  // Fallback data if no movies are provided
+  const fallbackMovies = [
     {
+      id: 'fallback1',
       name: "The Fifth Day",
       genre: "Comedy",
       length: 180,
       image_link: "https://demo.ovatheme.com/aovis/wp-content/uploads/2023/03/movie-image-12-768x513.jpg"
     },
     {
+      id: 'fallback2',
       name: "Black and White Twins",
       genre: "Animation, Comedy",
       length: 190,
       image_link: "https://demo.ovatheme.com/aovis/wp-content/uploads/2023/03/banner-10-768x660.jpg"
     },
     {
+      id: 'fallback3',
       name: "The Scariest Dream",
       genre: "Thriller",
       length: 180,
       image_link: "https://demo.ovatheme.com/aovis/wp-content/uploads/2023/03/movie-image-09-768x513.jpg"
     },
     {
+      id: 'fallback4',
       name: "The Pursuit of Dreams",
       genre: "Animation",
       length: 180,
       image_link: "https://demo.ovatheme.com/aovis/wp-content/uploads/2023/03/movie-image-08-768x513.jpg"
     },
     {
+      id: 'fallback5',
       name: "Alis Keep Walking",
       genre: "Crime, Thriller",
       length: 180,
       image_link: "https://demo.ovatheme.com/aovis/wp-content/uploads/2023/03/movie-image-07-768x519.jpg"
     }
   ];
+
+  // Use provided movies or fallback if empty
+  const displayMovies = movies.length > 0 ? movies : fallbackMovies;
   return (
     <section className="movies-coming-soon position-relative overflow-hidden py-7">
       <div className="background-overlay" />
@@ -60,7 +72,7 @@ function MoviesComingSoon() {
           }}
           className="position-relative pb-5"
         >
-          {movies.map((movie, idx) => (
+          {displayMovies.map((movie, idx) => (
             <SwiperSlide key={idx}>
             <div className="movie-card shadow">
               <div
@@ -80,7 +92,10 @@ function MoviesComingSoon() {
                   {movie.genre} / {movie.length} Mins
                 </p>
                 <h5 className="fw-bold">{movie.name}</h5>
-                <button className="get-ticket-btn btn fw-bold btn-sm mt-2">
+                <button
+                  className="get-ticket-btn btn fw-bold btn-sm mt-2"
+                  onClick={() => navigate(`/movie/${movie.id}`)}
+                >
                   Get Ticket
                 </button>
               </div>

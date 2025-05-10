@@ -4,9 +4,12 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useAuth } from '../contexts/AuthContext';
 import "./styles/MyAccountPage.css";
+import DashboardTab from '../components/account/DashboardTab';
+import OrdersTab from '../components/account/OrdersTab';
 
 function MyAccountPage() {
   const [activeTab, setActiveTab] = useState("login");
+  const [activeDashboardTab, setActiveDashboardTab] = useState("Dashboard");
   const { signIn, signUp, currentUser, signOut } = useAuth();
   const [formData, setFormData] = useState({ email: "", password: "", name: "" });
   const [error, setError] = useState("");
@@ -53,10 +56,42 @@ function MyAccountPage() {
     setLoading(false);
   };
 
+  // Render the active dashboard tab content
+  const renderDashboardContent = () => {
+    switch (activeDashboardTab) {
+      case "Dashboard":
+        return <DashboardTab />;
+      case "Orders":
+        return <OrdersTab />;
+      case "Downloads":
+        return (
+          <div className="alert alert-info">
+            You have no downloads available yet.
+          </div>
+        );
+      case "Addresses":
+        return (
+          <div className="alert alert-info">
+            You haven't added any addresses yet.
+          </div>
+        );
+      case "Account details":
+        return (
+          <div>
+            <h3 className="mb-4">Account Details</h3>
+            <p>Name: {currentUser?.name || "Not provided"}</p>
+            <p>Email: {currentUser?.email}</p>
+          </div>
+        );
+      default:
+        return <DashboardTab />;
+    }
+  };
+
   // Dashboard UI when logged in
   const renderDashboard = () => (
-    <div className="container py-5 d-flex">
-      <div style={{ width: "300px" }}>
+    <div className="container py-5 d-flex flex-column flex-md-row">
+      <div style={{ width: "300px" }} className="mb-4 mb-md-0">
         <ul className="list-group">
           {[
             "Dashboard",
@@ -65,38 +100,32 @@ function MyAccountPage() {
             "Addresses",
             "Account details",
             "Log out",
-          ].map((item, idx) => (
+          ].map((item) => (
             <li
               key={item}
               className={`list-group-item fw-bold border-0 ${
-                item === "Dashboard" ? "bg-primary text-white" : "hoverable"
-              } ${item === "Log out" ? "" : ""}`}
-              style={{ cursor: item === "Log out" ? "pointer" : "default" }}
-              onClick={item === "Log out" ? signOut : undefined}
+                item === activeDashboardTab ? "bg-primary text-white" : "hoverable"
+              }`}
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                if (item === "Log out") {
+                  signOut();
+                } else {
+                  setActiveDashboardTab(item);
+                }
+              }}
             >
               {item}
             </li>
           ))}
         </ul>
       </div>
-      <div className="px-4">
-        <p>
-          Hello <strong>{currentUser?.email}</strong> (
-          <span className="text-primary" onClick={signOut} style={{ cursor: "pointer" }}>
-            not {currentUser?.email}? Log out
-          </span>
-          )
-        </p>
-        <p>
-          From your account dashboard you can view your{" "}
-          <span className="text-warning">recent orders</span>, manage your{" "}
-          <span className="text-warning">shipping and billing addresses</span>, and{" "}
-          <span className="text-warning">edit your password and account details</span>.
-        </p>
+      <div className="px-4 flex-grow-1">
+        {renderDashboardContent()}
       </div>
     </div>
   );
-  
+
 
   return (
     <>

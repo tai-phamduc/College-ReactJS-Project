@@ -72,34 +72,37 @@ const CustomNavbar = () => {
                 <Dropdown drop="end">
                   <Dropdown.Item as="a" className="dropdown-item" href="/movies-coming-soon">Movies Coming Soon</Dropdown.Item>
                 </Dropdown>
-                
-                <Dropdown.Item href="/movie/youtube">Movie Details</Dropdown.Item>
+
               </Dropdown.Menu>
             </Dropdown>
 
             {/* Other Nav Items */}
             <Dropdown className="mx-2">
-              <Dropdown.Toggle as={Toggle}>Events</Dropdown.Toggle>
+              <Nav.Link href="#Events" className="mx-2">Events</Nav.Link>
+
+              {/* <Dropdown.Toggle as={Toggle}>Events</Dropdown.Toggle>
               <Dropdown.Menu>
                 <Dropdown.Item href="#">Event 1</Dropdown.Item>
                 <Dropdown.Item href="#">Event 2</Dropdown.Item>
-              </Dropdown.Menu>
+              </Dropdown.Menu> */}
             </Dropdown>
 
-            <Dropdown className="mx-2">
-              <Dropdown.Toggle as={Toggle}>Pages</Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item href="#">Page 1</Dropdown.Item>
-                <Dropdown.Item href="#">Page 2</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+              {/* <Dropdown className="mx-2">
+                <Dropdown.Toggle as={Toggle}>Pages</Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <Dropdown.Item href="#">Page 1</Dropdown.Item>
+                  <Dropdown.Item href="#">Page 2</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown> */}
 
             <Dropdown className="mx-2">
-              <Dropdown.Toggle as={Toggle}>News</Dropdown.Toggle>
+              <Nav.Link href="#new" className="mx-2">News</Nav.Link>
+
+              {/* <Dropdown.Toggle as={Toggle}>News</Dropdown.Toggle>
               <Dropdown.Menu>
                 <Dropdown.Item href="#">News 1</Dropdown.Item>
                 <Dropdown.Item href="#">News 2</Dropdown.Item>
-              </Dropdown.Menu>
+              </Dropdown.Menu> */}
             </Dropdown>
 
             <Nav.Link href="#contact" className="mx-2">Contact</Nav.Link>
