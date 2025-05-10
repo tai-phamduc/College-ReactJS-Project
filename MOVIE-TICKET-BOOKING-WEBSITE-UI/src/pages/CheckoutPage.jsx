@@ -58,10 +58,39 @@ function CheckoutPage() {
   })
 
   const [paymentMethod, setPaymentMethod] = useState('Direct bank transfer');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const total = order.subtotal + order.ticketFees;
 
   async function handlePlaceOrderButtonClicked() {
+    // Prevent multiple submissions
+    if (isProcessing) {
+      return;
+    }
+
+    // Validate required fields
+    const requiredFields = {
+      firstName: 'First Name',
+      lastName: 'Last Name',
+      email: 'Email',
+      phone: 'Phone',
+      streetAddress1: 'Street Address',
+      city: 'City',
+      zip: 'ZIP Code'
+    };
+
+    const missingFields = [];
+    for (const [field, label] of Object.entries(requiredFields)) {
+      if (!formData[field]) {
+        missingFields.push(label);
+      }
+    }
+
+    if (missingFields.length > 0) {
+      alert(`Please fill in the following required fields: ${missingFields.join(', ')}`);
+      return;
+    }
+
     // Check if user is logged in and has a token
     if (!currentUser || !currentUser.token) {
       console.error('User not authenticated or missing token');
@@ -69,6 +98,9 @@ function CheckoutPage() {
       navigate('/my-account');
       return;
     }
+
+    // Set loading state to true
+    setIsProcessing(true);
 
     try {
       console.log('Updating seat status with authentication...');
@@ -129,6 +161,9 @@ function CheckoutPage() {
         console.error('Response data:', error.response.data);
       }
       alert('There was an error processing your order. Please try again.');
+
+      // Reset loading state on error
+      setIsProcessing(false);
     }
 
     // dispatchSeatProduct({ type: "RESET" })
@@ -161,26 +196,35 @@ function CheckoutPage() {
             {/* Billing Details */}
             <div className="col-md-7">
               <h5 className="mb-3">Billing Details</h5>
+              <p className="small text-muted mb-3">
+                Fields marked with <span className="text-danger">*</span> are required.
+              </p>
 
               <div className="row mb-3">
                 <div className="col">
-                  <label className="form-label">First name *</label>
+                  <label className="form-label">
+                    First name <span className="text-danger">*</span>
+                  </label>
                   <input
                     type="text"
-                    className="form-control"
+                    className={`form-control ${!formData.firstName && 'border-danger'}`}
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleChange}
+                    required
                   />
                 </div>
                 <div className="col">
-                  <label className="form-label">Last name *</label>
+                  <label className="form-label">
+                    Last name <span className="text-danger">*</span>
+                  </label>
                   <input
                     type="text"
-                    className="form-control"
+                    className={`form-control ${!formData.lastName && 'border-danger'}`}
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleChange}
+                    required
                   />
                 </div>
               </div>
@@ -198,34 +242,43 @@ function CheckoutPage() {
 
               <div className="row mb-3">
                 <div className="col">
-                  <label className="form-label">Phone *</label>
+                  <label className="form-label">
+                    Phone <span className="text-danger">*</span>
+                  </label>
                   <input
                     type="text"
-                    className="form-control"
+                    className={`form-control ${!formData.phone && 'border-danger'}`}
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
+                    required
                   />
                 </div>
                 <div className="col">
-                  <label className="form-label">Email address *</label>
+                  <label className="form-label">
+                    Email address <span className="text-danger">*</span>
+                  </label>
                   <input
                     type="email"
-                    className="form-control"
+                    className={`form-control ${!formData.email && 'border-danger'}`}
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
+                    required
                   />
                 </div>
               </div>
 
               <div className="mb-3">
-                <label className="form-label">Country / Region *</label>
+                <label className="form-label">
+                  Country / Region <span className="text-danger">*</span>
+                </label>
                 <select
                   className="form-select"
                   name="country"
                   value={formData.country}
                   onChange={handleChange}
+                  required
                 >
                   <option>United States (US)</option>
                   <option>Canada</option>
@@ -235,14 +288,17 @@ function CheckoutPage() {
               </div>
 
               <div className="mb-3">
-                <label className="form-label">Street address *</label>
+                <label className="form-label">
+                  Street address <span className="text-danger">*</span>
+                </label>
                 <input
                   type="text"
-                  className="form-control mb-2"
+                  className={`form-control mb-2 ${!formData.streetAddress1 && 'border-danger'}`}
                   placeholder="House number and street name"
                   name="streetAddress1"
                   value={formData.streetAddress1}
                   onChange={handleChange}
+                  required
                 />
                 <input
                   type="text"
@@ -255,24 +311,30 @@ function CheckoutPage() {
               </div>
 
               <div className="mb-3">
-                <label className="form-label">Town / City *</label>
+                <label className="form-label">
+                  Town / City <span className="text-danger">*</span>
+                </label>
                 <input
                   type="text"
-                  className="form-control"
+                  className={`form-control ${!formData.city && 'border-danger'}`}
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
               <div className="row mb-3">
                 <div className="col">
-                  <label className="form-label">State *</label>
+                  <label className="form-label">
+                    State <span className="text-danger">*</span>
+                  </label>
                   <select
                     className="form-select"
                     name="state"
                     value={formData.state}
                     onChange={handleChange}
+                    required
                   >
                     <option>California</option>
                     <option>Texas</option>
@@ -281,13 +343,16 @@ function CheckoutPage() {
                   </select>
                 </div>
                 <div className="col">
-                  <label className="form-label">ZIP Code *</label>
+                  <label className="form-label">
+                    ZIP Code <span className="text-danger">*</span>
+                  </label>
                   <input
                     type="text"
-                    className="form-control"
+                    className={`form-control ${!formData.zip && 'border-danger'}`}
                     name="zip"
                     value={formData.zip}
                     onChange={handleChange}
+                    required
                   />
                 </div>
               </div>
@@ -393,7 +458,20 @@ function CheckoutPage() {
               Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our <a href="#" className="text-decoration-underline text-danger">privacy policy</a>.
             </p>
 
-            <button onClick={() => handlePlaceOrderButtonClicked()} className="btn btn-dark w-100 mt-3">Place order</button>
+            <button
+              onClick={() => handlePlaceOrderButtonClicked()}
+              className="btn btn-dark w-100 mt-3"
+              disabled={isProcessing}
+            >
+              {isProcessing ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Processing Order...
+                </>
+              ) : (
+                'Place Order'
+              )}
+            </button>
           </div>
         </div>
       </main>
